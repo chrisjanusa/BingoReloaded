@@ -41,6 +41,7 @@ public class BingoPlayer implements BingoParticipant
     private final UUID playerId;
     private final String displayName;
     private final ItemCooldownManager itemCooldowns;
+    private Location preTeleportLocation;
 
     public BingoPlayer(Player player, BingoTeam team, BingoSession session)
     {
@@ -50,6 +51,7 @@ public class BingoPlayer implements BingoParticipant
         this.playerName = player.getName();
         this.displayName = player.getDisplayName();
         this.itemCooldowns = new ItemCooldownManager();
+        preTeleportLocation = null;
     }
 
     @Override
@@ -216,6 +218,19 @@ public class BingoPlayer implements BingoParticipant
     public boolean alwaysActive()
     {
         return false;
+    }
+
+    @Override
+    public Location preTeleportLocation() {
+        return preTeleportLocation;
+    }
+
+    public void setPreTeleportLocation(Location location) {
+        preTeleportLocation = location;
+    }
+
+    public void removePreTeleportLocation() {
+        preTeleportLocation = null;
     }
 
     public boolean useGoUpWand(ItemStack wand, double wandCooldownSeconds, int downDistance, int upDistance, int platformLifetimeSeconds)

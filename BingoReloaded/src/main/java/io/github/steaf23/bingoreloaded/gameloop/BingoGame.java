@@ -124,6 +124,7 @@ public class BingoGame implements GamePhase
                 Player player = p.gamePlayer().get();
 
                 ((BingoPlayer)p).giveKit(settings.kit());
+                ((BingoPlayer)p).removePreTeleportLocation();
                 returnCardToPlayer((BingoPlayer) p);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke " + player.getName() + " everything");
                 player.setLevel(0);

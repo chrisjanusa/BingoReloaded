@@ -15,7 +15,7 @@ command:
     removed: "'{0}' is succesvol verwijderd!" # 0: item list name
   tp:
     no_team: "Kan niet teleporteren naar een teamgenoot omdat je niet in een team zit!"
-    usage: "Utilisation: {0}"
+    usage: "Utilisation:\n  {0}\n  {1}"
     not_player: "{0} is geen geldige online speler, zorg ervoor dat je hun naam correct hebt gespeld!"
     not_teammate: "{0} zit niet in je team, je kunt alleen teleporteren naar spelers in je team"
 game:

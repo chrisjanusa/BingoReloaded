@@ -91,6 +91,7 @@ public class ConfigData
     public final PlayerTeleportStrategy playerTeleportStrategy;
     public final boolean teleportAfterDeath;
     public final boolean teleportToTeammates;
+    public final boolean teleportBack;
     public final int wandUp;
     public final int wandDown;
     public final double wandCooldown;
@@ -129,6 +130,7 @@ public class ConfigData
         this.playerTeleportStrategy = PlayerTeleportStrategy.fromName(config.getString("playerTeleportStrategy", "ALL"));
         this.teleportAfterDeath = config.getBoolean("teleportBackAfterDeathMessage", true);
         this.teleportToTeammates = config.getBoolean("teleportToTeammates", false);
+        this.teleportBack = config.getBoolean("teleportBackFromTeammates", false);
         this.wandUp = config.getInt("GoUpWand.upDistance", 75);
         this.wandDown = config.getInt("GoUpWand.downDistance", 5);
         this.wandCooldown = config.getDouble("GoUpWand.cooldown", 5.0);
