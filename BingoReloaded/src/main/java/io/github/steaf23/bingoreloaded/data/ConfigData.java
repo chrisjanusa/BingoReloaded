@@ -102,6 +102,8 @@ public class ConfigData
     public final boolean showPlayerInScoreboard;
     public final boolean disableAdvancements;
     public final boolean disableStatistics;
+    public final String countdownHudTextFormat;
+    public final String standardHudTextFormat;
 
     // Public options
     public final String sendCommandAfterGameEnded;
@@ -139,6 +141,8 @@ public class ConfigData
         this.showPlayerInScoreboard = config.getBoolean("showPlayerInScoreboard", true);
         this.disableAdvancements = config.getBoolean("disableAdvancements", true);
         this.disableStatistics = config.getBoolean("disableStatistics", true);
+        this.standardHudTextFormat =  config.getString("standardHud", "Game duration: {game_time}");
+        this.countdownHudTextFormat = config.getString("countdownHud", "Time Remaining: {game_time}");
 
         // Public
         this.sendCommandAfterGameEnded = config.getString("sendCommandAfterGameEnds", "");

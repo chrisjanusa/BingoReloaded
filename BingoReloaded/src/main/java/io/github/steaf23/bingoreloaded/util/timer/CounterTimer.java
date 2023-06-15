@@ -21,6 +21,12 @@ public class CounterTimer extends GameTimer
     }
 
     @Override
+    public String getTimeString()
+    {
+        return GameTimer.getTimeAsString(getTime());
+    }
+
+    @Override
     public int getStartDelay()
     {
         return 0;

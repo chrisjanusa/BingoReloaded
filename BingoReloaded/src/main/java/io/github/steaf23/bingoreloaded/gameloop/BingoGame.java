@@ -42,8 +42,9 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class BingoGame implements GamePhase
-{
+import static io.github.steaf23.bingoreloaded.util.HudHelper.getHudMessage;
+
+public class BingoGame implements GamePhase {
     private final BingoSession session;
     private final String worldName;
     private final BingoSettings settings;
@@ -84,13 +85,17 @@ public class BingoGame implements GamePhase
             timer = new CountdownTimer(settings.countdownDuration() * 60, 5 * 60, 60, session);
         else
             timer = new CounterTimer();
+        String hudFormat = settings.enableCountdown() ? config.countdownHudTextFormat : config.standardHudTextFormat;
         timer.setNotifier(time ->
         {
-            Message timerMessage = timer.getTimeDisplayMessage(false);
             for (BingoParticipant participant : getTeamManager().getParticipants())
             {
                 var p = participant.sessionPlayer();
-                p.ifPresent(value -> Message.sendActionMessage(timerMessage, value));
+                p.ifPresent(player ->
+                {
+                    Message hudMessage = new Message(getHudMessage(hudFormat, timer, player)).color(ChatColor.WHITE);
+                    Message.sendActionMessage(hudMessage, player);
+                });
             }
             if (statTracker != null)
                 statTracker.updateProgress();
