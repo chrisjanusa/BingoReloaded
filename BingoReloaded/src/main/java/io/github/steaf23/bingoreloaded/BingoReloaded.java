@@ -91,7 +91,11 @@ public class BingoReloaded extends JavaPlugin
         registerCommand("autobingo", autoBingoCommand, null);
 
         if (config.teleportToTeammates) {
-            registerCommand("btp", new TeamTeleportCommand(gameManager), new TeamTeleportTabCompleter(gameManager));
+            registerCommand(
+                    "btp",
+                    new TeamTeleportCommand(gameManager, config.teleportBack),
+                    new TeamTeleportTabCompleter(gameManager, config.teleportBack)
+            );
         }
 
         Message.log(ChatColor.GREEN + "Enabled " + getName());

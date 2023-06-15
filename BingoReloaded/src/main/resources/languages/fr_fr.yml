@@ -15,7 +15,7 @@ command:
     removed: "Liste d'éléments '{0}' supprimée avec succès!" # 0: item list name
   tp:
     no_team: "Impossible de se téléporter vers un coéquipier car vous ne faites pas partie d'une équipe!"
-    usage: "Utilisation: {0}"
+    usage: "Utilisation:\n  {0}\n  {1}"
     not_player: "{0} n'est pas un joueur en ligne valide, assurez-vous d'avoir correctement épelé son nom!"
     not_teammate: "{0} ne fait pas partie de votre équipe, vous ne pouvez vous téléporter qu'aux joueurs de votre équipe"
 game:
