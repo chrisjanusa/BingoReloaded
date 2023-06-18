@@ -67,6 +67,7 @@ public class BingoTeam
     {
         members.remove(player);
         team.removeEntry(player.getId().toString());
+        player.sessionPlayer().ifPresent(sessionPlayer -> team.removeEntry(sessionPlayer.getName()));
     }
 
     public void saveLocation(String name, Location location) {
