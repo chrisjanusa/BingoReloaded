@@ -13,7 +13,7 @@ import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import org.bukkit.entity.Player;
 
 public class RecoveryDataManager {
-    private final YmlDataManager data = BingoReloaded.createYmlDataManager("recovery.yml");
+    private final YmlDataManager data = BingoReloaded.createYmlDataManager("data/recovery.yml");
 
     public void saveRecoveryData(BingoCard bingoCard, GameTimer timer, BingoSettings settings, StatisticTracker statisticTracker)
     {
