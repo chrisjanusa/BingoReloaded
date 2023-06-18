@@ -27,11 +27,11 @@ public record BingoSettings(String card,
     {
         return new BingoSettings(
                 "default_card",
-                BingoGamemode.LOCKOUT,
+                BingoGamemode.REGULAR,
                 CardSize.X5,
                 0,
-                PlayerKit.RELOADED,
-                PlayerKit.RELOADED.defaultEffects,
+                PlayerKit.OVERPOWERED,
+                PlayerKit.OVERPOWERED.defaultEffects,
                 5,
                 false,
                 20);
