@@ -118,7 +118,12 @@ public class BingoGame implements GamePhase
         BingoCard masterCard = CardBuilder.fromMode(settings.mode(), settings.size(), getTeamManager().getActiveTeams().size());
         masterCard.generateCard(settings.card(), settings.seed(), !config.disableAdvancements, !config.disableStatistics);
         initCards(masterCard);
-
+        
+        for (BingoTeam activeTeam : getTeamManager().getActiveTeams())
+        {
+            activeTeam.clearSavedLocations();
+        }
+        
         if (statTracker != null)
             statTracker.start(getTeamManager().getActiveTeams());
 

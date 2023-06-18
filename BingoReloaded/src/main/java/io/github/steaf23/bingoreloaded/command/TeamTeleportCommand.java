@@ -66,37 +66,65 @@ public class TeamTeleportCommand implements CommandExecutor
                 return true;
             }
 
-            if (args.length != 2 || !args[0].equals("to")) {
-                new TranslatedMessage(BingoTranslation.TP_USAGE)
-                        .arg("/btp to <teammate>")
-                        .color(ChatColor.RED)
-                        .arg("/btp back")
-                        .color(ChatColor.RED)
-                        .send(p);
+            if (args.length != 2 || (!args[0].equals("to") && !args[0].equals("save"))) {
+                sendUsage(p);
                 return true;
             }
 
-            Player teammate = Bukkit.getPlayer(args[1]);
-            if (teammate == null) {
-                new TranslatedMessage(BingoTranslation.TP_NOT_PLAYER)
-                        .color(ChatColor.RED)
-                        .arg(args[0])
-                        .send(p);
+            if (args[0].equals("save")) {
+                if (args[1].isBlank()) {
+                    sendUsage(p);
+                } else {
+                    team.saveLocation(args[1], p.getLocation());
+                    new TranslatedMessage(BingoTranslation.TP_SAVED_LOCATION)
+                            .arg(args[1])
+                            .color(ChatColor.BOLD)
+                            .send(p);
+                }
                 return true;
             }
-            BingoParticipant bingoTeammate = teamManager.getBingoParticipant(teammate);
-            if (!team.getMembers().contains(bingoTeammate)) {
-                new TranslatedMessage(BingoTranslation.TP_NOT_TEAMMATE)
-                        .color(ChatColor.RED)
-                        .arg(args[0])
-                        .send(p);
-                return true;
+
+            if (args[0].equals("to")) {
+                Player teammate = Bukkit.getPlayer(args[1]);
+                if (teammate == null) {
+                    Location savedLoc = team.getSavedLocation(args[1]);
+                    if (savedLoc == null) {
+                        new TranslatedMessage(BingoTranslation.TP_NOT_PLAYER)
+                                .color(ChatColor.RED)
+                                .arg(args[0])
+                                .send(p);
+                    } else {
+                        p.teleport(savedLoc);
+                    }
+                    return true;
+                }
+                BingoParticipant bingoTeammate = teamManager.getBingoParticipant(teammate);
+                if (!team.getMembers().contains(bingoTeammate)) {
+                    new TranslatedMessage(BingoTranslation.TP_NOT_TEAMMATE)
+                            .color(ChatColor.RED)
+                            .arg(args[0])
+                            .send(p);
+                    return true;
+                }
+                if (player instanceof BingoPlayer) {
+                    ((BingoPlayer) player).setPreTeleportLocation(p.getLocation());
+                }
+                p.teleport(teammate);
             }
-            if (player instanceof BingoPlayer) {
-                ((BingoPlayer) player).setPreTeleportLocation(p.getLocation());
-            }
-            p.teleport(teammate);
         }
         return false;
+    }
+
+    private void sendUsage(Player p) {
+        new TranslatedMessage(BingoTranslation.TP_USAGE)
+                .arg("/btp to <teammate>")
+                .color(ChatColor.RED)
+                .arg("/btp to <location_name>")
+                .color(ChatColor.RED)
+                .arg("/btp back")
+                .color(ChatColor.RED)
+                .arg("/btp save <location_name>")
+                .color(ChatColor.RED)
+                .send(p);
     }
 }

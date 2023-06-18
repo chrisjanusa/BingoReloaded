@@ -18,7 +18,10 @@
 
 /btc
 
-/btp <teammate_name>
+/btp to <teammate_name>
+/btp to <saved_location>
+/btp back
+/btp save <location_name>
 
 /give {item}
 /give silk {item}

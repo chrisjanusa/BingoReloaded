@@ -15,9 +15,10 @@ command:
     removed: "Item list '{0}' successfully removed!" # 0: item list name
   tp:
     no_team: "Can't teleport to a teammate because you are not on a team!"
-    usage: "Usage:\n  {0}\n  {1}"
+    usage: "Usage:\n  {0}\n  {1}\n  {2}\n  {3}"
     not_player: "{0} is not a valid online player, make sure you spell their name correctly!"
     not_teammate: "{0} is not on your team, you may only teleport to players on your team"
+    saved_location: "Current location saved to {0}"
 game:
   timer:
     duration: "Game duration: {0}" # 0: total game time duration
