@@ -47,26 +47,26 @@ public class TeamTeleportTabCompleter implements TabCompleter {
             }
             if (args.length == 1) {
                 ArrayList<String> commandOptions = new ArrayList<>();
-                String toCommand = "to";
-                if (toCommand.startsWith(args[0])) {
-                    commandOptions.add(toCommand);
-                }
+                commandOptions.add("to");
+                commandOptions.add("save");
                 String backCommand = "back";
-                if (teleportBackEnabled && player.preTeleportLocation() != null && backCommand.startsWith(args[0])) {
+                if (teleportBackEnabled && player.preTeleportLocation() != null) {
                     commandOptions.add(backCommand);
                 }
-                return commandOptions;
+                return commandOptions.stream().filter(arg -> arg.startsWith(args[0])).toList();
             }
             if (args[0].equals("to") && args.length == 2) {
-                List<String> teammates = new LinkedList<>(team
+                List<String> possibleArgs = new LinkedList<>(team
                         .getMembers()
                         .stream()
-                        .map(BingoParticipant::getDisplayName)
-                        .filter(teammate -> teammate.startsWith(args[1]))
-                        .toList()
+                        .map(BingoParticipant::getDisplayName).toList()
                 );
-                teammates.remove(p.getDisplayName());
-                return teammates;
+                possibleArgs.remove(p.getDisplayName());
+                possibleArgs.addAll(team.getSavedLocationNames());
+                return possibleArgs.stream().filter(arg -> arg.startsWith(args[1])).toList();
+            }
+            if (args[0].equals("save") && args.length == 2) {
+                return List.of("<location_name>");
             }
             return null;
         }

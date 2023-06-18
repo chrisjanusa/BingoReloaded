@@ -1,7 +1,6 @@
 package io.github.steaf23.bingoreloaded.data;
 
 import io.github.steaf23.bingoreloaded.item.ItemText;
-import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.SmallCaps;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -22,6 +21,7 @@ public enum BingoTranslation
     TP_NO_TEAM("command.tp.no_team"),
     TP_USAGE("command.tp.usage"),
     TP_NOT_PLAYER("command.tp.not_player"),
+    TP_SAVED_LOCATION("command.tp.saved_location"),
     TP_NOT_TEAMMATE("command.tp.not_teammate"),
     NO_DEATHMATCH("command.bingo.no_deathmatch"),
     DURATION("game.timer.duration"),

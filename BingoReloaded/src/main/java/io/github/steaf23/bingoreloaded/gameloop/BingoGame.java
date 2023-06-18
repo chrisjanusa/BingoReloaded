@@ -109,6 +109,7 @@ public class BingoGame implements GamePhase
         for (BingoTeam activeTeam : getTeamManager().getActiveTeams())
         {
             cards.add(activeTeam.card);
+            activeTeam.clearSavedLocations();
         }
         cardEventManager.setCards(cards.stream().toList());
 
