@@ -2,7 +2,14 @@ package io.github.steaf23.bingoreloaded;
 
 import io.github.steaf23.bingoreloaded.command.*;
 import io.github.steaf23.bingoreloaded.data.*;
+import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.data.helper.SerializablePlayer;
+import io.github.steaf23.bingoreloaded.data.recoverydata.SerializableRecoveryData;
+import io.github.steaf23.bingoreloaded.data.recoverydata.SerializableStatisticProgress;
+import io.github.steaf23.bingoreloaded.data.recoverydata.bingocard.*;
+import io.github.steaf23.bingoreloaded.data.recoverydata.timer.SerializableCountdownTimer;
+import io.github.steaf23.bingoreloaded.data.recoverydata.timer.SerializableCounterTimer;
+import io.github.steaf23.bingoreloaded.data.helper.YmlDataManager;
 import io.github.steaf23.bingoreloaded.gameloop.BingoGameManager;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.gameloop.multiple.MultiAutoBingoCommand;
@@ -11,10 +18,12 @@ import io.github.steaf23.bingoreloaded.gameloop.singular.SimpleAutoBingoCommand;
 import io.github.steaf23.bingoreloaded.gameloop.singular.SingularGameManager;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.hologram.HologramManager;
-import io.github.steaf23.bingoreloaded.player.CustomKit;
+import io.github.steaf23.bingoreloaded.hologram.HologramPlacer;
+import io.github.steaf23.bingoreloaded.settings.CustomKit;
 import io.github.steaf23.bingoreloaded.settings.BingoSettings;
 import io.github.steaf23.bingoreloaded.tasks.AdvancementTask;
 import io.github.steaf23.bingoreloaded.tasks.ItemTask;
+import io.github.steaf23.bingoreloaded.tasks.RandomOneOfTask;
 import io.github.steaf23.bingoreloaded.tasks.StatisticTask;
 import io.github.steaf23.bingoreloaded.tasks.statistics.BingoStatistic;
 import io.github.steaf23.bingoreloaded.util.Message;
@@ -34,13 +43,15 @@ import java.util.function.Function;
 
 public class BingoReloaded extends JavaPlugin
 {
-    public static final String NAME = "BingoReloaded";
     // Amount of ticks per second.
     public static final int ONE_SECOND = 20;
     public static boolean usesPlaceholderAPI = false;
 
+    private static BingoReloaded instance;
+
     private ConfigData config;
     private HologramManager hologramManager;
+    private HologramPlacer hologramPlacer;
     private BingoGameManager gameManager;
 
     public BingoReloaded()
@@ -52,16 +63,29 @@ public class BingoReloaded extends JavaPlugin
     @Override
     public void onEnable()
     {
+        // Kinda ugly, but we can assume there will only be one instance of this class anyways.
+        instance = this;
         usesPlaceholderAPI = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 
         ConfigurationSerialization.registerClass(BingoSettings.class);
         ConfigurationSerialization.registerClass(ItemTask.class);
+        ConfigurationSerialization.registerClass(RandomOneOfTask.class);
         ConfigurationSerialization.registerClass(AdvancementTask.class);
         ConfigurationSerialization.registerClass(StatisticTask.class);
         ConfigurationSerialization.registerClass(BingoStatistic.class);
         ConfigurationSerialization.registerClass(CustomKit.class);
         ConfigurationSerialization.registerClass(MenuItem.class);
         ConfigurationSerialization.registerClass(SerializablePlayer.class);
+        ConfigurationSerialization.registerClass(TeamData.TeamTemplate.class);
+        ConfigurationSerialization.registerClass(SerializableBasicBingoCard.class);
+        ConfigurationSerialization.registerClass(SerializableBingoTask.class);
+        ConfigurationSerialization.registerClass(SerializableCardSize.class);
+        ConfigurationSerialization.registerClass(SerializableCompleteBingoCard.class);
+        ConfigurationSerialization.registerClass(SerializableLockoutBingoCard.class);
+        ConfigurationSerialization.registerClass(SerializableCounterTimer.class);
+        ConfigurationSerialization.registerClass(SerializableCountdownTimer.class);
+        ConfigurationSerialization.registerClass(SerializableRecoveryData.class);
+        ConfigurationSerialization.registerClass(SerializableStatisticProgress.class);
 
         this.config = new ConfigData(getConfig());
 
@@ -69,6 +93,7 @@ public class BingoReloaded extends JavaPlugin
         Message.log("" + ChatColor.GREEN + BingoTranslation.CHANGED_LANGUAGE.translate());
 
         this.hologramManager = new HologramManager();
+        this.hologramPlacer = new HologramPlacer(hologramManager);
 
         CommandExecutor autoBingoCommand;
 
@@ -85,6 +110,7 @@ public class BingoReloaded extends JavaPlugin
 
         registerCommand("bingo", new BingoCommand(config, gameManager), new BingoTabCompleter());
         registerCommand("autobingo", autoBingoCommand, null);
+        registerCommand("get", new GetCommand(), new GetTabCompleter());
 
         if (config.teleportToTeammates) {
             registerCommand(
@@ -126,7 +152,7 @@ public class BingoReloaded extends JavaPlugin
 
     public static YmlDataManager createYmlDataManager(String filepath)
     {
-        return new YmlDataManager(getPlugin(BingoReloaded.class), filepath);
+        return new YmlDataManager(instance, filepath);
     }
 
     public void onDisable()
@@ -146,10 +172,10 @@ public class BingoReloaded extends JavaPlugin
 
     public static void incrementPlayerStat(Player player, BingoStatType stat)
     {
-        boolean savePlayerStatistics = getPlugin(BingoReloaded.class).config.savePlayerStatistics;
+        boolean savePlayerStatistics = instance.config.savePlayerStatistics;
         if (savePlayerStatistics)
         {
-            BingoStatsData statsData = new BingoStatsData();
+            BingoStatData statsData = new BingoStatData();
             statsData.incrementPlayerStat(player, stat);
         }
     }
@@ -162,8 +188,8 @@ public class BingoReloaded extends JavaPlugin
     public static void scheduleTask(@NotNull Consumer<BukkitTask> task, long delay)
     {
         if (delay <= 0)
-            Bukkit.getScheduler().runTask(getPlugin(BingoReloaded.class), task);
+            Bukkit.getScheduler().runTask(instance, task);
         else
-            Bukkit.getScheduler().runTaskLater(getPlugin(BingoReloaded.class), task, delay);
+            Bukkit.getScheduler().runTaskLater(instance, task, delay);
     }
 }

@@ -22,3 +22,6 @@
 /btp to <saved_location>
 /btp back
 /btp save <location_name>
+
+/give {item}
+/give silk {item}

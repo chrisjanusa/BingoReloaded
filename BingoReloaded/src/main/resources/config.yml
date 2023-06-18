@@ -9,8 +9,8 @@
 # ==========================================================================
 
 # The name of the world where bingo will be played. The plugin will not create this world, so make sure to create it before using this plugin.
-# to allow the plugin to use the Nether and End dimensions, the names `<bingoWorldName>_nether` and `<bingoWorldName>_the_end` must also be valid worlds.
-bingoWorldName: world
+# to allow the plugin to use the Nether and End dimensions, the names `<defaultWorldName>_nether` and `<defaultWorldName>_the_end` must also be valid worlds.
+defaultWorldName: world
 
 # Change this to MULTIPLE in order to use the features created for managing this plugin for public server owners.
 configuration: SINGULAR
@@ -88,10 +88,10 @@ keepScoreboardVisible: true # true or false
 # If true, will display all participants' names on the scoreboard under their team.
 showPlayerInScoreboard: true # true or false
 
-# If true, advancements can appear on the bingo card.
+# If false, advancements can appear on the bingo card.
 disableAdvancements: false # true or false
 
-# If true, statistics can appear on the bingo card.
+# If false, statistics can appear on the bingo card.
 disableStatistics: false # true or false
 
 # ==========================================================================

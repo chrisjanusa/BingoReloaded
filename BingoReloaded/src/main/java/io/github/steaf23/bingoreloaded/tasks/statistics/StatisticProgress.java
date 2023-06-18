@@ -9,9 +9,9 @@ public class StatisticProgress
 {
     final BingoStatistic statistic;
     final BingoPlayer player;
-    int progressLeft;
+    public int progressLeft;
 
-    int previousGlobalProgress;
+    public int previousGlobalProgress;
 
     public StatisticProgress(BingoStatistic statistic, BingoPlayer player, int targetScore)
     {
@@ -28,6 +28,14 @@ public class StatisticProgress
         setPlayerTotalScore(0);
     }
 
+    public StatisticProgress(BingoStatistic statistic, BingoPlayer player, int progressLeft, int previousGlobalProgress)
+    {
+        this.statistic = statistic;
+        this.player = player;
+        this.progressLeft = progressLeft;
+        this.previousGlobalProgress = previousGlobalProgress;
+    }
+
     public boolean done()
     {
         return progressLeft <= 0;
@@ -41,7 +49,7 @@ public class StatisticProgress
         if (statistic.isStatisticProcessed())
             return;
 
-        if (!player.gamePlayer().isPresent())
+        if (!player.sessionPlayer().isPresent())
             return;
 
         int newProgress = getPlayerTotalScore();
@@ -66,10 +74,10 @@ public class StatisticProgress
 
     public int getPlayerTotalScore()
     {
-        if (player.gamePlayer().isEmpty())
+        if (player.sessionPlayer().isEmpty())
             return 0;
 
-        Player gamePlayer = player.gamePlayer().get();
+        Player gamePlayer = player.sessionPlayer().get();
 
         int value = 0;
         if (statistic.hasMaterialComponent())
@@ -89,10 +97,10 @@ public class StatisticProgress
 
     public void setPlayerTotalScore(int value)
     {
-        if (player.gamePlayer().isEmpty())
+        if (player.sessionPlayer().isEmpty())
             return;
 
-        Player gamePlayer = player.gamePlayer().get();
+        Player gamePlayer = player.sessionPlayer().get();
 
         if (statistic.hasMaterialComponent())
         {
@@ -106,5 +114,13 @@ public class StatisticProgress
         {
             gamePlayer.setStatistic(statistic.stat(), value);
         }
+    }
+
+    public BingoPlayer getPlayer() {
+        return player;
+    }
+
+    public BingoStatistic getStatistic() {
+        return statistic;
     }
 }

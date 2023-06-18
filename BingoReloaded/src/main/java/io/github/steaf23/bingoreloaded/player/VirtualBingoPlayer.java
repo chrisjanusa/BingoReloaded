@@ -45,7 +45,7 @@ public class VirtualBingoPlayer implements BingoParticipant
     }
 
     @Override
-    public Optional<Player> gamePlayer()
+    public Optional<Player> sessionPlayer()
     {
         return Optional.empty();
     }

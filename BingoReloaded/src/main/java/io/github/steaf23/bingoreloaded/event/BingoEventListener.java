@@ -14,6 +14,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public class BingoEventListener implements Listener
@@ -29,6 +30,7 @@ public class BingoEventListener implements Listener
         this.disableStatistics = disableStatistics;
     }
 
+    @Nullable
     private BingoSession getSession(World world)
     {
         return sessionResolver.apply(world);
@@ -58,10 +60,14 @@ public class BingoEventListener implements Listener
     public void handlePlayerDropItem(final PlayerDropItemEvent event)
     {
         BingoSession session = getSession(event.getPlayer().getWorld());
-        BingoGame game = session != null && session.isRunning() ? (BingoGame)session.phase() : null;
+        if (session == null)
+            return;
+
+        session.handlePlayerDropItem(event);
+
+        BingoGame game = session.isRunning() ? (BingoGame)session.phase() : null;
         if (game != null)
         {
-            game.handlePlayerDropItem(event);
             game.getCardEventManager().handlePlayerDroppedItem(event, game);
         }
     }
@@ -70,7 +76,7 @@ public class BingoEventListener implements Listener
     public void handlePlayerInteract(final PlayerInteractEvent event)
     {
         // Special case; we don't want to have any bingo cards act as an actual map...
-        if (event.getItem() != null && new MenuItem(event.getItem()).isKeyEqual(PlayerKit.CARD_ITEM))
+        if (event.getItem() != null && new MenuItem(event.getItem()).isCompareKeyEqual(PlayerKit.CARD_ITEM))
             event.setCancelled(true);
 
         BingoSession session = getSession(event.getPlayer().getWorld());
@@ -88,11 +94,7 @@ public class BingoEventListener implements Listener
             session.teamManager.handlePlayerShowCard(event, null);
         }
 
-        BingoGame game = session.isRunning() ? (BingoGame)session.phase() : null;
-        if (game != null)
-        {
-            game.handlePlayerInteract(event);
-        }
+        session.phase().handlePlayerInteract(event);
     }
 
     @EventHandler
@@ -139,28 +141,6 @@ public class BingoEventListener implements Listener
     }
 
     @EventHandler
-    public void handlePlayerJoin(final BingoParticipantJoinEvent event)
-    {
-        BingoSession session = event.session;
-        if (session != null)
-        {
-            session.scoreboard.handlePlayerJoin(event);
-            session.handleParticipantJoined(event);
-        }
-    }
-
-    @EventHandler
-    public void handlePlayerLeave(final BingoParticipantLeaveEvent event)
-    {
-        BingoSession session = event.session;
-        if (session != null)
-        {
-            session.scoreboard.handlePlayerLeave(event);
-            session.handleParticipantLeave(event);
-        }
-    }
-
-    @EventHandler
     public void handlePlayerAdvancementCompleted(final PlayerAdvancementDoneEvent event)
     {
         if (disableAdvancements)
@@ -200,23 +180,47 @@ public class BingoEventListener implements Listener
     public void handlePlayerJoinsServer(final PlayerJoinEvent event)
     {
         BingoSession session = getSession(event.getPlayer().getWorld());
-        if (session != null)
-        {
-            session.teamManager.handlePlayerJoinsServer(event);
-        }
+        if (session == null)
+            return;
+
+        session.handlePlayerJoinsServer(event);
+    }
+
+    @EventHandler
+    public void handlePlayerQuitsServer(final PlayerQuitEvent event)
+    {
+        BingoSession session = getSession(event.getPlayer().getWorld());
+        if (session == null)
+            return;
+
+        session.handlePlayerQuitsServer(event);
     }
 
     @EventHandler
     public void handlePlayerChangedWorld(final PlayerChangedWorldEvent event)
     {
+        // This event is special in the sense we need to catch the session both ways.
         BingoSession session = getSession(event.getPlayer().getWorld());
-        if (session == null)
+        if (session != null)
         {
-            session = getSession(event.getFrom());
-            if (session == null)
-                return;
+            session.handlePlayerChangedWorld(event);
         }
-        session.teamManager.handlePlayerChangedWorld(event);
+
+        session = getSession(event.getFrom());
+        if (session != null)
+        {
+            session.handlePlayerChangedWorld(event);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerItemDamaged(PlayerItemDamageEvent event)
+    {
+        BingoSession session = getSession(event.getPlayer().getWorld());
+        if (session.isRunning())
+        {
+            ((BingoGame)session.phase()).handlePlayerItemDamaged(event);
+        }
     }
 
     @EventHandler
@@ -252,6 +256,9 @@ public class BingoEventListener implements Listener
     public void handlePlayerMove(final PlayerMoveEvent event)
     {
         BingoSession session = getSession(event.getPlayer().getWorld());
+        if (session == null)
+            return;
+
         if (session.isRunning())
         {
             ((BingoGame)session.phase()).handlePlayerMove(event);
@@ -262,5 +269,23 @@ public class BingoEventListener implements Listener
     public void handleSettingsUpdated(final BingoSettingsUpdatedEvent event)
     {
         event.session.handleSettingsUpdated(event);
+    }
+
+    @EventHandler
+    public void handlePlayerJoinedSessionWorld(final PlayerJoinedSessionWorldEvent event)
+    {
+        event.session.handlePlayerJoinedSessionWorld(event);
+        event.session.phase().handlePlayerJoinedSessionWorld(event);
+        event.session.scoreboard.handlePlayerJoin(event);
+        event.session.teamManager.handlePlayerJoinedSessionWorld(event);
+    }
+
+    @EventHandler
+    public void handlePlayerLeftSessionWorld(final PlayerLeftSessionWorldEvent event)
+    {
+        event.session.handlePlayerLeftSessionWorld(event);
+        event.session.phase().handlePlayerLeftSessionWorld(event);
+        event.session.scoreboard.handlePlayerLeave(event);
+        event.session.teamManager.handlePlayerLeftSessionWorld(event);
     }
 }

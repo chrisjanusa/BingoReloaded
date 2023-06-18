@@ -2,10 +2,9 @@ package io.github.steaf23.bingoreloaded.settings;
 
 import io.github.steaf23.bingoreloaded.BingoReloaded;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
-import io.github.steaf23.bingoreloaded.data.YmlDataManager;
+import io.github.steaf23.bingoreloaded.data.helper.YmlDataManager;
 import io.github.steaf23.bingoreloaded.gui.EffectOptionFlags;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
-import io.github.steaf23.bingoreloaded.player.CustomKit;
 import io.github.steaf23.bingoreloaded.util.FlexColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -30,14 +29,34 @@ public enum PlayerKit
     CUSTOM_5("custom_5", ChatColor.BOLD + BingoTranslation.KIT_CUSTOM_NAME.translate() + " 5", EnumSet.noneOf(EffectOptionFlags.class)),
     ;
 
-    public static final MenuItem CARD_ITEM = createCardItem();
-    public static final MenuItem WAND_ITEM = createGoUpWand();
+    public static final MenuItem WAND_ITEM = new MenuItem(
+            Material.WARPED_FUNGUS_ON_A_STICK,
+            "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + ChatColor.BOLD + BingoTranslation.WAND_ITEM_NAME.translate(),
+            BingoTranslation.WAND_ITEM_DESC.translate().split("\\n")
+    ).withEnchantment(Enchantment.DURABILITY, 3).setCompareKey("wand");
+    public static final MenuItem CARD_ITEM = new MenuItem(
+            Material.MAP,
+            "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + ChatColor.BOLD + BingoTranslation.CARD_ITEM_NAME.translate(),
+            BingoTranslation.CARD_ITEM_DESC.translate()
+    ).setCompareKey("card");
+
+    public static final MenuItem VOTE_ITEM = new MenuItem(
+            Material.EMERALD,
+            "" + ChatColor.GREEN + ChatColor.BOLD + BingoTranslation.VOTE_ITEM_NAME.translate(),
+            BingoTranslation.VOTE_ITEM_DESC.translate().split("\\n")
+    ).setCompareKey("vote");
+
+    public static final MenuItem TEAM_ITEM = new MenuItem(
+            Material.WHITE_GLAZED_TERRACOTTA,
+            "" + ChatColor.AQUA + ChatColor.BOLD + BingoTranslation.TEAM_ITEM_NAME.translate(),
+            BingoTranslation.TEAM_ITEM_DESC.translate().split("\\n")
+    ).setCompareKey("team");
 
     public final String configName;
     public final String displayName;
     public final EnumSet<EffectOptionFlags> defaultEffects;
 
-    private static final YmlDataManager customKitData = BingoReloaded.createYmlDataManager("kits.yml");
+    private static final YmlDataManager customKitData = BingoReloaded.createYmlDataManager("data/kits.yml");
 
     PlayerKit(String configName, String displayName, EnumSet<EffectOptionFlags> defaultEffects)
     {
@@ -202,7 +221,7 @@ public enum PlayerKit
                 Material.WARPED_FUNGUS_ON_A_STICK,
                 "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + ChatColor.BOLD + BingoTranslation.WAND_ITEM_NAME.translate(),
                 BingoTranslation.WAND_ITEM_DESC.translate().split("\\n")).withEnchantment(Enchantment.DURABILITY, 3);
-        wand.setKey("wand");
+        wand.setCompareKey("wand");
         return wand;
     }
 
@@ -212,7 +231,7 @@ public enum PlayerKit
                 Material.MAP,
                 "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + ChatColor.BOLD + BingoTranslation.CARD_ITEM_NAME.translate(),
                 BingoTranslation.CARD_ITEM_DESC.translate());
-        card.setKey("card");
+        card.setCompareKey("card");
         return card;
     }
 }
