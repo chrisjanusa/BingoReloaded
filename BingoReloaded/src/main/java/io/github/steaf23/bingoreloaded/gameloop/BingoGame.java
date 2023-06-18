@@ -71,7 +71,7 @@ public class BingoGame implements GamePhase
         this.settings = settings;
         this.deadPlayers = new HashMap<>();
         this.cardEventManager = new CardEventManager(worldName);
-        if (config.disableStatistics)
+        if (!config.disableStatistics)
             this.statTracker = new StatisticTracker(worldName);
         else
             this.statTracker = null;
