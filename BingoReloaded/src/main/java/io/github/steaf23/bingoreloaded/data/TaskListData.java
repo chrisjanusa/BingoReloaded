@@ -3,13 +3,16 @@ package io.github.steaf23.bingoreloaded.data;
 import io.github.steaf23.bingoreloaded.BingoReloaded;
 import io.github.steaf23.bingoreloaded.data.helper.YmlDataManager;
 import io.github.steaf23.bingoreloaded.tasks.AdvancementTask;
+import io.github.steaf23.bingoreloaded.tasks.RandomOneOfTask;
 import io.github.steaf23.bingoreloaded.tasks.StatisticTask;
 import io.github.steaf23.bingoreloaded.tasks.TaskData;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -23,11 +26,34 @@ public class TaskListData
     {
         if (!data.getConfig().contains(listName + ".tasks"))
             return new HashSet<>();
+        List<TaskData> allTasks = (List<TaskData>) data.getConfig().getList(listName + ".tasks");
+        allTasks = allTasks
+                .stream()
+                .map(taskData -> {
+                    Random rand = new Random();
+                    TaskData currTaskData = taskData;
+                    while (currTaskData instanceof RandomOneOfTask randomOneOfTask) {
+                        List<TaskData> validPossibleTasks = filterOutDisabled(
+                                withStatistics,
+                                withAdvancements,
+                                randomOneOfTask.possibleTasks()
+                        ).toList();
+                        currTaskData = validPossibleTasks.get(rand.nextInt(validPossibleTasks.size()));
+                    }
+                    return currTaskData;
+                }).toList();
+        return filterOutDisabled(withStatistics, withAdvancements, allTasks).collect(Collectors.toSet());
+    }
 
-        Set<TaskData> taskList = (Set<TaskData>)data.getConfig().getList(listName + ".tasks").stream().filter((i ->
-                !(i instanceof StatisticTask && !withStatistics) &&
-                !(i instanceof AdvancementTask && !withAdvancements))).collect(Collectors.toSet());
-        return taskList;
+    private Stream<TaskData> filterOutDisabled(boolean withStatistics, boolean withAdvancements, List<TaskData> tasks) {
+        return tasks
+                .stream()
+                .filter((i ->
+                        i != null &&
+                                !(i instanceof StatisticTask && !withStatistics) &&
+                                !(i instanceof AdvancementTask && !withAdvancements)
+                        )
+                );
     }
 
     public int getTaskCount(String listName)

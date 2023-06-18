@@ -23,6 +23,7 @@ import io.github.steaf23.bingoreloaded.settings.CustomKit;
 import io.github.steaf23.bingoreloaded.settings.BingoSettings;
 import io.github.steaf23.bingoreloaded.tasks.AdvancementTask;
 import io.github.steaf23.bingoreloaded.tasks.ItemTask;
+import io.github.steaf23.bingoreloaded.tasks.RandomOneOfTask;
 import io.github.steaf23.bingoreloaded.tasks.StatisticTask;
 import io.github.steaf23.bingoreloaded.tasks.statistics.BingoStatistic;
 import io.github.steaf23.bingoreloaded.util.Message;
@@ -68,6 +69,7 @@ public class BingoReloaded extends JavaPlugin
 
         ConfigurationSerialization.registerClass(BingoSettings.class);
         ConfigurationSerialization.registerClass(ItemTask.class);
+        ConfigurationSerialization.registerClass(RandomOneOfTask.class);
         ConfigurationSerialization.registerClass(AdvancementTask.class);
         ConfigurationSerialization.registerClass(StatisticTask.class);
         ConfigurationSerialization.registerClass(BingoStatistic.class);
