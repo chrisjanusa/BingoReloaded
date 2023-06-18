@@ -108,6 +108,7 @@ public class BingoReloaded extends JavaPlugin
 
         registerCommand("bingo", new BingoCommand(config, gameManager), new BingoTabCompleter());
         registerCommand("autobingo", autoBingoCommand, null);
+        registerCommand("get", new GetCommand(), new GetTabCompleter());
 
         if (config.teleportToTeammates) {
             registerCommand(

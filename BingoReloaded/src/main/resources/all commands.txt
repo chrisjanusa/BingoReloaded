@@ -19,3 +19,6 @@
 /btc
 
 /btp <teammate_name>
+
+/give {item}
+/give silk {item}
