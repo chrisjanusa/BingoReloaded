@@ -94,6 +94,25 @@ disableAdvancements: false # true or false
 # If false, statistics can appear on the bingo card.
 disableStatistics: false # true or false
 
+# Text shown on hud during a countdown game
+# {game_time} is replaced with the time remaining in the game
+# {x} is replaced with the player's x coordinate
+# {y} is replaced with the player's y coordinate
+# {z} is replaced with the player's z coordinate
+# {biome} is replaced with the player's current biome
+# {direction} is replaced with the player's direction they are facing [W,E,S, or N]
+countdownHud: "Time Remaining: {game_time}"
+
+# Text shown on hud during a regular game
+# {game_time} is replaced with the time remaining in the game
+# {x} is replaced with the player's x coordinate
+# {y} is replaced with the player's y coordinate
+# {z} is replaced with the player's z coordinate
+# {biome} is replaced with the player's current biome
+# {direction} is replaced with the player's direction they are facing [W,E,S, or N]
+standardHud: "Game duration: {game_time}"
+
+
 # ==========================================================================
 #    Public Server Configuration Options
 # ==========================================================================

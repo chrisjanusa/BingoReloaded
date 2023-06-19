@@ -32,6 +32,9 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -44,8 +47,9 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class BingoGame implements GamePhase
-{
+import static io.github.steaf23.bingoreloaded.util.HudHelper.getHudMessage;
+
+public class BingoGame implements GamePhase {
     private final BingoSession session;
     private final String worldName;
     private final BingoSettings settings;
@@ -61,6 +65,7 @@ public class BingoGame implements GamePhase
     private boolean hasTimerStarted;
 
     private BingoTask deathMatchTask;
+    private BossBar bossBar;
 
     public BingoGame(BingoSession session, BingoSettings settings, ConfigData config) {
         this.session = session;
@@ -75,7 +80,7 @@ public class BingoGame implements GamePhase
             this.statTracker = new StatisticTracker(worldName);
         else
             this.statTracker = null;
-
+        this.bossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID);
         start();
     }
 
@@ -90,6 +95,7 @@ public class BingoGame implements GamePhase
         this.cardEventManager = new CardEventManager(worldName);
         this.statTracker = statistics;
         this.timer = timer;
+        this.bossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID);
         resume(masterCard);
     }
 
@@ -118,17 +124,20 @@ public class BingoGame implements GamePhase
         BingoCard masterCard = CardBuilder.fromMode(settings.mode(), settings.size(), getTeamManager().getActiveTeams().size());
         masterCard.generateCard(settings.card(), settings.seed(), !config.disableAdvancements, !config.disableStatistics);
         initCards(masterCard);
-        
+
         for (BingoTeam activeTeam : getTeamManager().getActiveTeams())
         {
             activeTeam.clearSavedLocations();
         }
-        
+
         if (statTracker != null)
             statTracker.start(getTeamManager().getActiveTeams());
 
         new TranslatedMessage(BingoTranslation.GIVE_CARDS).sendAll(session);
         teleportPlayersToStart(world);
+
+        boolean boosBarActive = settings.enableCountdown() ? !config.countdownBossTextFormat.isBlank() : !config.standardBossTextFormat.isBlank();;
+
         getTeamManager().getParticipants().forEach(p ->
         {
             if (p.sessionPlayer().isPresent())
@@ -141,6 +150,9 @@ public class BingoGame implements GamePhase
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke " + player.getName() + " everything");
                 player.setLevel(0);
                 player.setExp(0.0f);
+                if (boosBarActive) {
+                    bossBar.addPlayer(player);
+                }
             }
         });
 
@@ -165,11 +177,16 @@ public class BingoGame implements GamePhase
         if (statTracker != null)
             statTracker.start(getTeamManager().getActiveTeams());
 
+        boolean boosBarActive = settings.enableCountdown() ? !config.countdownBossTextFormat.isBlank() : !config.standardBossTextFormat.isBlank();;
+
         getTeamManager().getParticipants().forEach(p ->
         {
             if (p.sessionPlayer().isPresent())
             {
                 returnCardToPlayer((BingoPlayer) p);
+                if (boosBarActive) {
+                    p.sessionPlayer().ifPresent(sessionPlayer -> bossBar.addPlayer(sessionPlayer));
+                }
             }
         });
 
@@ -182,13 +199,19 @@ public class BingoGame implements GamePhase
     }
 
     private void initTimerNotifier() {
+        String hudFormat = settings.enableCountdown() ? config.countdownHudTextFormat : config.standardHudTextFormat;
+        String bossFormat = settings.enableCountdown() ? config.countdownBossTextFormat : config.standardBossTextFormat;
         timer.setNotifier(time ->
         {
-            Message timerMessage = timer.getTimeDisplayMessage(false);
             for (BingoParticipant participant : getTeamManager().getParticipants())
             {
                 var p = participant.sessionPlayer();
-                p.ifPresent(value -> Message.sendActionMessage(timerMessage, value));
+                p.ifPresent(player ->
+                {
+                    Message hudMessage = new Message(getHudMessage(hudFormat, timer, player));
+                    Message.sendActionMessage(hudMessage, player);
+                    bossBar.setTitle(getHudMessage(bossFormat, timer, player));
+                });
             }
             if (statTracker != null)
                 statTracker.updateProgress();
@@ -280,7 +303,10 @@ public class BingoGame implements GamePhase
             scoreboard.reset();
         }
 
+        bossBar.removeAll();
+
         getTeamManager().getParticipants().forEach(p -> {
+
             if (p instanceof BingoPlayer bingoPlayer)
             {
                 bingoPlayer.takeEffects(false);

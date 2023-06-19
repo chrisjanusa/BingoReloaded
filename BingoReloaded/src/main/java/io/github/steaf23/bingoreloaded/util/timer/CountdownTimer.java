@@ -1,8 +1,8 @@
 package io.github.steaf23.bingoreloaded.util.timer;
 
 import io.github.steaf23.bingoreloaded.BingoReloaded;
-import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
+import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.event.CountdownTimerFinishedEvent;
 import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
@@ -65,6 +65,12 @@ public class CountdownTimer extends GameTimer
         return new TranslatedMessage(BingoTranslation.TIME_LEFT)
                 .color(ChatColor.LIGHT_PURPLE).bold()
                 .arg(timeString).color(color);
+    }
+
+    @Override
+    public String getTimeString()
+    {
+        return GameTimer.getTimeAsString(getTime());
     }
 
     @Override

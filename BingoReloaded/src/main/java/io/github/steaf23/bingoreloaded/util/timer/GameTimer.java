@@ -15,6 +15,7 @@ public abstract class GameTimer
     private BukkitTask task;
 
     public abstract Message getTimeDisplayMessage(boolean asSeconds);
+    public abstract String getTimeString();
     public abstract int getStartDelay();
     public abstract int getUpdateInterval();
     public abstract int getStep();
