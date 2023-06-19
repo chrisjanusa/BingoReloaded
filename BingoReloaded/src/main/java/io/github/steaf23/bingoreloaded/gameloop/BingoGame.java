@@ -283,7 +283,7 @@ public class BingoGame implements GamePhase {
     private void initSaveTimer() {
         RecoveryDataManager recoveryDataManager = new RecoveryDataManager();
         saveTask = Bukkit.getScheduler().runTaskTimer(BingoReloaded.getPlugin(BingoReloaded.class), () -> {
-            recoveryDataManager.saveRecoveryData(session.teamManager.getLeadingTeam().card, timer, settings, statTracker);
+            recoveryDataManager.saveRecoveryData(session.teamManager.getLeadingTeam().card, timer, settings, statTracker, teamManager.getActiveTeams());
             teamManager
                     .getParticipants()
                     .stream()

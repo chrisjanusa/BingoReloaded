@@ -5,6 +5,7 @@ import io.github.steaf23.bingoreloaded.cards.BingoCard;
 import io.github.steaf23.bingoreloaded.data.helper.YmlDataManager;
 import io.github.steaf23.bingoreloaded.data.helper.SerializablePlayer;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
+import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.settings.BingoSettings;
 import io.github.steaf23.bingoreloaded.tasks.statistics.StatisticTracker;
@@ -12,12 +13,14 @@ import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import org.bukkit.entity.Player;
 
+import java.util.Set;
+
 public class RecoveryDataManager {
     private final YmlDataManager data = BingoReloaded.createYmlDataManager("data/recovery.yml");
 
-    public void saveRecoveryData(BingoCard bingoCard, GameTimer timer, BingoSettings settings, StatisticTracker statisticTracker)
+    public void saveRecoveryData(BingoCard bingoCard, GameTimer timer, BingoSettings settings, StatisticTracker statisticTracker, Set<BingoTeam> activeTeams)
     {
-        data.getConfig().set("recovery_data", new SerializableRecoveryData(bingoCard, timer, settings, statisticTracker));
+        data.getConfig().set("recovery_data", new SerializableRecoveryData(bingoCard, timer, settings, statisticTracker, activeTeams));
         data.saveConfig();
     }
 

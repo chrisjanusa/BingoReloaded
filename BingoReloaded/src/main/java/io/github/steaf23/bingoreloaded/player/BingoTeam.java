@@ -17,7 +17,7 @@ public class BingoTeam
     public boolean outOfTheGame = false;
 
     private Set<BingoParticipant> members;
-    private Map<String, Location> savedLocations;
+    public Map<String, Location> savedLocations;
 
 
     private FlexColor color;

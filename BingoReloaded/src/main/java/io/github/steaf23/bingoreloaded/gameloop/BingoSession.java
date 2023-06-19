@@ -9,6 +9,7 @@ import io.github.steaf23.bingoreloaded.data.recoverydata.RecoveryData;
 import io.github.steaf23.bingoreloaded.data.recoverydata.RecoveryDataManager;
 import io.github.steaf23.bingoreloaded.event.*;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
+import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.settings.BingoSettings;
 import io.github.steaf23.bingoreloaded.settings.BingoSettingsBuilder;
@@ -17,6 +18,7 @@ import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -25,6 +27,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class represents a session of bingo games on a single world(group).
@@ -120,12 +125,20 @@ public class BingoSession
         }
 
         RecoveryDataManager manager = new RecoveryDataManager();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            manager.loadPlayerRecoveryData(player, teamManager);
+        }
         RecoveryData recoveryData = manager.loadRecoveryData(this);
         if (recoveryData == null || recoveryData.hasNull()) {
             return;
         }
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            manager.loadPlayerRecoveryData(player, teamManager);
+        Map<String, Map<String, Location>> teamToSavedLocation = recoveryData.getTeamToSavedLocations();
+
+        if(teamToSavedLocation != null) {
+            for (BingoTeam team : teamManager.getActiveTeams()) {
+                team.clearSavedLocations();
+                team.savedLocations = teamToSavedLocation.getOrDefault(team.getName(), new HashMap<>());
+            }
         }
 
         scoreboard.updateTeamScores();

@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class StatisticTracker
 {
-    private final List<StatisticProgress> statistics;
+    private final ArrayList<StatisticProgress> statistics;
     private final String worldName;
 
     public StatisticTracker(String worldName)
@@ -23,7 +23,7 @@ public class StatisticTracker
         this.worldName = worldName;
     }
 
-    public StatisticTracker(String worldName, List<StatisticProgress> statistics)
+    public StatisticTracker(String worldName, ArrayList<StatisticProgress> statistics)
     {
         this.statistics = statistics;
         this.worldName = worldName;
