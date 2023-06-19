@@ -104,6 +104,8 @@ public class ConfigData
     public final boolean disableStatistics;
     public final String countdownHudTextFormat;
     public final String standardHudTextFormat;
+    public final String countdownBossTextFormat;
+    public final String standardBossTextFormat;
 
     // Public options
     public final String sendCommandAfterGameEnded;
@@ -145,6 +147,8 @@ public class ConfigData
         this.disableStatistics = config.getBoolean("disableStatistics", false);
         this.standardHudTextFormat =  config.getString("standardHud", "Game duration: {game_time}");
         this.countdownHudTextFormat = config.getString("countdownHud", "Time Remaining: {game_time}");
+        this.standardBossTextFormat =  config.getString("standardBar", "");
+        this.countdownBossTextFormat = config.getString("countdownBar", "");
 
         // Public
         this.sendCommandAfterGameEnded = config.getString("sendCommandAfterGameEnds", "");

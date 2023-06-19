@@ -2,6 +2,7 @@ package io.github.steaf23.bingoreloaded.util;
 
 
 import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class HudHelper {
@@ -27,6 +28,11 @@ public class HudHelper {
         if (hudFormat.contains("{world_time}")) {
             hudFormat = hudFormat.replace("{world_time}", getWorldTime(player));
         }
+        for (ChatColor color : ChatColor.values()) {
+            if (hudFormat.contains("{" + color.name().toLowerCase() + "}")) {
+                hudFormat = hudFormat.replace("{" + color.name().toLowerCase() + "}", color.toString());
+            }
+        }
         return hudFormat;
     }
 
@@ -34,9 +40,9 @@ public class HudHelper {
         long tickCount = player.getWorld().getTime();
         long hours = (6 + tickCount/1000) % 25;
         if (hours > 12) {
-            return (hours - 12) + " pm";
+            return (hours - 12) + "pm";
         } else {
-            return hours + " am";
+            return hours + "am";
         }
     }
 
