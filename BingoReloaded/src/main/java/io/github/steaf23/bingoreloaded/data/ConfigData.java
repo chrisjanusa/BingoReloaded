@@ -3,8 +3,6 @@ package io.github.steaf23.bingoreloaded.data;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import javax.annotation.Nullable;
-import java.sql.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigData
@@ -92,6 +90,8 @@ public class ConfigData
     public final int teleportMaxDistance;
     public final PlayerTeleportStrategy playerTeleportStrategy;
     public final boolean teleportAfterDeath;
+    public final boolean teleportToTeammates;
+    public final boolean teleportBack;
     public final int wandUp;
     public final int wandDown;
     public final double wandCooldown;
@@ -131,6 +131,8 @@ public class ConfigData
         this.teleportMaxDistance = config.getInt("teleportMaxDistance", 1000000);
         this.playerTeleportStrategy = PlayerTeleportStrategy.fromName(config.getString("playerTeleportStrategy", "ALL"));
         this.teleportAfterDeath = config.getBoolean("teleportBackAfterDeathMessage", true);
+        this.teleportToTeammates = config.getBoolean("teleportToTeammates", false);
+        this.teleportBack = config.getBoolean("teleportBackFromTeammates", false);
         this.wandUp = config.getInt("GoUpWand.upDistance", 75);
         this.wandDown = config.getInt("GoUpWand.downDistance", 5);
         this.wandCooldown = config.getDouble("GoUpWand.cooldown", 5.0);
@@ -139,8 +141,8 @@ public class ConfigData
         this.enableTeamChat = config.getBoolean("enableTeamChat", true);
         this.keepScoreboardVisible = config.getBoolean("keepScoreboardVisible", true);
         this.showPlayerInScoreboard = config.getBoolean("showPlayerInScoreboard", true);
-        this.disableAdvancements = config.getBoolean("disableAdvancements", true);
-        this.disableStatistics = config.getBoolean("disableStatistics", true);
+        this.disableAdvancements = config.getBoolean("disableAdvancements", false);
+        this.disableStatistics = config.getBoolean("disableStatistics", false);
         this.standardHudTextFormat =  config.getString("standardHud", "Game duration: {game_time}");
         this.countdownHudTextFormat = config.getString("countdownHud", "Time Remaining: {game_time}");
 

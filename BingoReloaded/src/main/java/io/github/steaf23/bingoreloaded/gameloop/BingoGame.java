@@ -4,10 +4,11 @@ import io.github.steaf23.bingoreloaded.BingoReloaded;
 import io.github.steaf23.bingoreloaded.BingoScoreboard;
 import io.github.steaf23.bingoreloaded.cards.BingoCard;
 import io.github.steaf23.bingoreloaded.cards.CardBuilder;
-import io.github.steaf23.bingoreloaded.data.BingoCardsData;
+import io.github.steaf23.bingoreloaded.data.BingoCardData;
 import io.github.steaf23.bingoreloaded.data.BingoStatType;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.data.ConfigData;
+import io.github.steaf23.bingoreloaded.data.recoverydata.RecoveryDataManager;
 import io.github.steaf23.bingoreloaded.event.*;
 import io.github.steaf23.bingoreloaded.gui.EffectOptionFlags;
 import io.github.steaf23.bingoreloaded.item.ItemText;
@@ -37,6 +38,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -55,6 +57,7 @@ public class BingoGame implements GamePhase {
     private final StatisticTracker statTracker;
     private final ConfigData config;
     private GameTimer timer;
+    private BukkitTask saveTask;
     private CountdownTimer startingTimer;
     private boolean hasTimerStarted;
 
@@ -69,12 +72,26 @@ public class BingoGame implements GamePhase {
         this.settings = settings;
         this.deadPlayers = new HashMap<>();
         this.cardEventManager = new CardEventManager(worldName);
-        if (config.disableStatistics)
+        if (!config.disableStatistics)
             this.statTracker = new StatisticTracker(worldName);
         else
             this.statTracker = null;
 
         start();
+    }
+
+    public BingoGame(BingoSession session, BingoSettings settings, ConfigData config, GameTimer timer, BingoCard masterCard, StatisticTracker statistics) {
+        this.session = session;
+        this.config = config;
+        this.worldName = session.worldName;
+        this.teamManager = session.teamManager;
+        this.scoreboard = session.scoreboard;
+        this.settings = settings;
+        this.deadPlayers = new HashMap<>();
+        this.cardEventManager = new CardEventManager(worldName);
+        this.statTracker = statistics;
+        this.timer = timer;
+        resume(masterCard);
     }
 
     private void start()
@@ -85,6 +102,87 @@ public class BingoGame implements GamePhase {
             timer = new CountdownTimer(settings.countdownDuration() * 60, 5 * 60, 60, session);
         else
             timer = new CounterTimer();
+
+        initTimerNotifier();
+        initSaveTimer();
+
+        deathMatchTask = null;
+        World world = Bukkit.getWorld(getWorldName());
+        if (world == null)
+        {
+            return;
+        }
+        world.setStorm(false);
+        world.setTime(1000);
+
+        // Generate cards
+        BingoCard masterCard = CardBuilder.fromMode(settings.mode(), settings.size(), getTeamManager().getActiveTeams().size());
+        masterCard.generateCard(settings.card(), settings.seed(), !config.disableAdvancements, !config.disableStatistics);
+        initCards(masterCard);
+
+        for (BingoTeam activeTeam : getTeamManager().getActiveTeams())
+        {
+            activeTeam.clearSavedLocations();
+        }
+
+        if (statTracker != null)
+            statTracker.start(getTeamManager().getActiveTeams());
+
+        new TranslatedMessage(BingoTranslation.GIVE_CARDS).sendAll(session);
+        teleportPlayersToStart(world);
+        getTeamManager().getParticipants().forEach(p ->
+        {
+            if (p.sessionPlayer().isPresent())
+            {
+                Player player = p.sessionPlayer().get();
+
+                ((BingoPlayer)p).giveKit(settings.kit());
+                ((BingoPlayer)p).removePreTeleportLocation();
+                returnCardToPlayer((BingoPlayer) p);
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke " + player.getName() + " everything");
+                player.setLevel(0);
+                player.setExp(0.0f);
+            }
+        });
+
+        // Post-start Setup
+        scoreboard.reset();
+
+        sendBingoStartEvent();
+
+        initBingoStartTimer();
+    }
+
+    private void resume(BingoCard masterCard)
+    {
+        this.hasTimerStarted = false;
+        initTimerNotifier();
+        initSaveTimer();
+
+        deathMatchTask = null;
+
+        initCards(masterCard);
+
+        if (statTracker != null)
+            statTracker.start(getTeamManager().getActiveTeams());
+
+        getTeamManager().getParticipants().forEach(p ->
+        {
+            if (p.sessionPlayer().isPresent())
+            {
+                returnCardToPlayer((BingoPlayer) p);
+            }
+        });
+
+        // Post-start Setup
+        scoreboard.updateTeamScores();
+
+        sendBingoStartEvent();
+
+        initBingoStartTimer();
+    }
+
+    private void initTimerNotifier() {
         String hudFormat = settings.enableCountdown() ? config.countdownHudTextFormat : config.standardHudTextFormat;
         timer.setNotifier(time ->
         {
@@ -100,53 +198,19 @@ public class BingoGame implements GamePhase {
             if (statTracker != null)
                 statTracker.updateProgress();
         });
+    }
 
-        deathMatchTask = null;
-        World world = Bukkit.getWorld(getWorldName());
-        if (world == null)
-        {
-            return;
-        }
-        world.setStorm(false);
-        world.setTime(1000);
-
-        // Generate cards
-        BingoCard masterCard = CardBuilder.fromMode(settings.mode(), settings.size(), getTeamManager().getActiveTeams().size());
-        masterCard.generateCard(settings.card(), settings.seed(), !config.disableAdvancements, !config.disableStatistics);
+    private void initCards(BingoCard masterCard) {
         getTeamManager().initializeCards(masterCard);
-
         Set<BingoCard> cards = new HashSet<>();
         for (BingoTeam activeTeam : getTeamManager().getActiveTeams())
         {
             cards.add(activeTeam.card);
         }
         cardEventManager.setCards(cards.stream().toList());
+    }
 
-        if (statTracker != null)
-            statTracker.start(getTeamManager().getActiveTeams());
-
-        new TranslatedMessage(BingoTranslation.GIVE_CARDS).sendAll(session);
-        teleportPlayersToStart(world);
-        getTeamManager().getParticipants().forEach(p ->
-        {
-            if (p.sessionPlayer().isPresent())
-            {
-                Player player = p.sessionPlayer().get();
-
-                ((BingoPlayer)p).giveKit(settings.kit());
-                returnCardToPlayer((BingoPlayer) p);
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke " + player.getName() + " everything");
-                player.setLevel(0);
-                player.setExp(0.0f);
-            }
-        });
-
-        // Post-start Setup
-        scoreboard.reset();
-
-        var event = new BingoStartedEvent(session);
-        Bukkit.getPluginManager().callEvent(event);
-
+    private void initBingoStartTimer() {
         // Countdown before the game actually starts
         startingTimer = new CountdownTimer(10, 6, 3, session);
         startingTimer.setNotifier(time -> {
@@ -186,11 +250,31 @@ public class BingoGame implements GamePhase {
         });
         BingoReloaded.scheduleTask(task -> {
             startingTimer.start();
-        }, 1 * BingoReloaded.ONE_SECOND);
+        }, BingoReloaded.ONE_SECOND);
+    }
+
+    private void initSaveTimer() {
+        RecoveryDataManager recoveryDataManager = new RecoveryDataManager();
+        saveTask = Bukkit.getScheduler().runTaskTimer(BingoReloaded.getPlugin(BingoReloaded.class), () -> {
+            recoveryDataManager.saveRecoveryData(session.teamManager.getLeadingTeam().card, timer, settings, statTracker);
+            teamManager
+                    .getParticipants()
+                    .stream()
+                    .filter(player -> player.getTeam() != null)
+                    .filter(player -> player instanceof BingoPlayer)
+                    .forEach(player -> recoveryDataManager.savePlayerRecoveryData(player.sessionPlayer().orElse(null), player.getTeam().getName()));
+        }, 30 * BingoReloaded.ONE_SECOND, 30 * BingoReloaded.ONE_SECOND);
+    }
+
+    private void sendBingoStartEvent() {
+        var event = new BingoStartedEvent(session);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     public void end(@Nullable BingoTeam winningTeam)
     {
+        new RecoveryDataManager().clearRecoveryData();
+        saveTask.cancel();
         if (statTracker != null)
             statTracker.reset();
         timer.getTimeDisplayMessage(false).sendAll(session);
@@ -278,7 +362,7 @@ public class BingoGame implements GamePhase {
     {
         if (countdown == 0)
         {
-            deathMatchTask = new BingoTask(new BingoCardsData().getRandomItemTask(settings.card()));
+            deathMatchTask = new BingoTask(new BingoCardData().getRandomItemTask(settings.card()));
 
             for (BingoParticipant p : getTeamManager().getParticipants())
             {
@@ -515,11 +599,13 @@ public class BingoGame implements GamePhase {
             if (otherParticipant.sessionPlayer().isPresent())
                 otherParticipant.sessionPlayer().get().playSound(otherParticipant.sessionPlayer().get(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 0.8f, 1.0f);
         }
+
+        scoreboard.updateTeamScores();
+
         if (event.hasBingo())
         {
             bingo(event.getParticipant().getTeam());
         }
-        scoreboard.updateTeamScores();
 
         if (event.getParticipant().sessionPlayer().isEmpty())
             return;
@@ -541,7 +627,7 @@ public class BingoGame implements GamePhase {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
 
-        if (PlayerKit.WAND_ITEM.isKeyEqual(event.getItem()))
+        if (PlayerKit.WAND_ITEM.isCompareKeyEqual(event.getItem()))
         {
             event.setCancelled(true);
             ((BingoPlayer)participant).useGoUpWand(event.getItem(), config.wandCooldown, config.wandDown, config.wandUp, config.platformLifetime);
@@ -574,12 +660,17 @@ public class BingoGame implements GamePhase {
         if (participant == null || participant.sessionPlayer().isEmpty())
             return;
 
-        for (ItemStack drop : event.getDrops())
-        {
-            if (PDCHelper.getBoolean(drop.getItemMeta().getPersistentDataContainer(), "kit.kit_item", false)
-                    || PlayerKit.CARD_ITEM.isKeyEqual(drop))
+        if (settings.effects().contains(EffectOptionFlags.KEEP_INVENTORY)) {
+            event.setKeepInventory(true);
+            event.getDrops().clear();
+        } else {
+            for (ItemStack drop : event.getDrops())
             {
-                drop.setAmount(0);
+                if (PDCHelper.getBoolean(drop.getItemMeta().getPersistentDataContainer(), "kit.kit_item", false)
+                        || PlayerKit.CARD_ITEM.isCompareKeyEqual(drop))
+                {
+                    drop.setAmount(0);
+                }
             }
         }
 
@@ -605,8 +696,12 @@ public class BingoGame implements GamePhase {
 
         Message.log("Player " + player.asOnlinePlayer().get().getDisplayName() + " respawned", worldName);
 
-        returnCardToPlayer(player);
-        player.giveKit(settings.kit());
+        if (!settings.effects().contains(EffectOptionFlags.KEEP_INVENTORY)) {
+            returnCardToPlayer(player);
+            player.giveKit(settings.kit());
+        } else {
+            player.giveEffects(settings.effects(), 0);
+        }
     }
 
     public void handleCountdownFinished(final CountdownTimerFinishedEvent event)

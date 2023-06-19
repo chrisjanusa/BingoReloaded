@@ -61,6 +61,13 @@ playerTeleportStrategy: ALL
 #   that can be used to teleport them back.
 teleportBackAfterDeathMessage: true  # true or false
 
+# If true, players will be able to teleport to teammates using the /btp to {teammate_name} command
+teleportToTeammates: false  # true or false
+
+# If true, players will be able to teleport back to their original location using the /btp back command after using /btp to command
+# Will only work if teleportToTeammates is enabled
+teleportBackFromTeammates: false  # true or false
+
 # Distances to teleport a player that uses the Go-Up-Wand
 GoUpWand:
   upDistance: 75 # teleport up distance
@@ -81,10 +88,10 @@ keepScoreboardVisible: true # true or false
 # If true, will display all participants' names on the scoreboard under their team.
 showPlayerInScoreboard: true # true or false
 
-# If true, advancements can appear on the bingo card.
+# If false, advancements can appear on the bingo card.
 disableAdvancements: false # true or false
 
-# If true, statistics can appear on the bingo card.
+# If false, statistics can appear on the bingo card.
 disableStatistics: false # true or false
 
 # Text shown on hud during a countdown game

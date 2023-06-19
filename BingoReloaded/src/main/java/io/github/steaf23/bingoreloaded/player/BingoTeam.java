@@ -5,10 +5,10 @@ import io.github.steaf23.bingoreloaded.cards.BingoCard;
 import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.util.FlexColor;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.scoreboard.Team;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class BingoTeam
 {
@@ -17,6 +17,7 @@ public class BingoTeam
     public boolean outOfTheGame = false;
 
     private Set<BingoParticipant> members;
+    private Map<String, Location> savedLocations;
 
 
     private FlexColor color;
@@ -27,6 +28,7 @@ public class BingoTeam
         this.card = card;
         this.color = color;
         this.members = new HashSet<>();
+        this.savedLocations = new HashMap<>();
     }
 
     public String getName()
@@ -65,5 +67,22 @@ public class BingoTeam
     {
         members.remove(player);
         team.removeEntry(player.getId().toString());
+        player.sessionPlayer().ifPresent(sessionPlayer -> team.removeEntry(sessionPlayer.getName()));
+    }
+
+    public void saveLocation(String name, Location location) {
+        savedLocations.put(name, location);
+    }
+
+    public Location getSavedLocation(String name) {
+        return savedLocations.get(name);
+    }
+
+    public List<String> getSavedLocationNames() {
+        return new ArrayList<>(savedLocations.keySet());
+    }
+
+    public void clearSavedLocations() {
+        savedLocations.clear();
     }
 }

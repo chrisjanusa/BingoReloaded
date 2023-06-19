@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * This class describes a player in a single bingo session.
@@ -41,6 +42,7 @@ public class BingoPlayer implements BingoParticipant
     private final UUID playerId;
     private final String displayName;
     private final ItemCooldownManager itemCooldowns;
+    private Location preTeleportLocation;
 
     private final int POTION_DURATION = 1728000; // 24 Hours
 
@@ -52,6 +54,7 @@ public class BingoPlayer implements BingoParticipant
         this.playerName = player.getName();
         this.displayName = player.getDisplayName();
         this.itemCooldowns = new ItemCooldownManager();
+        preTeleportLocation = null;
     }
 
     /**
@@ -111,7 +114,7 @@ public class BingoPlayer implements BingoParticipant
             var meta = i.getItemMeta();
 
             // Show enchantments except on the wand
-            if (!PlayerKit.WAND_ITEM.isKeyEqual(i))
+            if (!PlayerKit.WAND_ITEM.isCompareKeyEqual(i))
             {
                 meta.removeItemFlags(ItemFlag.values());
             }
@@ -135,7 +138,7 @@ public class BingoPlayer implements BingoParticipant
         BingoReloaded.scheduleTask(task -> {
             for (ItemStack itemStack : player.getInventory())
             {
-                if (PlayerKit.CARD_ITEM.isKeyEqual(itemStack))
+                if (PlayerKit.CARD_ITEM.isCompareKeyEqual(itemStack))
                 {
                     player.getInventory().remove(itemStack);
                     break;
@@ -222,13 +225,26 @@ public class BingoPlayer implements BingoParticipant
         return false;
     }
 
+    @Override
+    public Location preTeleportLocation() {
+        return preTeleportLocation;
+    }
+
+    public void setPreTeleportLocation(Location location) {
+        preTeleportLocation = location;
+    }
+
+    public void removePreTeleportLocation() {
+        preTeleportLocation = null;
+    }
+
     public boolean useGoUpWand(ItemStack wand, double wandCooldownSeconds, int downDistance, int upDistance, int platformLifetimeSeconds)
     {
         if (sessionPlayer().isEmpty())
              return false;
 
         Player player = sessionPlayer().get();
-        if (!PlayerKit.WAND_ITEM.isKeyEqual(wand))
+        if (!PlayerKit.WAND_ITEM.isCompareKeyEqual(wand))
             return false;
 
         if (!itemCooldowns.isCooldownOver(wand))

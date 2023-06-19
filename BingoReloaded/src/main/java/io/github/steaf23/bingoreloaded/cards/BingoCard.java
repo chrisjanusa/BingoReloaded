@@ -3,9 +3,9 @@ package io.github.steaf23.bingoreloaded.cards;
 
 import io.github.steaf23.bingoreloaded.gameloop.BingoGame;
 import io.github.steaf23.bingoreloaded.BingoReloaded;
-import io.github.steaf23.bingoreloaded.data.BingoCardsData;
+import io.github.steaf23.bingoreloaded.data.BingoCardData;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
-import io.github.steaf23.bingoreloaded.data.TaskListsData;
+import io.github.steaf23.bingoreloaded.data.TaskListData;
 import io.github.steaf23.bingoreloaded.event.BingoCardTaskCompleteEvent;
 import io.github.steaf23.bingoreloaded.event.BingoStatisticCompletedEvent;
 import io.github.steaf23.bingoreloaded.gui.CardMenu;
@@ -46,6 +46,14 @@ public class BingoCard
                 BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
     }
 
+    public BingoCard(CardSize size, List<BingoTask> tasks) {
+        this.size = size;
+        this.tasks = tasks;
+        this.menu = new CardMenu(size, BingoTranslation.CARD_TITLE.translate());
+        menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
+                BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
+    }
+
     /**
      * Generating a bingo card has a few steps:
      *  - Create task shuffler
@@ -59,8 +67,8 @@ public class BingoCard
      */
     public void generateCard(String cardName, int seed, boolean withAdvancements, boolean withStatistics)
     {
-        BingoCardsData cardsData = new BingoCardsData();
-        TaskListsData listsData = cardsData.lists();
+        BingoCardData cardsData = new BingoCardData();
+        TaskListData listsData = cardsData.lists();
         // Create shuffler
         Random shuffler;
         if (seed == 0)

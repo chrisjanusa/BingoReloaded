@@ -33,3 +33,11 @@ commands:
   bingobot:
     permission: bingo.admin
     description: Create fake players to join teams and complete tasks, for debugging purposes
+  btp:
+    permission: bingo.player
+    description: Used to teleport to teammates
+    permission-message: §CYou don't have permission to use this command!
+  get:
+    permission: bingo.player
+    description: Used to get specific items
+    permission-message: §CYou don't have permission to use this command!
