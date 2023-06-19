@@ -230,7 +230,7 @@ public class BingoGame implements GamePhase {
 
     private void initBingoStartTimer() {
         // Countdown before the game actually starts
-        startingTimer = new CountdownTimer(10, 6, 3, session);
+        startingTimer = new CountdownTimer(config.secondsToBeforeStart, 6, 3, session);
         startingTimer.setNotifier(time -> {
             String timeString = GameTimer.getSecondsString(time);
             if (time == 0)
@@ -253,11 +253,20 @@ public class BingoGame implements GamePhase {
                 pitch = 0.890899f;
             }
 
+            if (time > 10) {
+                timeString = "Time until start: " + timeString;
+            }
+
             Message timeDisplay = new Message().untranslated(timeString).bold().color(color);
             teamManager.getParticipants().forEach(p ->
             {
                 p.sessionPlayer().ifPresent(player -> {
-                    Message.sendTitleMessage(timeDisplay, new Message(), player);
+                    if (time > 10) {
+                        Message.sendActionMessage(timeDisplay, player);
+                    } else {
+                        Message.sendTitleMessage(timeDisplay, new Message(), player);
+                        Message.sendActionMessage("", player);
+                    }
                     if (time != 0)
                     {
                         player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BIT, 1.2f - time / 10.0f + 0.2f, pitch);

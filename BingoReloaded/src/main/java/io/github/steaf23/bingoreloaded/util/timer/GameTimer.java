@@ -83,6 +83,9 @@ public abstract class GameTimer
 
     public static String getSecondsString(long seconds)
     {
+        if (seconds >= 60) {
+            return String.format("%d:%02d", seconds / 60, seconds % 60);
+        }
         return String.format("%d", seconds);
     }
 

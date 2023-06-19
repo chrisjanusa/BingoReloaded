@@ -106,6 +106,7 @@ public class ConfigData
     public final String standardHudTextFormat;
     public final String countdownBossTextFormat;
     public final String standardBossTextFormat;
+    public final int secondsToBeforeStart;
 
     // Public options
     public final String sendCommandAfterGameEnded;
@@ -149,6 +150,7 @@ public class ConfigData
         this.countdownHudTextFormat = config.getString("countdownHud", "Time Remaining: {game_time}");
         this.standardBossTextFormat =  config.getString("standardBar", "");
         this.countdownBossTextFormat = config.getString("countdownBar", "");
+        this.secondsToBeforeStart = config.getInt("secondsToBeforeStart", 120);
 
         // Public
         this.sendCommandAfterGameEnded = config.getString("sendCommandAfterGameEnds", "");
