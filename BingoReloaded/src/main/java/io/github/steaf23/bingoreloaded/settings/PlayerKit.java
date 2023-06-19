@@ -131,11 +131,11 @@ public enum PlayerKit
                 items.add(helmet
                         .withEnchantment(Enchantment.DURABILITY, 3)
                         .withEnchantment(Enchantment.WATER_WORKER, 1)
-                        .withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4));
+                        .withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 8));
                 items.add(boots
                         .withEnchantment(Enchantment.DURABILITY, 3)
                         .withEnchantment(Enchantment.DEPTH_STRIDER, 3)
-                        .withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4));
+                        .withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 8));
                 items.add(new MenuItem(38, Material.ELYTRA, "")
                         .withIllegalEnchantment(Enchantment.DURABILITY, 10));
                 items.add(new MenuItem(0, Material.NETHERITE_AXE, "")
