@@ -19,7 +19,7 @@ import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.settings.BingoGamemode;
 import io.github.steaf23.bingoreloaded.settings.BingoSettings;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.tasks.statistics.StatisticTracker;
 import io.github.steaf23.bingoreloaded.util.MaterialHelper;
 import io.github.steaf23.bingoreloaded.util.Message;
@@ -64,7 +64,7 @@ public class BingoGame implements GamePhase {
     private CountdownTimer startingTimer;
     private boolean hasTimerStarted;
 
-    private BingoTask deathMatchTask;
+    private BingoTask<?> deathMatchTask;
     private BossBar bossBar;
 
     public BingoGame(BingoSession session, BingoSettings settings, ConfigData config) {
@@ -122,7 +122,7 @@ public class BingoGame implements GamePhase {
 
         // Generate cards
         BingoCard masterCard = CardBuilder.fromMode(settings.mode(), settings.size(), getTeamManager().getActiveTeams().size());
-        masterCard.generateCard(settings.card(), settings.seed(), !config.disableAdvancements, !config.disableStatistics);
+        masterCard.generateCard(settings.card(), settings.seed(), !config.disableAdvancements, !config.disableStatistics, teamManager.getActiveTeams());
         initCards(masterCard);
 
         for (BingoTeam activeTeam : getTeamManager().getActiveTeams())
@@ -392,7 +392,7 @@ public class BingoGame implements GamePhase {
     {
         if (countdown == 0)
         {
-            deathMatchTask = new BingoTask(new BingoCardData().getRandomItemTask(settings.card()));
+            deathMatchTask = BingoTask.getBingoTask(new BingoCardData().getRandomItemTask(settings.card()));
 
             for (BingoParticipant p : getTeamManager().getParticipants())
             {
@@ -607,7 +607,7 @@ public class BingoGame implements GamePhase {
         return statTracker;
     }
 
-    public BingoTask getDeathMatchTask()
+    public BingoTask<?> getDeathMatchTask()
     {
         return deathMatchTask;
     }

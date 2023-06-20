@@ -7,16 +7,17 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.List;
 
 public interface TaskData extends ConfigurationSerializable, Serializable
 {
     ItemText getItemDisplayName();
     ItemText[] getItemDescription();
-    BaseComponent getDescription();
+    BaseComponent getDescriptionsTitle();
+    List<BaseComponent> getDescriptions();
     default int getStackSize()
     {
         return 1;
     }
     boolean isTaskEqual(TaskData other);
-    @NotNull PersistentDataContainer pdcSerialize(PersistentDataContainer stream);
 }

@@ -2,19 +2,17 @@ package io.github.steaf23.bingoreloaded.data.recoverydata.bingocard;
 
 import io.github.steaf23.bingoreloaded.cards.BingoCard;
 import io.github.steaf23.bingoreloaded.cards.CardSize;
+import io.github.steaf23.bingoreloaded.data.recoverydata.bingocard.bingotasks.*;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
-import org.bukkit.Bukkit;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.*;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @SerializableAs("BasicBingoCard")
 public record SerializableBasicBingoCard(
@@ -28,14 +26,13 @@ public record SerializableBasicBingoCard(
         this(
                 bingoCard.tasks
                         .stream()
-                        .map(SerializableBingoTask::new)
+                        .map(SerializableBingoTask::toSerializedTask)
                         .toList(),
                 new SerializableCardSize(bingoCard.size)
         );
     }
 
-    public static SerializableBasicBingoCard deserialize(Map<String, Object> data)
-    {
+    public static SerializableBasicBingoCard deserialize(Map<String, Object> data) {
         return new SerializableBasicBingoCard(
                 (List<SerializableBingoTask>) data.getOrDefault(BINGO_TASKS_ID, new SerializableBingoTask[0]),
                 (SerializableCardSize) data.getOrDefault(CARD_SIZE_ID, null)
@@ -53,11 +50,12 @@ public record SerializableBasicBingoCard(
         return data;
     }
 
+    @Override
     public BingoCard toBingoCard(BingoSession session) {
-        List<BingoTask> tasks = bingoTaskList
-                .stream()
-                .map(bingoTask -> bingoTask.toBingoTask(session))
-                .toList();
+        List<BingoTask<?>> tasks = new ArrayList<>();
+        for (SerializableBingoTask task : bingoTaskList) {
+            tasks.add(task.toBingoTask(session));
+        }
         CardSize cardSize = this.cardSize.toCardSize();
         return new BingoCard(cardSize, tasks);
     }

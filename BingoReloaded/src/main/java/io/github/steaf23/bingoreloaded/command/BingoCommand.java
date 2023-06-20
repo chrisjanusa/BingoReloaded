@@ -140,14 +140,14 @@ public class BingoCommand implements CommandExecutor
                 ((BingoGame)session.phase()).startDeathMatch(3);
                 return true;
             }
-            case "creator" ->
-            {
-                if (player.hasPermission("bingo.manager"))
-                {
-                    BingoCreatorUI creatorUI = new BingoCreatorUI(null);
-                    creatorUI.open(player);
-                }
-            }
+//            case "creator" ->
+//            {
+//                if (player.hasPermission("bingo.manager"))
+//                {
+//                    BingoCreatorUI creatorUI = new BingoCreatorUI(null);
+//                    creatorUI.open(player);
+//                }
+//            }
             case "stats" ->
             {
                 if (!config.savePlayerStatistics)

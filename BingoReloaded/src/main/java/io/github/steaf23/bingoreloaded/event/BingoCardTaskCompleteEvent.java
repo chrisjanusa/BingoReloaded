@@ -1,16 +1,15 @@
 package io.github.steaf23.bingoreloaded.event;
 
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
-import io.github.steaf23.bingoreloaded.player.BingoPlayer;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 
 public class BingoCardTaskCompleteEvent extends BingoEvent
 {
-    private final BingoTask task;
+    private final BingoTask<?> task;
     private final boolean bingo;
     private final BingoParticipant participant;
 
-    public BingoCardTaskCompleteEvent(BingoTask task, BingoParticipant participant, boolean bingo)
+    public BingoCardTaskCompleteEvent(BingoTask<?> task, BingoParticipant participant, boolean bingo)
     {
         super(participant.getSession());
         this.participant = participant;
@@ -18,7 +17,7 @@ public class BingoCardTaskCompleteEvent extends BingoEvent
         this.bingo = bingo;
     }
 
-    public BingoTask getTask()
+    public BingoTask<?> getTask()
     {
         return task;
     }

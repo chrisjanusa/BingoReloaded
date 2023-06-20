@@ -10,7 +10,7 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.gui.base.MenuInventory;
 import io.github.steaf23.bingoreloaded.gui.base.PaginatedPickerMenu;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.util.FlexColor;
 import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
@@ -597,7 +597,7 @@ public class TeamManager
      * @param event
      * @param deathMatchTask the card item will show this task instead of the card if it is not null
      */
-    public void handlePlayerShowCard(final PlayerInteractEvent event, @Nullable BingoTask deathMatchTask)
+    public void handlePlayerShowCard(final PlayerInteractEvent event, @Nullable BingoTask<?> deathMatchTask)
     {
         BingoParticipant participant = getBingoParticipant(event.getPlayer());
         if (participant == null)

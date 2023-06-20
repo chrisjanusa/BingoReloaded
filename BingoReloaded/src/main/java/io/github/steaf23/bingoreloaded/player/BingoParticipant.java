@@ -1,9 +1,8 @@
 package io.github.steaf23.bingoreloaded.player;
 
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +17,7 @@ public interface BingoParticipant
     public UUID getId();
     public Optional<Player> sessionPlayer();
     public String getDisplayName();
-    public void showDeathMatchTask(BingoTask task);
+    public void showDeathMatchTask(BingoTask<?> task);
     public boolean alwaysActive();
     public Location preTeleportLocation();
 }

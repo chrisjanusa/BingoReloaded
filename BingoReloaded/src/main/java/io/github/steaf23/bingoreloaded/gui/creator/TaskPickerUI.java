@@ -6,10 +6,11 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.gui.base.MenuInventory;
 import io.github.steaf23.bingoreloaded.gui.base.PaginatedPickerMenu;
 import io.github.steaf23.bingoreloaded.item.ItemText;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.tasks.CountableTask;
 import io.github.steaf23.bingoreloaded.tasks.TaskData;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -143,8 +144,8 @@ public class TaskPickerUI extends PaginatedPickerMenu
 
         BingoCardData cardsData = new BingoCardData();
         cardsData.lists().saveTasksFromGroup(listName,
-                getItems().stream().map(item -> BingoTask.fromStack(item).data).toList(),
-                getSelectedItems().stream().map(item -> BingoTask.fromStack(item).data).toList());
+                (List<TaskData>) getItems().stream().map(item -> BingoTask.fromStack(item).data).toList(),
+                (List<TaskData>) getSelectedItems().stream().map(item -> BingoTask.fromStack(item).data).toList());
     }
 
     public static List<MenuItem> asPickerItems(List<BingoTask> tasks)
@@ -169,10 +170,10 @@ public class TaskPickerUI extends PaginatedPickerMenu
             }
         }
 
-        BingoTask newTask = new BingoTask(newData);
-        var item = newTask.asStack();
+//        BingoTask newTask = new BingoTask(newData);
+//        var item = newTask.asStack();
 
-        var meta = item.getItemMeta();
+//        var meta = item.getItemMeta();
         List<String> addedLore;
         if (selected)
             addedLore = Arrays.stream(SELECTED_LORE)
@@ -183,12 +184,12 @@ public class TaskPickerUI extends PaginatedPickerMenu
                     .map(ItemText::asLegacyString)
                     .collect(Collectors.toList());
         List<String> newLore = new ArrayList<>();
-        newLore.add(newTask.data.getItemDescription()[0].asLegacyString());
-        newLore.addAll(addedLore);
-
-        meta.setLore(newLore);
-        item.setItemMeta(meta);
-        return item;
+//        newLore.add(newTask.data.getItemDescription()[0].asLegacyString());
+//        newLore.addAll(addedLore);
+//
+//        meta.setLore(newLore);
+//        item.setItemMeta(meta);
+        return new ItemStack(Material.BARRIER);
     }
 
     private static ItemText[] createSelectedLore()

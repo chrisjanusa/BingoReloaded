@@ -8,7 +8,7 @@ import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.gui.EffectOptionFlags;
 import io.github.steaf23.bingoreloaded.item.ItemCooldownManager;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.PDCHelper;
 import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
@@ -27,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * This class describes a player in a single bingo session.
@@ -206,7 +205,7 @@ public class BingoPlayer implements BingoParticipant
         }
     }
 
-    public void showDeathMatchTask(BingoTask task)
+    public void showDeathMatchTask(BingoTask<?> task)
     {
         if (sessionPlayer().isEmpty())
             return;

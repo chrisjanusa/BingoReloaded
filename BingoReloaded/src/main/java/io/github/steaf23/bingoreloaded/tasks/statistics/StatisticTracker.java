@@ -4,8 +4,11 @@ import io.github.steaf23.bingoreloaded.gameloop.BingoGame;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.AnyOfTask;
 import io.github.steaf23.bingoreloaded.tasks.StatisticTask;
+import io.github.steaf23.bingoreloaded.tasks.TaskData;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.StatisticBingoTask;
+import org.bukkit.Statistic;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 
 import java.util.ArrayList;
@@ -33,15 +36,16 @@ public class StatisticTracker
     {
         for (BingoTeam team : teams)
         {
-            for (BingoTask task : team.card.tasks)
-            {
-                if (task.type != BingoTask.TaskType.STATISTIC)
-                    continue;
+            createStatisticProgressFromTasks((List<TaskData>) team.card.tasks.stream().map(task -> task.data).toList(), team);
+        }
+    }
 
-                StatisticTask statTask = (StatisticTask)task.data;
+    private void createStatisticProgressFromTasks(List<TaskData> tasks, BingoTeam team) {
+        for (TaskData task : tasks)
+        {
+            if (task instanceof StatisticTask statTask) {
 
-                for (BingoParticipant player : team.getMembers())
-                {
+                for (BingoParticipant player : team.getMembers()) {
                     if (statistics.stream().anyMatch(progress ->
                             progress.player.equals(player) && progress.statistic.equals(statTask.statistic())))
                         continue;
@@ -49,6 +53,8 @@ public class StatisticTracker
                     if (player instanceof BingoPlayer bingoPlayer)
                         statistics.add(new StatisticProgress(statTask.statistic(), bingoPlayer, statTask.count()));
                 }
+            } else if (task instanceof AnyOfTask anyOfTask) {
+                createStatisticProgressFromTasks(anyOfTask.possibleTasks(), team);
             }
         }
     }

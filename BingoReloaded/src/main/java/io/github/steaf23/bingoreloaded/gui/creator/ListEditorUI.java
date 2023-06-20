@@ -5,7 +5,7 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.gui.base.MenuInventory;
 import io.github.steaf23.bingoreloaded.gui.base.TreeMenu;
 import io.github.steaf23.bingoreloaded.tasks.AdvancementTask;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.tasks.ItemTask;
 import io.github.steaf23.bingoreloaded.util.FlexColor;
 import net.md_5.bungee.api.ChatColor;
@@ -80,7 +80,7 @@ public class ListEditorUI extends TreeMenu
         {
             if (!m.name().contains("LEGACY_") && !glassPanes.contains(m) && m.isItem() && !m.isAir())
             {
-                tasks.add(new BingoTask(new ItemTask(m, 1)));
+//                tasks.add(new BingoTask(new ItemTask(m, 1)));
             }
         }
 
@@ -101,7 +101,7 @@ public class ListEditorUI extends TreeMenu
             }
 
             AdvancementTask task = new AdvancementTask(a);
-            tasks.add(new BingoTask(task));
+//            tasks.add(new BingoTask(task));
         }
 
         TaskPickerUI advancementPicker = new TaskPickerUI(tasks, "Add Advancements", this, listName);

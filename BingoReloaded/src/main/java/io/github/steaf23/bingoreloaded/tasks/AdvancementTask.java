@@ -49,14 +49,19 @@ public record AdvancementTask(Advancement advancement) implements TaskData
         return BingoTranslation.LORE_ADVANCEMENT.asItemText(modifiers);
     }
 
+    @Override
+    public BaseComponent getDescriptionsTitle() {
+        return null;
+    }
+
     // This method exists because advancement descriptions can contain newlines,
     // which makes it impossible to use as item names or descriptions without getting a missing character.
     @Override
-    public BaseComponent getDescription()
+    public List<BaseComponent> getDescriptions()
     {
         BaseComponent comp = new ItemText().addAdvancementDescription(advancement).asComponent();
         comp.setColor(ChatColor.DARK_AQUA);
-        return comp;
+        return List.of(comp);
     }
 
     @Override
@@ -78,21 +83,6 @@ public record AdvancementTask(Advancement advancement) implements TaskData
     public boolean isTaskEqual(TaskData other)
     {
         return this.equals(other);
-    }
-
-    @Override
-    public PersistentDataContainer pdcSerialize(PersistentDataContainer stream)
-    {
-        stream.set(BingoTask.getTaskDataKey("advancement"), PersistentDataType.STRING, advancement.getKey().toString());
-        return stream;
-    }
-
-    public static AdvancementTask fromPdc(PersistentDataContainer pdc)
-    {
-        Advancement a = Bukkit.getAdvancement(NamespacedKey.fromString(
-                        pdc.getOrDefault(BingoTask.getTaskDataKey("advancement"), PersistentDataType.STRING, "minecraft:story/mine_stone")));
-        AdvancementTask task = new AdvancementTask(a);
-        return task;
     }
 
     @NotNull

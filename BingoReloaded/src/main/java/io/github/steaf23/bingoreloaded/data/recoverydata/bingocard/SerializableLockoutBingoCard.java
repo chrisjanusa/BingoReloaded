@@ -3,12 +3,14 @@ package io.github.steaf23.bingoreloaded.data.recoverydata.bingocard;
 import io.github.steaf23.bingoreloaded.cards.BingoCard;
 import io.github.steaf23.bingoreloaded.cards.CardSize;
 import io.github.steaf23.bingoreloaded.cards.LockoutBingoCard;
+import io.github.steaf23.bingoreloaded.data.recoverydata.bingocard.bingotasks.*;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.*;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,7 @@ public record SerializableLockoutBingoCard(
         this(
                 bingoCard.tasks
                         .stream()
-                        .map(SerializableBingoTask::new)
+                        .map(SerializableBingoTask::toSerializedTask)
                         .toList(),
                 new SerializableCardSize(bingoCard.size),
                 bingoCard.teamCount,
@@ -63,10 +65,11 @@ public record SerializableLockoutBingoCard(
 
     @Override
     public BingoCard toBingoCard(BingoSession session) {
-        List<BingoTask> tasks = bingoTaskList.stream()
-                .map(bingoTask -> bingoTask.toBingoTask(session))
-                .toList();
+        List<BingoTask<?>> tasks = new ArrayList<>();
+        for (SerializableBingoTask task : bingoTaskList) {
+            tasks.add(task.toBingoTask(session));
+        }
         CardSize cardSize = this.cardSize.toCardSize();
-        return new LockoutBingoCard(cardSize, tasks, teamCount, currentMaxTasks);
+        return new BingoCard(cardSize, tasks);
     }
 }

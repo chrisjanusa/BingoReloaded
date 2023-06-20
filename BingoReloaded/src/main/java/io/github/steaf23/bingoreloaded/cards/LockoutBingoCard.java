@@ -5,7 +5,7 @@ import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.event.BingoCardTaskCompleteEvent;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.player.TeamManager;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class LockoutBingoCard extends BingoCard
                 BingoTranslation.INFO_LOCKOUT_DESC.translate().split("\\n"));
     }
 
-    public LockoutBingoCard(CardSize size, List<BingoTask> tasks, int teamCount, int currentMaxTasks) {
+    public LockoutBingoCard(CardSize size, List<BingoTask<?>> tasks, int teamCount, int currentMaxTasks) {
         super(size, tasks);
         this.teamCount = teamCount;
         this.currentMaxTasks = currentMaxTasks;
@@ -78,7 +78,7 @@ public class LockoutBingoCard extends BingoCard
                 .arg(team.getColoredName().asLegacyString())
                 .sendAll(session);
         team.outOfTheGame = true;
-        for (BingoTask task : tasks)
+        for (BingoTask<?> task : tasks)
         {
             if (task.isCompleted() && session.teamManager.getParticipantsOfTeam(team).contains(task.completedBy.get()))
             {

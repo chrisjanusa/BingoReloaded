@@ -85,9 +85,14 @@ public record StatisticTask(BingoStatistic statistic, int count) implements Coun
     }
 
     @Override
-    public BaseComponent getDescription()
+    public BaseComponent getDescriptionsTitle() {
+        return null;
+    }
+
+    @Override
+    public List<BaseComponent> getDescriptions()
     {
-        return ItemText.combine(getItemDescription()).asComponent();
+        return List.of(ItemText.combine(getItemDescription()).asComponent());
     }
 
     @Override
@@ -112,42 +117,6 @@ public record StatisticTask(BingoStatistic statistic, int count) implements Coun
     public int hashCode()
     {
         return Objects.hash(statistic);
-    }
-
-    @Override
-    public PersistentDataContainer pdcSerialize(PersistentDataContainer stream)
-    {
-        stream.set(BingoTask.getTaskDataKey("statistic"), PersistentDataType.STRING, statistic.stat().name());
-        if (statistic.materialType() != null)
-        {
-            stream.set(BingoTask.getTaskDataKey("item"),  PersistentDataType.STRING, statistic.materialType().name());
-        }
-        if (statistic.entityType() != null)
-        {
-            stream.set(BingoTask.getTaskDataKey("entity"), PersistentDataType.STRING, statistic.entityType().name());
-        }
-        stream.set(BingoTask.getTaskDataKey("count"),  PersistentDataType.INTEGER, count);
-        return stream;
-    }
-
-    public static StatisticTask fromPdc(PersistentDataContainer pdc)
-    {
-        Statistic stat = Statistic.valueOf(pdc.getOrDefault(BingoTask.getTaskDataKey("statistic"), PersistentDataType.STRING, "stat.minecraft.bell_ring"));
-
-        Material item = null;
-        if (pdc.has(BingoTask.getTaskDataKey("item"), PersistentDataType.STRING))
-        {
-            item = Material.valueOf(pdc.get(BingoTask.getTaskDataKey("item"), PersistentDataType.STRING));
-        }
-        EntityType entity = null;
-        if (pdc.has(BingoTask.getTaskDataKey("entity"), PersistentDataType.STRING))
-        {
-            entity = EntityType.valueOf(pdc.get(BingoTask.getTaskDataKey("entity"), PersistentDataType.STRING));
-        }
-        int count = pdc.getOrDefault(BingoTask.getTaskDataKey("count"), PersistentDataType.INTEGER, 1);
-
-        StatisticTask task = new StatisticTask(new BingoStatistic(stat, entity, item), count);
-        return task;
     }
 
     @NotNull
