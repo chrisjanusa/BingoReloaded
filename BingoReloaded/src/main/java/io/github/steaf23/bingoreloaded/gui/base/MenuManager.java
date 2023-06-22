@@ -1,18 +1,20 @@
-package io.github.steaf23.bingoreloaded.gui.base2;
+package io.github.steaf23.bingoreloaded.gui.base;
 
 
-import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
-import io.github.steaf23.bingoreloaded.util.Message;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import io.github.steaf23.bingoreloaded.BingoReloaded;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.*;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.*;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
+import java.util.UUID;
 
 public class MenuManager implements Listener
 {
@@ -23,7 +25,7 @@ public class MenuManager implements Listener
         this.activeMenus = new HashMap<>();
     }
 
-    public void close(Menu menu, Player player) {
+    public void close(Menu menu, HumanEntity player) {
         UUID playerId = player.getUniqueId();
         if (!activeMenus.containsKey(playerId))
             return;
@@ -35,11 +37,17 @@ public class MenuManager implements Listener
             return;
         }
 
-        menus.pop().beforeClosing(player);
-        player.closeInventory();
+        Menu menuToClose = menus.pop();
+        menuToClose.beforeClosing(player);
+        if (menus.size() == 0) {
+            activeMenus.remove(playerId);
+            BingoReloaded.scheduleTask((task) -> menuToClose.closeInventory(player));
+        } else {
+            open(activeMenus.get(playerId).peek(), player);
+        }
     }
 
-    public void closeAll(Player player) {
+    public void closeAll(HumanEntity player) {
         UUID playerId = player.getUniqueId();
         if (!activeMenus.containsKey(playerId))
             return;
@@ -52,14 +60,27 @@ public class MenuManager implements Listener
         player.closeInventory();
     }
 
-    public void open(Menu menu, Player player) {
+    public void open(Menu menu, HumanEntity player) {
         UUID playerId = player.getUniqueId();
         if (!activeMenus.containsKey(playerId))
             activeMenus.put(playerId, new Stack<>());
 
-        activeMenus.get(playerId).push(menu);
+        Stack<Menu> menuStack = activeMenus.get(playerId);
+        // If we add another menu on top of a menu that should be removed, remove this menu first.
+        if (menuStack.size() > 0 && menuStack.peek().openOnce()) {
+            menuStack.pop().beforeClosing(player);
+        }
+        // If the new menu is not already in the stack, push it to the top.
+        if (!menuStack.contains(menu)) {
+            menuStack.push(menu);
+        }
+        // This menu is somewhere in the middle of the menu stack, don't open it.
+        if (menuStack.peek() != menu) {
+            return;
+        }
+
         menu.beforeOpening(player);
-        player.openInventory(menu.getInventory());
+        BingoReloaded.scheduleTask((task) -> menu.openInventory(player));
     }
 
     @EventHandler
@@ -82,7 +103,7 @@ public class MenuManager implements Listener
             return;
 
         boolean cancel = menu.onClick(event,
-                (Player) event.getWhoClicked(),
+                event.getWhoClicked(),
                 new MenuItem(event.getRawSlot(), event.getCurrentItem()),
                 event.getClick());
         event.setCancelled(cancel);
@@ -100,6 +121,7 @@ public class MenuManager implements Listener
         }
 
         boolean cancel = menu.onDrag(event);
+        event.setCancelled(cancel);
     }
 
     @EventHandler
@@ -108,6 +130,16 @@ public class MenuManager implements Listener
         if (!activeMenus.containsKey(playerId))
             return;
 
-        closeAll((Player) event.getPlayer());
+        Menu topMenu = activeMenus.get(playerId).peek();
+        if (topMenu.getInventory() == event.getInventory()) {
+            close(topMenu, event.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public void handlePlayerQuit(final PlayerQuitEvent event) {
+        if (activeMenus.containsKey(event.getPlayer().getUniqueId())) {
+            closeAll(event.getPlayer());
+        }
     }
 }

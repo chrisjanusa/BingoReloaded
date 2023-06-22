@@ -3,6 +3,7 @@ package io.github.steaf23.bingoreloaded.player;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import org.bukkit.Location;
+import io.github.steaf23.bingoreloaded.tasks.BingoTask;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 public interface BingoParticipant
 {
-    public BingoSession getSession();
+    BingoSession getSession();
     @Nullable
     public BingoTeam getTeam();
     public UUID getId();

@@ -1,5 +1,7 @@
-package io.github.steaf23.bingoreloaded.gui.base2;
+package io.github.steaf23.bingoreloaded.gui.base;
 
+import io.github.steaf23.bingoreloaded.event.PlayerLeftSessionWorldEvent;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -8,9 +10,9 @@ import java.util.function.Function;
 
 public class BingoMenuManager extends MenuManager
 {
-    private Function<Player, Boolean> playerPredicate;
+    private Function<HumanEntity, Boolean> playerPredicate;
 
-    public BingoMenuManager(Function<Player, Boolean> playerPredicate)
+    public BingoMenuManager(Function<HumanEntity, Boolean> playerPredicate)
     {
         this.playerPredicate = playerPredicate;
     }
@@ -25,7 +27,7 @@ public class BingoMenuManager extends MenuManager
     }
 
     @Override
-    public void open(Menu menu, Player player) {
+    public void open(Menu menu, HumanEntity player) {
         if (!playerPredicate.apply(player))
             return;
 
@@ -33,7 +35,7 @@ public class BingoMenuManager extends MenuManager
     }
 
     @Override
-    public void close(Menu menu, Player player) {
+    public void close(Menu menu, HumanEntity player) {
         if (!playerPredicate.apply(player))
             return;
 
@@ -41,10 +43,17 @@ public class BingoMenuManager extends MenuManager
     }
 
     @Override
-    public void closeAll(Player player) {
+    public void closeAll(HumanEntity player) {
         if (!playerPredicate.apply(player))
             return;
 
         super.closeAll(player);
+    }
+
+    @EventHandler
+    public void handlePlayerLeft(final PlayerLeftSessionWorldEvent event) {
+        if (activeMenus.containsKey(event.getPlayer().getUniqueId())) {
+            closeAll(event.getPlayer());
+        }
     }
 }

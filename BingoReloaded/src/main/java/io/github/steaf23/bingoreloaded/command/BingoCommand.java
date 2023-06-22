@@ -1,18 +1,17 @@
 package io.github.steaf23.bingoreloaded.command;
 
 import io.github.steaf23.bingoreloaded.BingoReloaded;
+import io.github.steaf23.bingoreloaded.data.BingoStatData;
+import io.github.steaf23.bingoreloaded.data.BingoTranslation;
+import io.github.steaf23.bingoreloaded.data.ConfigData;
 import io.github.steaf23.bingoreloaded.data.PlayerData;
 import io.github.steaf23.bingoreloaded.gameloop.BingoGame;
 import io.github.steaf23.bingoreloaded.gameloop.BingoGameManager;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
-import io.github.steaf23.bingoreloaded.data.BingoStatData;
-import io.github.steaf23.bingoreloaded.data.BingoTranslation;
-import io.github.steaf23.bingoreloaded.data.ConfigData;
-import io.github.steaf23.bingoreloaded.gui.BingoMenu;
+import io.github.steaf23.bingoreloaded.gui.AdminBingoMenu;
+import io.github.steaf23.bingoreloaded.gui.PlayerBingoMenu;
 import io.github.steaf23.bingoreloaded.gui.TeamEditorMenu;
-import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
-import io.github.steaf23.bingoreloaded.gui.base2.Menu;
-import io.github.steaf23.bingoreloaded.gui.creator.BingoCreatorUI;
+import io.github.steaf23.bingoreloaded.gui.creator.BingoCreatorMenu;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
@@ -22,7 +21,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -60,18 +58,17 @@ public class BingoCommand implements CommandExecutor
 
         if (args.length == 0)
         {
-            BingoMenu.openOptions(player, session, config);
+            if (player.hasPermission("bingo.admin")) {
+                new AdminBingoMenu(gameManager.getMenuManager(), session, config).open(player);
+            } else if (player.hasPermission("bingo.player")) {
+                new PlayerBingoMenu(gameManager.getMenuManager(), session).open(player);
+            }
             return true;
         }
 
         switch (args[0])
         {
-            case "menutest" -> {
-                Menu menu = new Menu(gameManager.getMenuManager(), "TESTO", 3);
-                menu.addItem(new MenuItem(4, 1, Material.BEDROCK, "TESTO ROCK!").setCompareKey("heya"));
-                menu.open(player);
-            }
-            case "join" -> session.teamManager.openTeamSelector(player, null);
+            case "join" -> session.teamManager.openTeamSelector(gameManager.getMenuManager(), player);
             case "leave" ->
             {
                 BingoParticipant participant = session.teamManager.getBingoParticipant(player);
@@ -110,7 +107,7 @@ public class BingoCommand implements CommandExecutor
                 if (session.isRunning())
                 {
                     BingoParticipant participant = session.teamManager.getBingoParticipant(player);
-                    if (participant != null && participant instanceof BingoPlayer bingoPlayer)
+                    if (participant instanceof BingoPlayer bingoPlayer)
                         ((BingoGame)session.phase()).returnCardToPlayer(bingoPlayer);
                     return true;
                 }
@@ -144,8 +141,8 @@ public class BingoCommand implements CommandExecutor
 //            {
 //                if (player.hasPermission("bingo.manager"))
 //                {
-//                    BingoCreatorUI creatorUI = new BingoCreatorUI(null);
-//                    creatorUI.open(player);
+//                    BingoCreatorMenu creatorMenu = new BingoCreatorMenu(gameManager.getMenuManager());
+//                    creatorMenu.open(player);
 //                }
 //            }
             case "stats" ->
@@ -224,7 +221,7 @@ public class BingoCommand implements CommandExecutor
                 if (!player.hasPermission("bingo.admin"))
                     return false;
 
-                new TeamEditorMenu(null).open(player);
+                new TeamEditorMenu(gameManager.getMenuManager()).open(player);
             }
             case "hologram" ->
             {
