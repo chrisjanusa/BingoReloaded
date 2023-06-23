@@ -45,14 +45,9 @@ public record ItemTask(Material material, int count) implements CountableTask
     }
 
     @Override
-    public BaseComponent getDescriptionsTitle() {
-        return null;
-    }
-
-    @Override
-    public List<BaseComponent> getDescriptions()
+    public BaseComponent getDescription()
     {
-        return List.of(ItemText.combine(getItemDescription()).asComponent());
+        return ItemText.combine(getItemDescription()).asComponent();
     }
 
     @NotNull

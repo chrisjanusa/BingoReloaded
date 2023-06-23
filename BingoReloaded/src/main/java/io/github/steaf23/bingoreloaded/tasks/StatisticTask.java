@@ -85,14 +85,9 @@ public record StatisticTask(BingoStatistic statistic, int count) implements Coun
     }
 
     @Override
-    public BaseComponent getDescriptionsTitle() {
-        return null;
-    }
-
-    @Override
-    public List<BaseComponent> getDescriptions()
+    public BaseComponent getDescription()
     {
-        return List.of(ItemText.combine(getItemDescription()).asComponent());
+        return ItemText.combine(getItemDescription()).asComponent();
     }
 
     @Override

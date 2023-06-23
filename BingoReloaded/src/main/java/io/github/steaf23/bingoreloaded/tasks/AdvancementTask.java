@@ -49,19 +49,14 @@ public record AdvancementTask(Advancement advancement) implements TaskData
         return BingoTranslation.LORE_ADVANCEMENT.asItemText(modifiers);
     }
 
-    @Override
-    public BaseComponent getDescriptionsTitle() {
-        return null;
-    }
-
     // This method exists because advancement descriptions can contain newlines,
     // which makes it impossible to use as item names or descriptions without getting a missing character.
     @Override
-    public List<BaseComponent> getDescriptions()
+    public BaseComponent getDescription()
     {
         BaseComponent comp = new ItemText().addAdvancementDescription(advancement).asComponent();
         comp.setColor(ChatColor.DARK_AQUA);
-        return List.of(comp);
+        return comp;
     }
 
     @Override

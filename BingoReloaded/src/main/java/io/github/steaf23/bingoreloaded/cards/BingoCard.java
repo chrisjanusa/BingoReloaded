@@ -1,6 +1,7 @@
 package io.github.steaf23.bingoreloaded.cards;
 
 
+import io.github.steaf23.bingoreloaded.event.ChildHavingTaskCompleteEvent;
 import io.github.steaf23.bingoreloaded.gameloop.BingoGame;
 import io.github.steaf23.bingoreloaded.BingoReloaded;
 import io.github.steaf23.bingoreloaded.data.BingoCardData;
@@ -13,6 +14,7 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
+import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.tasks.*;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.*;
 import io.github.steaf23.bingoreloaded.tasks.statistics.BingoStatistic;
@@ -36,22 +38,25 @@ public class BingoCard
     public List<BingoTask<?>> tasks;
 
     protected final CardMenu menu;
+    protected final TeamManager teamManager;
 
     private static final TaskData DEFAULT_TASK = new ItemTask(Material.DIRT, 1);
 
-    public BingoCard(MenuManager menuManager, CardSize size)
+    public BingoCard(MenuManager menuManager, CardSize size, TeamManager teamManager)
     {
         this.size = size;
         this.tasks = new ArrayList<>();
-        this.menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate());
+        this.teamManager = teamManager;
+        this.menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate(), teamManager);
         menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
                 BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
     }
 
-    public BingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks) {
+    public BingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks, TeamManager teamManager) {
         this.size = size;
         this.tasks = tasks;
-        this.menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate());
+        this.teamManager = teamManager;
+        this.menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate(), teamManager);
         menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
                 BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
     }
@@ -219,7 +224,7 @@ public class BingoCard
 
     public BingoCard copy()
     {
-        BingoCard card = new BingoCard(menu.getMenuManager(), this.size);
+        BingoCard card = new BingoCard(menu.getMenuManager(), this.size, teamManager);
         List<BingoTask<?>> newTasks = new ArrayList<>();
         for (BingoTask<?> slot : tasks)
         {
@@ -413,5 +418,10 @@ public class BingoCard
                 checkTasksForStatistic(childHavingBingoTask.childrenPerTeam.get(player.getTeam().getName()), event, player, game);
             }
         }
+    }
+
+    public void onChildHavingTaskComplete(ChildHavingTaskCompleteEvent event) {
+        var slotEvent = new BingoCardTaskCompleteEvent(event.getTask(), event.getParticipant(), hasBingo(event.getParticipant().getTeam()));
+        Bukkit.getPluginManager().callEvent(slotEvent);
     }
 }

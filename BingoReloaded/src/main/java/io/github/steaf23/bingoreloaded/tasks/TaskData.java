@@ -13,8 +13,7 @@ public interface TaskData extends ConfigurationSerializable, Serializable
 {
     ItemText getItemDisplayName();
     ItemText[] getItemDescription();
-    BaseComponent getDescriptionsTitle();
-    List<BaseComponent> getDescriptions();
+    BaseComponent getDescription();
     default int getStackSize()
     {
         return 1;

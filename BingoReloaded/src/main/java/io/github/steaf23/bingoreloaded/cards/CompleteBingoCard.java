@@ -3,6 +3,7 @@ package io.github.steaf23.bingoreloaded.cards;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
+import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 
 import java.util.ArrayList;
@@ -10,15 +11,15 @@ import java.util.List;
 
 public class CompleteBingoCard extends BingoCard
 {
-    public CompleteBingoCard(MenuManager menuManager, CardSize size)
+    public CompleteBingoCard(MenuManager menuManager, CardSize size, TeamManager teamManager)
     {
-        super(menuManager, size);
+        super(menuManager, size, teamManager);
         menu.setInfo(BingoTranslation.INFO_COMPLETE_NAME.translate(),
                 BingoTranslation.INFO_COMPLETE_DESC.translate().split("\\n"));
     }
 
-    public CompleteBingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks) {
-        super(menuManager, size, tasks);
+    public CompleteBingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks, TeamManager teamManager) {
+        super(menuManager, size, tasks, teamManager);
         menu.setInfo(BingoTranslation.INFO_COMPLETE_NAME.translate(),
                 BingoTranslation.INFO_COMPLETE_DESC.translate().split("\\n"));
     }
@@ -32,7 +33,7 @@ public class CompleteBingoCard extends BingoCard
     @Override
     public CompleteBingoCard copy()
     {
-        CompleteBingoCard card = new CompleteBingoCard(menu.getMenuManager(), this.size);
+        CompleteBingoCard card = new CompleteBingoCard(menu.getMenuManager(), this.size, teamManager);
         List<BingoTask<?>> newTasks = new ArrayList<>();
         for (var t : tasks)
         {

@@ -6,15 +6,13 @@ import io.github.steaf23.bingoreloaded.tasks.AdvancementTask;
 import io.github.steaf23.bingoreloaded.tasks.TaskData;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.AdvancementBingoTask;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
+import io.github.steaf23.bingoreloaded.tasks.bingotasks.ChildHavingBingoTask;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @SerializableAs("AdvancementBingoTask")
@@ -74,8 +72,8 @@ public record SerializableAdvancementBingoTask(
     }
 
     @Override
-    public BingoTask<?> toBingoTask(BingoSession session) {
-        BingoTask<?> task = BingoTask.getBingoTask(taskData);
+    public BingoTask<?> toBingoTask(BingoSession session, ChildHavingBingoTask<?> parentTask) {
+        BingoTask<?> task = BingoTask.getBingoTask(taskData, parentTask, session.teamManager.getActiveTeams());
         if (completedBy != null) {
             BingoParticipant completedParticipant = session.teamManager.getBingoParticipant(completedBy);
             if (completedParticipant != null) {

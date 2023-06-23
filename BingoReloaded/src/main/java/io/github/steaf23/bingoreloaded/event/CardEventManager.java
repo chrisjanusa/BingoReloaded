@@ -137,4 +137,11 @@ public class CardEventManager
                 card.onPlayerStatisticCompleted(event, event.player, game);
         }
     }
+
+    public void handleChildHavingTaskComplete(ChildHavingTaskCompleteEvent event) {
+        for (BingoCard card : cards)
+        {
+            card.onChildHavingTaskComplete(event);
+        }
+    }
 }
