@@ -70,6 +70,6 @@ public record SerializableLockoutBingoCard(
             tasks.add(task.toBingoTask(session));
         }
         CardSize cardSize = this.cardSize.toCardSize();
-        return new BingoCard(cardSize, tasks);
+        return new LockoutBingoCard(session.getMenuManager(), cardSize, tasks, teamCount, currentMaxTasks);
     }
 }

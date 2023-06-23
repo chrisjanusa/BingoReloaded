@@ -48,10 +48,10 @@ public class BingoCard
                 BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
     }
 
-    public BingoCard(CardSize size, List<BingoTask<?>> tasks) {
+    public BingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks) {
         this.size = size;
         this.tasks = tasks;
-        this.menu = new CardMenu(size, BingoTranslation.CARD_TITLE.translate());
+        this.menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate());
         menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
                 BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
     }
@@ -68,7 +68,7 @@ public class BingoCard
      * @param seed
      * @param activeTeams
      */
-    public void generateCard(String cardName, int seed, boolean withAdvancements, boolean withStatistics)
+    public void generateCard(String cardName, int seed, boolean withAdvancements, boolean withStatistics, Set<BingoTeam> activeTeams)
     {
         BingoCardData cardsData = new BingoCardData();
         TaskListData listsData = cardsData.lists();
@@ -220,8 +220,8 @@ public class BingoCard
     public BingoCard copy()
     {
         BingoCard card = new BingoCard(menu.getMenuManager(), this.size);
-        List<BingoTask> newTasks = new ArrayList<>();
-        for (BingoTask slot : tasks)
+        List<BingoTask<?>> newTasks = new ArrayList<>();
+        for (BingoTask<?> slot : tasks)
         {
             newTasks.add(slot.copy());
         }

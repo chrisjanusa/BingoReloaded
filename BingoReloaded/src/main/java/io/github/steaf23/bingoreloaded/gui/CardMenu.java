@@ -2,14 +2,13 @@ package io.github.steaf23.bingoreloaded.gui;
 
 import io.github.steaf23.bingoreloaded.cards.CardSize;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
-import io.github.steaf23.bingoreloaded.gui.base.MenuInventory;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.gui.base.BasicMenu;
 import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
-import io.github.steaf23.bingoreloaded.tasks.BingoTask;
 import io.github.steaf23.bingoreloaded.util.Message;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -22,7 +21,7 @@ import java.util.List;
 public class CardMenu extends BasicMenu
 {
     private final CardSize size;
-    private final HashMap<Integer, BingoTask> slotToTask;
+    private final HashMap<MenuItem, BingoTask<?>> slotToTask;
 
     public CardMenu(MenuManager menuManager, CardSize cardSize, String title)
     {
@@ -37,7 +36,7 @@ public class CardMenu extends BasicMenu
         if (!size.taskSlots.contains(event.getRawSlot()))
             return true;
 
-        BingoTask<?> task = slotToTask.get(slotClicked);
+        BingoTask<?> task = slotToTask.get(clickedItem);
         if (task == null)
             return true;
 
@@ -47,6 +46,12 @@ public class CardMenu extends BasicMenu
         name.setColor(task.nameColor);
 
         base.addExtra(name);
+        BaseComponent descriptionTitle = task.data.getDescriptionsTitle();
+        if (descriptionTitle != null) {
+            base.addExtra("\n");
+            descriptionTitle.setColor(task.nameColor);
+            base.addExtra(descriptionTitle);
+        }
         for(BaseComponent description : task.data.getDescriptions()) {
             base.addExtra("\n - ");
             base.addExtra(description);
@@ -62,8 +67,9 @@ public class CardMenu extends BasicMenu
         for (int i = 0; i < tasks.size(); i++)
         {
             BingoTask<?> task = tasks.get(i);
-            addItem(task.asStack().copyToSlot(size.getCardInventorySlot(i)));
-            slotToTask.put(i, task);
+            MenuItem item = task.asStack();
+            addItem(item.copyToSlot(size.getCardInventorySlot(i)));
+            slotToTask.put(item, task);
         }
         open(player);
     }

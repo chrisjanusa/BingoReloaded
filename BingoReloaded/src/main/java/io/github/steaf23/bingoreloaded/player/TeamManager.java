@@ -27,7 +27,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
-
 public class TeamManager
 {
     private final BingoSession session;
@@ -495,7 +494,6 @@ public class TeamManager
         BingoParticipant participant = getBingoParticipant(event.getPlayer());
         if (participant == null)
             return;
-
         if (PlayerKit.CARD_ITEM.isCompareKeyEqual(event.getItem())) {
             event.setCancelled(true);
             BingoTeam playerTeam = participant.getTeam();

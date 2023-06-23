@@ -8,7 +8,11 @@ import org.bukkit.entity.Player;
 public class HudHelper {
     public static String getHudMessage(String hudFormat, GameTimer timer, Player player) {
         if (hudFormat.contains("{game_time}")) {
-            hudFormat = hudFormat.replace("{game_time}", timer.getTimeString());
+            if (timer != null) {
+                hudFormat = hudFormat.replace("{game_time}", timer.getTimeString());
+            } else {
+                hudFormat = hudFormat.replace("{game_time}", "Not Started");
+            }
         }
         if (hudFormat.contains("{x}")) {
             hudFormat = hudFormat.replace("{x}", Integer.toString(player.getLocation().getBlockX()));
@@ -70,23 +74,23 @@ public class HudHelper {
             rotation += 360.0;
         }
         if (0 <= rotation && rotation < 22.5) {
-            return "N";
+            return "N ";
         } else if (22.5 <= rotation && rotation < 67.5) {
             return "NE";
         } else if (67.5 <= rotation && rotation < 112.5) {
-            return "E";
+            return "E ";
         } else if (112.5 <= rotation && rotation < 157.5) {
             return "SE";
         } else if (157.5 <= rotation && rotation < 202.5) {
-            return "S";
+            return "S ";
         } else if (202.5 <= rotation && rotation < 247.5) {
             return "SW";
         } else if (247.5 <= rotation && rotation < 292.5) {
-            return "W";
+            return "W ";
         } else if (292.5 <= rotation && rotation < 337.5) {
             return "NW";
         } else {
-            return "N";
+            return "N ";
         }
     }
 

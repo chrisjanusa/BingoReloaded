@@ -153,6 +153,9 @@ public abstract class BingoTask<T extends TaskData>
 
     public boolean complete(BingoParticipant participant, long gameTime)
     {
+        if (parentTask != null && parentTask.isCompleted()) {
+            return false;
+        }
         if (completedBy.isPresent())
             return false;
 

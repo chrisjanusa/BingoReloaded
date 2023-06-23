@@ -2,6 +2,7 @@ package io.github.steaf23.bingoreloaded.gui.base;
 
 
 import io.github.steaf23.bingoreloaded.BingoReloaded;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -64,7 +65,6 @@ public class MenuManager implements Listener
         UUID playerId = player.getUniqueId();
         if (!activeMenus.containsKey(playerId))
             activeMenus.put(playerId, new Stack<>());
-
         Stack<Menu> menuStack = activeMenus.get(playerId);
         // If we add another menu on top of a menu that should be removed, remove this menu first.
         if (menuStack.size() > 0 && menuStack.peek().openOnce()) {

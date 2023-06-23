@@ -144,7 +144,7 @@ public class BingoPlayer implements BingoParticipant
                 }
             }
 
-            player.getInventory().setItemInOffHand(PlayerKit.CARD_ITEM.copyToSlot(8));
+            player.getInventory().addItem(PlayerKit.CARD_ITEM.copyToSlot(7));
         });
     }
 

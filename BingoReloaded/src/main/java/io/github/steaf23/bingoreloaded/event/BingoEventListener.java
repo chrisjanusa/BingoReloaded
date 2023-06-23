@@ -5,9 +5,11 @@ import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
 import io.github.steaf23.bingoreloaded.tasks.statistics.StatisticTracker;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -75,12 +77,13 @@ public class BingoEventListener implements Listener
     @EventHandler
     public void handlePlayerInteract(final PlayerInteractEvent event)
     {
+
         // Special case; we don't want to have any bingo cards act as an actual map...
         if (event.getItem() != null && new MenuItem(event.getItem()).isCompareKeyEqual(PlayerKit.CARD_ITEM))
             event.setCancelled(true);
 
         BingoSession session = getSession(event.getPlayer().getWorld());
-        if (session == null)
+        if (session == null || event.getAction() == Action.RIGHT_CLICK_AIR)
         {
             return;
         }

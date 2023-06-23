@@ -60,6 +60,6 @@ public record SerializableCompleteBingoCard(
             tasks.add(task.toBingoTask(session));
         }
         CardSize cardSize = this.cardSize.toCardSize();
-        return new BingoCard(cardSize, tasks);
+        return new CompleteBingoCard(session.getMenuManager(), cardSize, tasks);
     }
 }

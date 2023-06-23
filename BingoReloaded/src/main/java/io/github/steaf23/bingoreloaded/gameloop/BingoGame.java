@@ -65,7 +65,7 @@ public class BingoGame implements GamePhase {
     private boolean hasTimerStarted;
 
     private BingoTask<?> deathMatchTask;
-    private BossBar bossBar;
+    private Map<BingoParticipant, BossBar> bossBars;
 
     public BingoGame(BingoSession session, BingoSettings settings, ConfigData config) {
         this.session = session;
@@ -80,7 +80,7 @@ public class BingoGame implements GamePhase {
             this.statTracker = new StatisticTracker(worldName);
         else
             this.statTracker = null;
-        this.bossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID);
+        initBossBars();
         start();
     }
 
@@ -95,7 +95,7 @@ public class BingoGame implements GamePhase {
         this.cardEventManager = new CardEventManager(worldName);
         this.statTracker = statistics;
         this.timer = timer;
-        this.bossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID);
+        initBossBars();
         resume(masterCard);
     }
 
@@ -151,7 +151,9 @@ public class BingoGame implements GamePhase {
                 player.setLevel(0);
                 player.setExp(0.0f);
                 if (boosBarActive) {
-                    bossBar.addPlayer(player);
+                    bossBars.get(p).addPlayer(player);
+                    String bossFormat = settings.enableCountdown() ? config.countdownBossTextFormat : config.standardBossTextFormat;
+                    bossBars.get(p).setTitle(getHudMessage(bossFormat, null, player));
                 }
             }
         });
@@ -185,7 +187,7 @@ public class BingoGame implements GamePhase {
             {
                 returnCardToPlayer((BingoPlayer) p);
                 if (boosBarActive) {
-                    p.sessionPlayer().ifPresent(sessionPlayer -> bossBar.addPlayer(sessionPlayer));
+                    p.sessionPlayer().ifPresent(sessionPlayer -> bossBars.get(p).addPlayer(sessionPlayer));
                 }
             }
         });
@@ -210,7 +212,7 @@ public class BingoGame implements GamePhase {
                 {
                     Message hudMessage = new Message(getHudMessage(hudFormat, timer, player));
                     Message.sendActionMessage(hudMessage, player);
-                    bossBar.setTitle(getHudMessage(bossFormat, timer, player));
+                    bossBars.get(participant).setTitle(getHudMessage(bossFormat, timer, player));
                 });
             }
             if (statTracker != null)
@@ -293,6 +295,13 @@ public class BingoGame implements GamePhase {
         }, 30 * BingoReloaded.ONE_SECOND, 30 * BingoReloaded.ONE_SECOND);
     }
 
+    private void initBossBars() {
+        this.bossBars = new HashMap<>();
+        for (BingoParticipant participant : teamManager.getParticipants()) {
+            this.bossBars.put(participant, Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID));
+        }
+    }
+
     private void sendBingoStartEvent() {
         var event = new BingoStartedEvent(session);
         Bukkit.getPluginManager().callEvent(event);
@@ -312,7 +321,7 @@ public class BingoGame implements GamePhase {
             scoreboard.reset();
         }
 
-        bossBar.removeAll();
+        bossBars.values().forEach(BossBar::removeAll);
 
         getTeamManager().getParticipants().forEach(p -> {
 
