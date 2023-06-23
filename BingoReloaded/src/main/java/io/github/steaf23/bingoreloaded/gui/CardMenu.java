@@ -51,7 +51,7 @@ public class CardMenu extends BasicMenu
         for (int i = 0; i < tasks.size(); i++)
         {
             BingoTask<?> task = tasks.get(i);
-            MenuItem item = task.asStack();
+            MenuItem item = task.asStack(teamManager.getBingoParticipant(player).getTeam());
             addItem(item.copyToSlot(size.getCardInventorySlot(i)));
             slotToTask.put(item, task);
         }

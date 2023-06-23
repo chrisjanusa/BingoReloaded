@@ -6,13 +6,12 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.SerializableAs;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 @SerializableAs("Bingo.AnyOfTask")
-public record AnyOfTask(String name, Material icon, List<TaskData> possibleTasks) implements TaskData
+public record AnyOfTask(String name, Material icon, List<TaskData> tasks) implements TaskData
 {
 
     @Override
@@ -43,7 +42,7 @@ public record AnyOfTask(String name, Material icon, List<TaskData> possibleTasks
         return new HashMap<>(){{
             put("name", name);
             put("icon", icon.name());
-            put("possible_tasks", possibleTasks);
+            put("tasks", tasks);
         }};
     }
 
@@ -53,7 +52,7 @@ public record AnyOfTask(String name, Material icon, List<TaskData> possibleTasks
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AnyOfTask itemTask = (AnyOfTask) o;
-        return possibleTasks == itemTask.possibleTasks;
+        return tasks == itemTask.tasks;
     }
 
     @Override
@@ -76,7 +75,7 @@ public record AnyOfTask(String name, Material icon, List<TaskData> possibleTasks
         return new AnyOfTask(
                 (String) data.get("name"),
                 Material.valueOf((String) data.get("icon")),
-                (List<TaskData>)data.getOrDefault("possible_tasks", null)
+                (List<TaskData>)data.getOrDefault("tasks", null)
         );
     }
 }

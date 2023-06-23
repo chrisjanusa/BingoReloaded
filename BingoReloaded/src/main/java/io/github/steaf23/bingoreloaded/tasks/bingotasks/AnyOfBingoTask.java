@@ -24,7 +24,7 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
         for (BingoTeam team : activeTeams) {
             childrenPerTeam.put(team.getName(), new ArrayList<>());
         }
-        for (TaskData task : anyOfTask.possibleTasks()) {
+        for (TaskData task : anyOfTask.tasks()) {
             for (BingoTeam team : activeTeams) {
                 List<BingoTask<?>> children = childrenPerTeam.get(team.getName());
                 children.add(BingoTask.getBingoTask(task, this, activeTeams));
@@ -78,7 +78,7 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
         base.addExtra("\n");
         descriptionTitle.setColor(nameColor);
         base.addExtra(descriptionTitle);
-        for (TaskData possibleTask : data.possibleTasks()) {
+        for (TaskData possibleTask : data.tasks()) {
             base.addExtra("\n - ");
             base.addExtra(possibleTask.getItemDisplayName().asComponent());
         }

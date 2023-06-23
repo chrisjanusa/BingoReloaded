@@ -84,6 +84,14 @@ public record StatisticTask(BingoStatistic statistic, int count) implements Coun
         return BingoTranslation.LORE_STATISTIC.asItemText(modifiers);
     }
 
+    public ItemText[] getLastToItemDescription()
+    {
+        Set<ChatColor> modifiers = new HashSet<>(){{
+            add(ChatColor.DARK_AQUA);
+        }};
+        return BingoTranslation.LAST_TO_LORE_STATISTIC.asItemText(modifiers);
+    }
+
     @Override
     public BaseComponent getDescription()
     {

@@ -60,8 +60,10 @@ game:
     join_team_desc: "Click to join this team!"
   item:
     lore: Obtain {0} of this item to complete this task! # 0: item count
+    last_to_lore: Be the last to obtain {0} of this item to complete this task! # 0: item count
     lore_advancement: "Click to learn more!"
     lore_statistic: "Obtain this statistic to complete the task!"
+    last_to_lore_statistic: "Be the last to obtain this statistic to complete the task!"
     completed: "Completed {0} by {1} at {2}" # 0: item name, 1: team, 2: completion time
     complete_lore: "Completed by {0} \nat {1}" # 0: team, 1: completion time
     deathmatch: "DeathMatch - Find this item to win: {0}" # 0: item name

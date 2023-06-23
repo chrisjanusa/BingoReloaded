@@ -43,7 +43,9 @@ public class HudHelper {
     private static String getWorldTime(Player player) {
         long tickCount = player.getWorld().getTime();
         long hours = (6 + tickCount/1000) % 25;
-        if (hours > 12) {
+        if (hours == 0) {
+            return "12am";
+        } else if (hours > 12) {
             return (hours - 12) + "pm";
         } else {
             return hours + "am";
