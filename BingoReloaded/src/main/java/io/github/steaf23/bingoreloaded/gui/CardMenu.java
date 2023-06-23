@@ -2,13 +2,12 @@ package io.github.steaf23.bingoreloaded.gui;
 
 import io.github.steaf23.bingoreloaded.cards.CardSize;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
+import io.github.steaf23.bingoreloaded.player.BingoTeam;
+import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.gui.base.BasicMenu;
 import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
 import io.github.steaf23.bingoreloaded.util.Message;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -22,13 +21,15 @@ public class CardMenu extends BasicMenu
 {
     private final CardSize size;
     private final HashMap<MenuItem, BingoTask<?>> slotToTask;
+    public TeamManager teamManager;
 
-    public CardMenu(MenuManager menuManager, CardSize cardSize, String title)
+    public CardMenu(MenuManager menuManager, CardSize cardSize, String title, TeamManager teamManager)
     {
         super(menuManager, title, cardSize.size);
         this.size = cardSize;
         setMaxStackSizeOverride(64);
         slotToTask = new HashMap<>();
+        this.teamManager = teamManager;
     }
 
     @Override
@@ -39,25 +40,8 @@ public class CardMenu extends BasicMenu
         BingoTask<?> task = slotToTask.get(clickedItem);
         if (task == null)
             return true;
-
-        BaseComponent base = new TextComponent("\n");
-        BaseComponent name = task.data.getItemDisplayName().asComponent();
-        name.setBold(true);
-        name.setColor(task.nameColor);
-
-        base.addExtra(name);
-        BaseComponent descriptionTitle = task.data.getDescriptionsTitle();
-        if (descriptionTitle != null) {
-            base.addExtra("\n");
-            descriptionTitle.setColor(task.nameColor);
-            base.addExtra(descriptionTitle);
-        }
-        for(BaseComponent description : task.data.getDescriptions()) {
-            base.addExtra("\n - ");
-            base.addExtra(description);
-        }
-
-        Message.sendDebugNoPrefix(base, (Player) player);
+        BingoTeam team = teamManager.getBingoParticipant((Player) player).getTeam();
+        Message.sendDebugNoPrefix(task.getOnClickMessage(team), (Player) player);
 
         return super.onClick(event, player, clickedItem, clickType);
     }

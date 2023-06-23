@@ -57,9 +57,9 @@ public record SerializableCompleteBingoCard(
     public BingoCard toBingoCard(BingoSession session) {
         List<BingoTask<?>> tasks = new ArrayList<>();
         for (SerializableBingoTask task : bingoTaskList) {
-            tasks.add(task.toBingoTask(session));
+            tasks.add(task.toBingoTask(session, null));
         }
         CardSize cardSize = this.cardSize.toCardSize();
-        return new CompleteBingoCard(session.getMenuManager(), cardSize, tasks);
+        return new CompleteBingoCard(session.getMenuManager(), cardSize, tasks, session.teamManager);
     }
 }

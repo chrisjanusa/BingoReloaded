@@ -4,7 +4,7 @@ import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.*;
 
 public interface SerializableBingoTask {
-    BingoTask<?> toBingoTask(BingoSession session);
+    BingoTask<?> toBingoTask(BingoSession session, ChildHavingBingoTask<?> parentTask);
 
     static SerializableBingoTask toSerializedTask(BingoTask<?> task) {
         if (task instanceof StatisticBingoTask statisticBingoTask) {
@@ -15,6 +15,8 @@ public interface SerializableBingoTask {
             return new SerializableItemBingoTask(itemBingoTask);
         } else if (task instanceof AnyOfBingoTask anyOfBingoTask) {
             return new SerializableAnyOfBingoTask(anyOfBingoTask);
+        } else if (task instanceof AllOfBingoTask allOfBingoTask) {
+            return new SerializableAllOfBingoTask(allOfBingoTask);
         }
         return null;
     }

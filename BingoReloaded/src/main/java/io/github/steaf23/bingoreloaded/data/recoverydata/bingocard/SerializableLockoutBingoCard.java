@@ -67,9 +67,9 @@ public record SerializableLockoutBingoCard(
     public BingoCard toBingoCard(BingoSession session) {
         List<BingoTask<?>> tasks = new ArrayList<>();
         for (SerializableBingoTask task : bingoTaskList) {
-            tasks.add(task.toBingoTask(session));
+            tasks.add(task.toBingoTask(session, null));
         }
         CardSize cardSize = this.cardSize.toCardSize();
-        return new LockoutBingoCard(session.getMenuManager(), cardSize, tasks, teamCount, currentMaxTasks);
+        return new LockoutBingoCard(session.getMenuManager(), cardSize, tasks, session.teamManager, currentMaxTasks);
     }
 }

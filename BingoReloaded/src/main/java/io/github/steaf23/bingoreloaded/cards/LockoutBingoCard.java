@@ -16,19 +16,19 @@ public class LockoutBingoCard extends BingoCard
     public int teamCount;
     public int currentMaxTasks;
 
-    public LockoutBingoCard(MenuManager menuManager, CardSize size, int teamCount)
+    public LockoutBingoCard(MenuManager menuManager, CardSize size, TeamManager teamManager)
     {
-        super(menuManager, size);
+        super(menuManager, size, teamManager);
         this.currentMaxTasks = size.fullCardSize;
-        this.teamCount = teamCount;
+        this.teamCount = teamManager.getActiveTeams().size();
 
         menu.setInfo(BingoTranslation.INFO_LOCKOUT_NAME.translate(),
                 BingoTranslation.INFO_LOCKOUT_DESC.translate().split("\\n"));
     }
 
-    public LockoutBingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks, int teamCount, int currentMaxTasks) {
-        super(menuManager, size, tasks);
-        this.teamCount = teamCount;
+    public LockoutBingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks, TeamManager teamManager, int currentMaxTasks) {
+        super(menuManager, size, tasks, teamManager);
+        this.teamCount = teamManager.getActiveTeams().size();
         this.currentMaxTasks = currentMaxTasks;
         menu.setInfo(BingoTranslation.INFO_LOCKOUT_NAME.translate(),
                 BingoTranslation.INFO_LOCKOUT_DESC.translate().split("\\n"));

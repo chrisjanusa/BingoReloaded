@@ -121,7 +121,7 @@ public class BingoGame implements GamePhase {
         world.setTime(1000);
 
         // Generate cards
-        BingoCard masterCard = CardBuilder.fromMode(session.getMenuManager(), settings.mode(), settings.size(), getTeamManager().getActiveTeams().size());
+        BingoCard masterCard = CardBuilder.fromMode(session.getMenuManager(), settings.mode(), settings.size(), getTeamManager());
         masterCard.generateCard(settings.card(), settings.seed(), !config.disableAdvancements, !config.disableStatistics, teamManager.getActiveTeams());
         initCards(masterCard);
 
@@ -627,11 +627,15 @@ public class BingoGame implements GamePhase {
     {
         String timeString = GameTimer.getTimeAsString(getGameTime());
 
-        new TranslatedMessage(BingoTranslation.COMPLETED).color(ChatColor.AQUA)
+        Message message = new TranslatedMessage(BingoTranslation.COMPLETED).color(ChatColor.AQUA)
                 .component(event.getTask().data.getItemDisplayName().asComponent()).color(event.getTask().nameColor)
                 .arg(new ItemText(event.getParticipant().getDisplayName(), event.getParticipant().getTeam().getColor().chatColor, ChatColor.BOLD).asLegacyString())
-                .arg(timeString).color(ChatColor.WHITE)
-                .sendAll(session);
+                .arg(timeString).color(ChatColor.WHITE);
+        if (event.getTask().hasParent()) {
+            message.send(event.getParticipant().getTeam());
+        } else {
+            message.sendAll(session);
+        }
 
         for (BingoParticipant otherParticipant : getTeamManager().getParticipants())
         {

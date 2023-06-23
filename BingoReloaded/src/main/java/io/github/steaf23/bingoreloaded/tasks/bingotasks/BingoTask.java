@@ -5,10 +5,13 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
+import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.tasks.*;
 import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -43,6 +46,9 @@ public abstract class BingoTask<T extends TaskData>
         }
         if (data instanceof AnyOfTask anyOfTask) {
             return new AnyOfBingoTask(anyOfTask, parentTask, activeTeams);
+        }
+        if (data instanceof AllOfTask allOfTask) {
+            return new AllOfBingoTask(allOfTask, parentTask, activeTeams);
         }
         Message.log("This Type of data is not supported by BingoTask: '" + data + "'!");
         return new ItemBingoTask(new ItemTask(Material.BEDROCK));
@@ -167,8 +173,26 @@ public abstract class BingoTask<T extends TaskData>
         return true;
     }
 
+    public BaseComponent getOnClickMessage(BingoTeam team) {
+        BaseComponent base = new TextComponent("\n");
+        BaseComponent name = data.getItemDisplayName().asComponent();
+        name.setBold(true);
+        name.setColor(nameColor);
+
+        base.addExtra(name);
+
+        base.addExtra("\n - ");
+        base.addExtra(data.getDescription());
+
+        return base;
+    }
+
     abstract public BingoTask<?> copy(ChildHavingBingoTask<?> parentTask);
     public BingoTask<?> copy() {
         return this.copy(null);
+    }
+
+    public boolean hasParent() {
+        return parentTask != null;
     }
 }
