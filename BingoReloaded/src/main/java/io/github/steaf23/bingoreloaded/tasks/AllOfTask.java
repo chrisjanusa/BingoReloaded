@@ -75,7 +75,7 @@ public record AllOfTask(String name, Material icon, List<TaskData> tasks) implem
         return new AllOfTask(
                 (String) data.get("name"),
                 Material.valueOf((String) data.get("icon")),
-                (List<TaskData>)data.getOrDefault("possible_tasks", null)
+                (List<TaskData>)data.getOrDefault("tasks", null)
         );
     }
 }
