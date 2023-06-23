@@ -32,7 +32,7 @@ public record AllOfTask(String name, Material icon, List<TaskData> tasks) implem
     @Override
     public BaseComponent getDescription()
     {
-        return new ItemText("Complete any of the following").asComponent();
+        return new ItemText("Complete all of the following").asComponent();
     }
 
     @NotNull

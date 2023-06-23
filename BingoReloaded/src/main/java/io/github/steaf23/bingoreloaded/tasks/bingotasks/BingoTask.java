@@ -5,7 +5,6 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
-import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.tasks.*;
 import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
@@ -50,6 +49,9 @@ public abstract class BingoTask<T extends TaskData>
         if (data instanceof AllOfTask allOfTask) {
             return new AllOfBingoTask(allOfTask, parentTask, activeTeams);
         }
+        if (data instanceof LastToTask lastToTask) {
+            return new LastToBingoTask(lastToTask, parentTask, activeTeams);
+        }
         Message.log("This Type of data is not supported by BingoTask: '" + data + "'!");
         return new ItemBingoTask(new ItemTask(Material.BEDROCK));
     }
@@ -76,7 +78,7 @@ public abstract class BingoTask<T extends TaskData>
         return completedBy.isPresent();
     }
 
-    public MenuItem asStack()
+    public MenuItem asStack(BingoTeam team)
     {
         ItemStack item;
 

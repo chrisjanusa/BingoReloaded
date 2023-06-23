@@ -7,8 +7,6 @@ import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.AnyOfTask;
 import io.github.steaf23.bingoreloaded.tasks.StatisticTask;
 import io.github.steaf23.bingoreloaded.tasks.TaskData;
-import io.github.steaf23.bingoreloaded.tasks.bingotasks.StatisticBingoTask;
-import org.bukkit.Statistic;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 
 import java.util.ArrayList;
@@ -54,7 +52,7 @@ public class StatisticTracker
                         statistics.add(new StatisticProgress(statTask.statistic(), bingoPlayer, statTask.count()));
                 }
             } else if (task instanceof AnyOfTask anyOfTask) {
-                createStatisticProgressFromTasks(anyOfTask.possibleTasks(), team);
+                createStatisticProgressFromTasks(anyOfTask.tasks(), team);
             }
         }
     }

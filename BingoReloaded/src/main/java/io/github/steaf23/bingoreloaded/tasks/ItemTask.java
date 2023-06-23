@@ -44,6 +44,14 @@ public record ItemTask(Material material, int count) implements CountableTask
         return BingoTranslation.LORE_ITEM.asItemText(modifiers, new ItemText(Integer.toString(count)));
     }
 
+    public ItemText[] getLastToItemDescription()
+    {
+        Set<ChatColor> modifiers = new HashSet<>(){{
+            add(ChatColor.DARK_AQUA);
+        }};
+        return BingoTranslation.LAST_TO_LORE_ITEM.asItemText(modifiers, new ItemText(Integer.toString(count)));
+    }
+
     @Override
     public BaseComponent getDescription()
     {
