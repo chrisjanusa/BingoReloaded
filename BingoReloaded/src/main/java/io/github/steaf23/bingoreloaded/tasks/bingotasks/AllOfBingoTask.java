@@ -11,9 +11,12 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
 {
+
+    public Map<String, List<BingoTask<?>>> childrenPerTeam;
 
     public AllOfBingoTask(AllOfTask allOfTask, ChildHavingBingoTask<?> parentTask, Set<BingoTeam> activeTeams) {
         this.nameColor = ChatColor.BLUE;
@@ -102,5 +105,12 @@ public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
         var slotEvent = new ChildHavingTaskCompleteEvent(participant, this);
         Bukkit.getPluginManager().callEvent(slotEvent);
         return super.complete(participant, gameTime);
+    }
+
+    @Override
+    public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
+        Bukkit.getLogger().log(Level.WARNING, "getting All of child tasks for " + participant.getDisplayName());
+        Bukkit.getLogger().log(Level.WARNING, "childrenPerTeam " + childrenPerTeam);
+        return childrenPerTeam.get(participant.getTeam().getName());
     }
 }

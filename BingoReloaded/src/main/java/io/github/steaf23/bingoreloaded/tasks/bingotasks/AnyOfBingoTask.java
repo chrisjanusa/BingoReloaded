@@ -1,5 +1,6 @@
 package io.github.steaf23.bingoreloaded.tasks.bingotasks;
 
+import io.github.steaf23.bingoreloaded.event.ChildHavingTaskCompleteEvent;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.AnyOfTask;
@@ -7,10 +8,14 @@ import io.github.steaf23.bingoreloaded.tasks.TaskData;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
+
+    public Map<String, List<BingoTask<?>>> childrenPerTeam;
 
     public AnyOfBingoTask(AnyOfTask anyOfTask, ChildHavingBingoTask<?> parentTask, Set<BingoTeam> activeTeams) {
         this.nameColor = ChatColor.AQUA;
@@ -62,6 +67,8 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
 
     @Override
     void onChildComplete(BingoParticipant participant, long gameTime) {
+        var slotEvent = new ChildHavingTaskCompleteEvent(participant, this);
+        Bukkit.getPluginManager().callEvent(slotEvent);
         complete(participant, gameTime);
     }
 
@@ -83,5 +90,12 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
             base.addExtra(possibleTask.getItemDisplayName().asComponent());
         }
         return base;
+    }
+
+    @Override
+    public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
+        Bukkit.getLogger().log(Level.WARNING, "getting Any of child tasks for " + participant.getDisplayName());
+        Bukkit.getLogger().log(Level.WARNING, "childrenPerTeam " + childrenPerTeam);
+        return childrenPerTeam.get(participant.getTeam().getName());
     }
 }

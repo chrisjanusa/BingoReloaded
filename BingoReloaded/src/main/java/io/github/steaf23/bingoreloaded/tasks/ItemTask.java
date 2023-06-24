@@ -110,4 +110,12 @@ public record ItemTask(Material material, int count) implements CountableTask
     {
         return new ItemTask(material, newCount);
     }
+
+    @Override
+    public String toString() {
+        return "ItemTask{" +
+                "material=" + material +
+                ", count=" + count +
+                '}';
+    }
 }

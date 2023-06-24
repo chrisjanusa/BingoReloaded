@@ -8,7 +8,7 @@ import java.util.Map;
 
 public abstract class ChildHavingBingoTask<T extends TaskData> extends BingoTask<T>
 {
-    public Map<String, List<BingoTask<?>>> childrenPerTeam;
+    abstract public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant);
 
     abstract void onChildComplete(BingoParticipant participant, long gameTime);
 }

@@ -1,42 +1,35 @@
 package io.github.steaf23.bingoreloaded.tasks;
 
 import io.github.steaf23.bingoreloaded.item.ItemText;
-import io.github.steaf23.bingoreloaded.tasks.bingotasks.ItemBingoTask;
-import io.github.steaf23.bingoreloaded.tasks.bingotasks.StatisticBingoTask;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-@SerializableAs("Bingo.LastToTask")
-public record LastToTask(TaskData task) implements TaskData
+@SerializableAs("Bingo.EveryoneTask")
+public record EveryoneTask(TaskData task) implements TaskData
 {
 
     @Override
     public ItemText getItemDisplayName()
     {
-        ItemText text = new ItemText("Last to obtain ");
+        ItemText text = new ItemText("Every player must obtain ");
         return ItemText.combine(text, task.getItemDisplayName());
     }
 
     @Override
     public ItemText[] getItemDescription()
     {
-        if (task instanceof StatisticTask statisticTask) {
-            return statisticTask.getLastToItemDescription();
-        }
-        if (task instanceof ItemTask itemTask) {
-            return itemTask.getLastToItemDescription();
-        }
         return task.getItemDescription();
     }
 
     @Override
     public BaseComponent getDescription()
     {
-        return new ItemText("Be the last to complete the following").asComponent();
+        return new ItemText("Players remaining").asComponent();
     }
 
     @NotNull
@@ -53,7 +46,7 @@ public record LastToTask(TaskData task) implements TaskData
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LastToTask itemTask = (LastToTask) o;
+        EveryoneTask itemTask = (EveryoneTask) o;
         return task == itemTask.task;
     }
 
@@ -66,15 +59,15 @@ public record LastToTask(TaskData task) implements TaskData
     @Override
     public boolean isTaskEqual(TaskData other)
     {
-        if (!(other instanceof LastToTask itemTask))
+        if (!(other instanceof EveryoneTask itemTask))
             return false;
 
         return task.equals(itemTask.task);
     }
 
-    public static LastToTask deserialize(Map<String, Object> data)
+    public static EveryoneTask deserialize(Map<String, Object> data)
     {
-        return new LastToTask(
+        return new EveryoneTask(
                 (TaskData)data.getOrDefault("task", null)
         );
     }

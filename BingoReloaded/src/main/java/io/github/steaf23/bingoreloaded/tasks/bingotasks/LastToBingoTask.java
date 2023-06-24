@@ -1,6 +1,7 @@
 package io.github.steaf23.bingoreloaded.tasks.bingotasks;
 
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
+import io.github.steaf23.bingoreloaded.event.ChildHavingTaskCompleteEvent;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
@@ -10,14 +11,18 @@ import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
+
+    public Map<String, List<BingoTask<?>>> childrenPerTeam;
 
     public LastToBingoTask(LastToTask lastToTask, ChildHavingBingoTask<?> parentTask, Set<BingoTeam> activeTeams) {
         this.nameColor = ChatColor.RED;
@@ -159,6 +164,11 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
     }
 
     @Override
+    public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
+        return childrenPerTeam.get(participant.getTeam().getName());
+    }
+
+    @Override
     void onChildComplete(BingoParticipant participant, long gameTime) {
         String onlyTeamRemaining = null;
         for (String teamName : childrenPerTeam.keySet()) {
@@ -173,7 +183,11 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
         if (onlyTeamRemaining != null) {
             for (BingoTeam team : participant.getSession().teamManager.getActiveTeams()) {
                 if (Objects.equals(team.getName(), onlyTeamRemaining)) {
-                    team.getMembers().stream().findFirst().ifPresent(teamPlayer -> complete(teamPlayer, gameTime));
+                    team.getMembers().stream().findFirst().ifPresent(teamPlayer -> {
+                        var slotEvent = new ChildHavingTaskCompleteEvent(teamPlayer, this);
+                        Bukkit.getPluginManager().callEvent(slotEvent);
+                        complete(teamPlayer, gameTime);
+                    });
                 }
             }
         }

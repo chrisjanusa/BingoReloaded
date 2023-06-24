@@ -33,4 +33,11 @@ public class ItemBingoTask extends BingoTask<ItemTask>
         task.setVoided(voided);
         return task;
     }
+
+    @Override
+    public String toString() {
+        return "ItemBingoTask{" +
+                "data=" + data +
+                '}';
+    }
 }

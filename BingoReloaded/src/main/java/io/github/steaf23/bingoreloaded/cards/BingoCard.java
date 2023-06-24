@@ -328,7 +328,7 @@ public class BingoCard
                     break;
                 }
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
-                checkTasksForItemCompletion(childHavingBingoTask.childrenPerTeam.get(player.getTeam().getName()), item, player, game);
+                checkTasksForItemCompletion(childHavingBingoTask.getChildTasksForPlayer(player), item, player, game);
             }
         }
     }
@@ -356,7 +356,7 @@ public class BingoCard
                     Bukkit.getPluginManager().callEvent(slotEvent);
                 }
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
-                checkTasksForAdvancement(childHavingBingoTask.childrenPerTeam.get(player.getTeam().getName()), event, player, game);
+                checkTasksForAdvancement(childHavingBingoTask.getChildTasksForPlayer(player), event, player, game);
             }
         }
     }
@@ -386,7 +386,7 @@ public class BingoCard
                     break;
                 }
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
-                checkTasksForStatistic(childHavingBingoTask.childrenPerTeam.get(player.getTeam().getName()), event, player, game);
+                checkTasksForStatistic(childHavingBingoTask.getChildTasksForPlayer(player), event, player, game);
             }
         }
     }
@@ -415,7 +415,7 @@ public class BingoCard
                     break;
                 }
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
-                checkTasksForStatistic(childHavingBingoTask.childrenPerTeam.get(player.getTeam().getName()), event, player, game);
+                checkTasksForStatistic(childHavingBingoTask.getChildTasksForPlayer(player), event, player, game);
             }
         }
     }
