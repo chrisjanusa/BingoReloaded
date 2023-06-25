@@ -95,7 +95,7 @@ public record ItemTask(Material material, int count) implements CountableTask
     public static ItemTask deserialize(Map<String, Object> data)
     {
         return new ItemTask(
-                Material.valueOf((String) data.get("item")),
+                Material.valueOf(((String) data.get("item")).toUpperCase()),
                 (int) data.get("count"));
     }
 

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 @SerializableAs("Bingo.StatisticTask")
-public record StatisticTask(BingoStatistic statistic, int count) implements CountableTask
+public record StatisticTask(BingoStatistic statistic, int count) implements TaskData
 {
     public StatisticTask(BingoStatistic statistic)
     {
@@ -26,7 +26,7 @@ public record StatisticTask(BingoStatistic statistic, int count) implements Coun
     public StatisticTask(BingoStatistic statistic, int count)
     {
         this.statistic = statistic;
-        this.count = Math.min(64, Math.max(1, count));
+        this.count = Math.max(1, count);
     }
 
     @Override
@@ -138,17 +138,5 @@ public record StatisticTask(BingoStatistic statistic, int count) implements Coun
                 (BingoStatistic) data.get("statistic"),
                 (int)data.get("count")
         );
-    }
-
-    @Override
-    public int getCount()
-    {
-        return count;
-    }
-
-    @Override
-    public CountableTask updateTask(int newCount)
-    {
-        return new StatisticTask(statistic, newCount);
     }
 }

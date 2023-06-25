@@ -231,7 +231,7 @@ public record BingoStatistic(@NotNull Statistic stat, @Nullable EntityType entit
             case WALK_ON_WATER_ONE_CM -> Material.ICE;
             case FALL_ONE_CM -> Material.LAVA_BUCKET;
             case SNEAK_TIME -> Material.SCULK_SHRIEKER;
-            case CLIMB_ONE_CM -> Material.EMERALD_ORE;
+            case CLIMB_ONE_CM -> Material.VINE;
             case FLY_ONE_CM -> Material.COMMAND_BLOCK;
             case WALK_UNDER_WATER_ONE_CM -> Material.GOLDEN_BOOTS;
             case MINECART_ONE_CM -> Material.MINECART;

@@ -109,6 +109,7 @@ public class BingoCard
                 overflowList.add(listName);
             }
         }
+        Collections.shuffle(ticketList, shuffler);
         Collections.shuffle(overflowList, shuffler);
         ticketList.addAll(overflowList);
         if (ticketList.size() > size.fullCardSize)

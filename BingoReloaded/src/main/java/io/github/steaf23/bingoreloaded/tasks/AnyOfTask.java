@@ -74,7 +74,7 @@ public record AnyOfTask(String name, Material icon, List<TaskData> tasks) implem
     {
         return new AnyOfTask(
                 (String) data.get("name"),
-                Material.valueOf((String) data.get("icon")),
+                Material.valueOf(((String) data.get("icon")).toUpperCase()),
                 (List<TaskData>)data.getOrDefault("tasks", null)
         );
     }
