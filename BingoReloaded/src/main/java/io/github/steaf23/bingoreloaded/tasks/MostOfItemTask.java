@@ -10,14 +10,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-@SerializableAs("Bingo.AnyOfTask")
-public record AnyOfTask(String name, Material icon, List<TaskData> tasks) implements ChildHavingTask
+@SerializableAs("Bingo.MostOfItemTask")
+public record MostOfItemTask(List<Material> materials, String name) implements TaskData
 {
 
     @Override
     public ItemText getItemDisplayName()
     {
-        return new ItemText(name);
+        ItemText text = new ItemText();
+        text.addText("Have the most " + name);
+        return text;
     }
 
     @Override
@@ -32,7 +34,7 @@ public record AnyOfTask(String name, Material icon, List<TaskData> tasks) implem
     @Override
     public BaseComponent getDescription()
     {
-        return new ItemText("Complete any of the following").asComponent();
+        return new ItemText("Have the most total of the following").asComponent();
     }
 
     @NotNull
@@ -40,9 +42,8 @@ public record AnyOfTask(String name, Material icon, List<TaskData> tasks) implem
     public Map<String, Object> serialize()
     {
         return new HashMap<>(){{
+            put("items", materials.stream().map(Enum::name).toList());
             put("name", name);
-            put("icon", icon.name());
-            put("tasks", tasks);
         }};
     }
 
@@ -51,36 +52,37 @@ public record AnyOfTask(String name, Material icon, List<TaskData> tasks) implem
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AnyOfTask itemTask = (AnyOfTask) o;
-        return tasks == itemTask.tasks;
+        MostOfItemTask itemTask = (MostOfItemTask) o;
+        return materials == itemTask.materials;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(name);
+        return Objects.hash(materials);
     }
 
     @Override
     public boolean isTaskEqual(TaskData other)
     {
-        if (!(other instanceof AnyOfTask itemTask))
+        if (!(other instanceof MostOfItemTask itemTask))
             return false;
 
-        return name.equals(itemTask.name);
+        return materials.equals(itemTask.materials);
     }
 
-    public static AnyOfTask deserialize(Map<String, Object> data)
+    public static MostOfItemTask deserialize(Map<String, Object> data)
     {
-        return new AnyOfTask(
-                (String) data.get("name"),
-                Material.valueOf(((String) data.get("icon")).toUpperCase()),
-                (List<TaskData>)data.getOrDefault("tasks", null)
+        return new MostOfItemTask(
+                ((List<String>) data.get("items")).stream().map(materialName -> Material.valueOf(materialName.toUpperCase())).toList(),
+                (String) data.get("name")
         );
     }
 
     @Override
-    public List<TaskData> getChildren() {
-        return tasks;
+    public String toString() {
+        return "MostOfItemTask{" +
+                "material=" + materials +
+                '}';
     }
 }

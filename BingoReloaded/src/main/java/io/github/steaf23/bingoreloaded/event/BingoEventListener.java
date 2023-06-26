@@ -266,6 +266,19 @@ public class BingoEventListener implements Listener
     }
 
     @EventHandler
+    public void handleMostofStatisticProgress(final BingoMostOfStatisticProgressEvent event)
+    {
+        if (disableStatistics)
+            return;
+
+        BingoGame game = event.session != null && event.session.isRunning() ? (BingoGame)event.session.phase() : null;
+        if (game != null)
+        {
+            game.getCardEventManager().handleStatisticCompleted(event, game);
+        }
+    }
+
+    @EventHandler
     public void handlePlayerMove(final PlayerMoveEvent event)
     {
         BingoSession session = getSession(event.getPlayer().getWorld());

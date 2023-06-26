@@ -55,6 +55,12 @@ public abstract class BingoTask<T extends TaskData>
         if (data instanceof EveryoneTask everyoneTask) {
             return new EveryoneBingoTask(everyoneTask, parentTask, activeTeams);
         }
+        if (data instanceof MostOfItemTask mostOfItemTask) {
+            return new MostOfItemBingoTask(mostOfItemTask, parentTask);
+        }
+        if (data instanceof MostOfStatisticTask mostOfStatisticTask) {
+            return new MostOfStatisticBingoTask(mostOfStatisticTask, parentTask);
+        }
         Message.log("This Type of data is not supported by BingoTask: '" + data + "'!");
         return new ItemBingoTask(new ItemTask(Material.BEDROCK));
     }

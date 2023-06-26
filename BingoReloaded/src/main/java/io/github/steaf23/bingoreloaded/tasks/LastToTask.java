@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 @SerializableAs("Bingo.LastToTask")
-public record LastToTask(TaskData task) implements TaskData
+public record LastToTask(TaskData task) implements ChildHavingTask
 {
 
     @Override
@@ -77,5 +77,10 @@ public record LastToTask(TaskData task) implements TaskData
         return new LastToTask(
                 (TaskData)data.getOrDefault("task", null)
         );
+    }
+
+    @Override
+    public List<TaskData> getChildren() {
+        return List.of(task);
     }
 }

@@ -6,11 +6,12 @@ import org.bukkit.configuration.serialization.SerializableAs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @SerializableAs("Bingo.EveryoneTask")
-public record EveryoneTask(TaskData task) implements TaskData
+public record EveryoneTask(TaskData task) implements ChildHavingTask
 {
 
     @Override
@@ -70,5 +71,10 @@ public record EveryoneTask(TaskData task) implements TaskData
         return new EveryoneTask(
                 (TaskData)data.getOrDefault("task", null)
         );
+    }
+
+    @Override
+    public List<TaskData> getChildren() {
+        return List.of(task);
     }
 }

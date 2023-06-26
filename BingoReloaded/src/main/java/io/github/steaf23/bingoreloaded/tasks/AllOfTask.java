@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 @SerializableAs("Bingo.AllOfTask")
-public record AllOfTask(String name, Material icon, List<TaskData> tasks) implements TaskData
+public record AllOfTask(String name, Material icon, List<TaskData> tasks) implements ChildHavingTask
 {
 
     @Override
@@ -77,5 +77,10 @@ public record AllOfTask(String name, Material icon, List<TaskData> tasks) implem
                 Material.valueOf(((String) data.get("icon")).toUpperCase()),
                 (List<TaskData>)data.getOrDefault("tasks", null)
         );
+    }
+
+    @Override
+    public List<TaskData> getChildren() {
+        return tasks;
     }
 }

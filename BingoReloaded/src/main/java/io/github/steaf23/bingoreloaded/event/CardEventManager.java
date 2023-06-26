@@ -138,6 +138,22 @@ public class CardEventManager
         }
     }
 
+    public void handleStatisticCompleted(final BingoMostOfStatisticProgressEvent event, final BingoGame game)
+    {
+        if (!event.player.sessionPlayer().isPresent())
+            return;
+
+        BingoTeam team = event.player.getTeam();
+        if (team == null)
+            return;
+
+        for (BingoCard card : cards)
+        {
+            if (team.card.equals(card))
+                card.onPlayerStatisticProgressed(event, event.player, game);
+        }
+    }
+
     public void handleChildHavingTaskComplete(ChildHavingTaskCompleteEvent event) {
         for (BingoCard card : cards)
         {

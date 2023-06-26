@@ -21,6 +21,10 @@ public interface SerializableBingoTask {
             return new SerializableLastToBingoTask(lastToBingoTask);
         } else if (task instanceof EveryoneBingoTask everyoneBingoTask) {
             return new SerializableEveryoneBingoTask(everyoneBingoTask);
+        } else if (task instanceof MostOfItemBingoTask mostOfItemBingoTask) {
+            return new SerializableMostOfItemBingoTask(mostOfItemBingoTask);
+        } else if (task instanceof MostOfStatisticBingoTask mostOfStatisticBingoTask) {
+            return new SerializableMostOfStatisticBingoTask(mostOfStatisticBingoTask);
         }
         return null;
     }

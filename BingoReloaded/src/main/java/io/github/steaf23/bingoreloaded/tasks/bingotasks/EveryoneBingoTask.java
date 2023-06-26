@@ -8,6 +8,7 @@ import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.EveryoneTask;
 import io.github.steaf23.bingoreloaded.tasks.LastToTask;
+import io.github.steaf23.bingoreloaded.tasks.TaskData;
 import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;

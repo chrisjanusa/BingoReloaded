@@ -1,6 +1,7 @@
 package io.github.steaf23.bingoreloaded.tasks.bingotasks;
 
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
+import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.TaskData;
 
 import java.util.List;

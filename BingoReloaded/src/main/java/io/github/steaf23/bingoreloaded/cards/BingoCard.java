@@ -1,6 +1,7 @@
 package io.github.steaf23.bingoreloaded.cards;
 
 
+import io.github.steaf23.bingoreloaded.event.BingoMostOfStatisticProgressEvent;
 import io.github.steaf23.bingoreloaded.event.ChildHavingTaskCompleteEvent;
 import io.github.steaf23.bingoreloaded.gameloop.BingoGame;
 import io.github.steaf23.bingoreloaded.BingoReloaded;
@@ -328,6 +329,14 @@ public class BingoCard
                     Bukkit.getPluginManager().callEvent(slotEvent);
                     break;
                 }
+            } else if (task instanceof MostOfItemBingoTask mostOfItemBingoTask) {
+                MostOfItemTask data = mostOfItemBingoTask.data;
+                if (data.materials().stream().anyMatch(material -> material.equals(item.getType()))) {
+                    mostOfItemBingoTask.increaseCount(player, item.getAmount(), game.getGameTime());
+                    item.setAmount(0);
+                    player.sessionPlayer().get().updateInventory();
+                    break;
+                }
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
                 checkTasksForItemCompletion(childHavingBingoTask.getChildTasksForPlayer(player), item, player, game);
             }
@@ -378,7 +387,7 @@ public class BingoCard
             if (task instanceof StatisticBingoTask statisticBingoTask) {
                 StatisticTask data = statisticBingoTask.data;
                 if (data.statistic().equals(new BingoStatistic(event.getStatistic(), event.getEntityType(), event.getMaterial())) &&
-                        data.getCount() == event.getNewValue()) {
+                        data.count() == event.getNewValue()) {
                     if (!task.complete(player, game.getGameTime()))
                         continue;
 
@@ -400,6 +409,31 @@ public class BingoCard
             return;
 
         checkTasksForStatistic(tasks, event, player, game);
+    }
+
+    public void onPlayerStatisticProgressed(final BingoMostOfStatisticProgressEvent event, final BingoPlayer player, final BingoGame game) {
+        if (player.getTeam().outOfTheGame)
+            return;
+
+        if (game.getDeathMatchTask() != null)
+            return;
+
+        checkTasksForMostOfStatistic(tasks, event, player, game);
+    }
+
+    private void checkTasksForMostOfStatistic(List<BingoTask<?>> tasks, final BingoMostOfStatisticProgressEvent event, final BingoPlayer player, final BingoGame game) {
+        for (BingoTask<?> task : tasks) {
+            if (task instanceof MostOfStatisticBingoTask mostOfStatisticBingoTask) {
+
+                MostOfStatisticTask data = mostOfStatisticBingoTask.data;
+                if (data.statistic().equals(event.stat)) {
+                    mostOfStatisticBingoTask.increaseCount(player, event.progress, game.getGameTime());
+                    break;
+                }
+            } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
+                checkTasksForMostOfStatistic(childHavingBingoTask.getChildTasksForPlayer(player), event, player, game);
+            }
+        }
     }
 
     private void checkTasksForStatistic(List<BingoTask<?>> tasks, final BingoStatisticCompletedEvent event, final BingoPlayer player, final BingoGame game) {
