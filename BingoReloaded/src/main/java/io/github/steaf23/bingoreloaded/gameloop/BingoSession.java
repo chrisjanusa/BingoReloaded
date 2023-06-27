@@ -142,7 +142,7 @@ public class BingoSession
         if(teamToSavedLocation != null) {
             for (BingoTeam team : teamManager.getActiveTeams()) {
                 team.clearSavedLocations();
-                team.savedLocations = teamToSavedLocation.getOrDefault(team.getName(), new HashMap<>());
+                team.savedLocations = teamToSavedLocation.getOrDefault(team.getIdentifier(), new HashMap<>());
             }
         }
 

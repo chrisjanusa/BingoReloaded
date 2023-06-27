@@ -56,7 +56,7 @@ public record SerializableRecoveryData(
     private static Map<String, Map<String, Location>> getSavedLocationMap(Set<BingoTeam> teams) {
         Map<String, Map<String, Location>> savedLocationMap = new HashMap<>();
         for (BingoTeam team : teams) {
-            savedLocationMap.put(team.getName(), team.savedLocations);
+            savedLocationMap.put(team.getIdentifier(), team.savedLocations);
         }
         return savedLocationMap;
     }

@@ -43,7 +43,7 @@ public class MostOfStatisticBingoTask extends BingoTask<MostOfStatisticTask> {
         name.setColor(nameColor);
 
         base.addExtra(name);
-        String teamName = team.getName();
+        String teamName = team.getIdentifier();
         base.addExtra("\n - ");
         base.addExtra("Your team currently has " + getIntegerCount(teamName));
 
@@ -56,9 +56,9 @@ public class MostOfStatisticBingoTask extends BingoTask<MostOfStatisticTask> {
     }
 
     public synchronized void increaseCount(BingoParticipant player, double amount, long gameTime) {
-        String teamName = player.getTeam().getName();
+        String teamName = player.getTeam().getIdentifier();
         teamCount.put(teamName, teamCount.getOrDefault(teamName, 0.0) + amount);
-        if (completedBy.isPresent() && Objects.equals(completedBy.get().getTeam().getName(), teamName)) {
+        if (completedBy.isPresent() && Objects.equals(completedBy.get().getTeam().getIdentifier(), teamName)) {
             return;
         }
         double mostCount = -1;

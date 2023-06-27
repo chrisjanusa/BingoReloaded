@@ -88,7 +88,7 @@ public record SerializableBreedBingoTask(
             if (completedParticipant != null) {
                 task.completedBy = Optional.of(completedParticipant);
                 task.completedAt = completedAt;
-                task.maxTeam = completedParticipant.getTeam().getName();
+                task.maxTeam = completedParticipant.getTeam().getIdentifier();
                 task.max = teamCount.get(task.maxTeam);
             }
         }

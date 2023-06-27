@@ -38,7 +38,7 @@ public class MostOfItemBingoTask extends BingoTask<MostOfItemTask> {
         name.setColor(nameColor);
 
         base.addExtra(name);
-        String teamName = team.getName();
+        String teamName = team.getIdentifier();
         base.addExtra("\n - ");
         base.addExtra("Your team currently has " + teamCount.getOrDefault(teamName, 0));
 
@@ -46,10 +46,10 @@ public class MostOfItemBingoTask extends BingoTask<MostOfItemTask> {
     }
 
     public synchronized void increaseCount(BingoParticipant player, int amount, long gameTime) {
-        String teamName = player.getTeam().getName();
+        String teamName = player.getTeam().getIdentifier();
         teamCount.put(teamName, teamCount.getOrDefault(teamName, 0) + amount);
 
-        if (completedBy.isPresent() && Objects.equals(completedBy.get().getTeam().getName(), teamName)) {
+        if (completedBy.isPresent() && Objects.equals(completedBy.get().getTeam().getIdentifier(), teamName)) {
             return;
         }
         int mostCount = -1;

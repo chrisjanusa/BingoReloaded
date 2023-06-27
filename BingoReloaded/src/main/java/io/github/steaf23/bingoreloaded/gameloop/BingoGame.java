@@ -292,7 +292,7 @@ public class BingoGame implements GamePhase {
                     .stream()
                     .filter(player -> player.getTeam() != null)
                     .filter(player -> player instanceof BingoPlayer)
-                    .forEach(player -> recoveryDataManager.savePlayerRecoveryData(player.sessionPlayer().orElse(null), player.getTeam().getName()));
+                    .forEach(player -> recoveryDataManager.savePlayerRecoveryData(player.sessionPlayer().orElse(null), player.getTeam().getIdentifier()));
         }, 30 * BingoReloaded.ONE_SECOND, 30 * BingoReloaded.ONE_SECOND);
     }
 
@@ -630,7 +630,7 @@ public class BingoGame implements GamePhase {
 
         Message message = new TranslatedMessage(BingoTranslation.COMPLETED).color(ChatColor.AQUA)
                 .component(event.getTask().data.getItemDisplayName().asComponent()).color(event.getTask().nameColor)
-                .arg(new ItemText(event.getParticipant().getDisplayName(), event.getParticipant().getTeam().getColor().chatColor, ChatColor.BOLD).asLegacyString())
+                .arg(new ItemText(event.getParticipant().getDisplayName(), event.getParticipant().getTeam().getColor(), ChatColor.BOLD).asLegacyString())
                 .arg(timeString).color(ChatColor.WHITE);
         if (event.getTask().hasParent()) {
             message.send(event.getParticipant().getTeam());

@@ -28,11 +28,11 @@ public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
         this.completedBy = Optional.empty();
         this.completedAt = -1L;
         for (BingoTeam team : activeTeams) {
-            childrenPerTeam.put(team.getName(), new ArrayList<>());
+            childrenPerTeam.put(team.getIdentifier(), new ArrayList<>());
         }
         for (TaskData task: allOfTask.tasks()) {
             for (BingoTeam team : activeTeams) {
-                List<BingoTask<?>> children = childrenPerTeam.get(team.getName());
+                List<BingoTask<?>> children = childrenPerTeam.get(team.getIdentifier());
                 children.add(BingoTask.getBingoTask(task, this, activeTeams));
             }
         }
@@ -68,7 +68,7 @@ public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
 
     @Override
     void onChildComplete(BingoParticipant participant, long gameTime) {
-        for (BingoTask<?> child : childrenPerTeam.get(participant.getTeam().getName())) {
+        for (BingoTask<?> child : childrenPerTeam.get(participant.getTeam().getIdentifier())) {
             if (!child.isCompleted()) {
                 return;
             }
@@ -89,7 +89,7 @@ public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
         base.addExtra("\n");
         descriptionTitle.setColor(nameColor);
         base.addExtra(descriptionTitle);
-        for (BingoTask<?> task : childrenPerTeam.get(team.getName())) {
+        for (BingoTask<?> task : childrenPerTeam.get(team.getIdentifier())) {
             base.addExtra("\n - ");
             BaseComponent childTaskName = task.data.getItemDisplayName().asComponent();
             if (task.isCompleted()) {
@@ -111,6 +111,6 @@ public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
     public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
         Bukkit.getLogger().log(Level.WARNING, "getting All of child tasks for " + participant.getDisplayName());
         Bukkit.getLogger().log(Level.WARNING, "childrenPerTeam " + childrenPerTeam);
-        return childrenPerTeam.get(participant.getTeam().getName());
+        return childrenPerTeam.get(participant.getTeam().getIdentifier());
     }
 }

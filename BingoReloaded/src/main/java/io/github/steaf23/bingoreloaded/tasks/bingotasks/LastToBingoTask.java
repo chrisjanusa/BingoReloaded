@@ -35,10 +35,10 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
         this.completedBy = Optional.empty();
         this.completedAt = -1L;
         for (BingoTeam team : activeTeams) {
-            childrenPerTeam.put(team.getName(), new ArrayList<>());
+            childrenPerTeam.put(team.getIdentifier(), new ArrayList<>());
         }
         for (BingoTeam team : activeTeams) {
-            List<BingoTask<?>> children = childrenPerTeam.get(team.getName());
+            List<BingoTask<?>> children = childrenPerTeam.get(team.getIdentifier());
             children.add(BingoTask.getBingoTask(lastToTask.task(), this, activeTeams));
         }
     }
@@ -75,13 +75,11 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
     public MenuItem asStack(BingoTeam team) {
         ItemStack item;
 
-        BingoTask<?> teamTask = childrenPerTeam.get(team.getName()).get(0);
+        BingoTask<?> teamTask = childrenPerTeam.get(team.getIdentifier()).get(0);
 
         // Step 1: create the item and put the new name, description and material on it.
         if (isCompleted() && !isVoided()) // COMPLETED TASK
         {
-            Material completeMaterial = completedBy.get().getTeam().getColor().glassPane;
-
             String timeString = GameTimer.getTimeAsString(completedAt);
 
             ItemText itemName = new ItemText(ChatColor.GRAY, ChatColor.STRIKETHROUGH);
@@ -93,10 +91,10 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
             }};
             ItemText[] desc = BingoTranslation.COMPLETED_LORE.asItemText(modifiers,
                     new ItemText(completedBy.get().getDisplayName(),
-                            completedBy.get().getTeam().getColor().chatColor, ChatColor.BOLD),
+                            completedBy.get().getTeam().getColor(), ChatColor.BOLD),
                     new ItemText(timeString, ChatColor.GOLD));
 
-            item = new ItemStack(completeMaterial);
+            item = MenuItem.createColoredLeather(team.getColor(), Material.LEATHER_HELMET);
             ItemText.buildItemText(item,
                     itemName,
                     desc);
@@ -166,7 +164,7 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
 
     @Override
     public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
-        return childrenPerTeam.get(participant.getTeam().getName());
+        return childrenPerTeam.get(participant.getTeam().getIdentifier());
     }
 
     @Override
@@ -183,7 +181,7 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
         }
         if (onlyTeamRemaining != null) {
             for (BingoTeam team : participant.getSession().teamManager.getActiveTeams()) {
-                if (Objects.equals(team.getName(), onlyTeamRemaining)) {
+                if (Objects.equals(team.getIdentifier(), onlyTeamRemaining)) {
                     team.getMembers().stream().findFirst().ifPresent(teamPlayer -> {
                         var slotEvent = new ChildHavingTaskCompleteEvent(teamPlayer, this);
                         Bukkit.getPluginManager().callEvent(slotEvent);

@@ -39,7 +39,7 @@ public class BreedBingoTask extends BingoTask<BreedTask>
     }
 
     public synchronized void increaseBreedCount(BingoParticipant player, long gameTime) {
-        String teamName = player.getTeam().getName();
+        String teamName = player.getTeam().getIdentifier();
         int newCount = teamCount.getOrDefault(teamName, 0) + 1;
         teamCount.put(teamName, newCount);
         if (data.count() < 0) {
@@ -69,7 +69,7 @@ public class BreedBingoTask extends BingoTask<BreedTask>
         name.setColor(nameColor);
 
         base.addExtra(name);
-        String teamName = team.getName();
+        String teamName = team.getIdentifier();
         base.addExtra("\n - ");
         base.addExtra("Your team has bred " + teamCount.getOrDefault(teamName, 0) + " times");
 

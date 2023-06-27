@@ -27,11 +27,11 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
         this.completedBy = Optional.empty();
         this.completedAt = -1L;
         for (BingoTeam team : activeTeams) {
-            childrenPerTeam.put(team.getName(), new ArrayList<>());
+            childrenPerTeam.put(team.getIdentifier(), new ArrayList<>());
         }
         for (TaskData task : anyOfTask.tasks()) {
             for (BingoTeam team : activeTeams) {
-                List<BingoTask<?>> children = childrenPerTeam.get(team.getName());
+                List<BingoTask<?>> children = childrenPerTeam.get(team.getIdentifier());
                 children.add(BingoTask.getBingoTask(task, this, activeTeams));
             }
         }
@@ -96,6 +96,6 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
     public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
         Bukkit.getLogger().log(Level.WARNING, "getting Any of child tasks for " + participant.getDisplayName());
         Bukkit.getLogger().log(Level.WARNING, "childrenPerTeam " + childrenPerTeam);
-        return childrenPerTeam.get(participant.getTeam().getName());
+        return childrenPerTeam.get(participant.getTeam().getIdentifier());
     }
 }

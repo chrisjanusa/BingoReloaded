@@ -12,9 +12,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -110,8 +112,6 @@ public abstract class BingoTask<T extends TaskData>
         }
         else if (isCompleted()) // COMPLETED TASK
         {
-            Material completeMaterial = completedBy.get().getTeam().getColor().glassPane;
-
             String timeString = GameTimer.getTimeAsString(completedAt);
 
             ItemText itemName = new ItemText(ChatColor.GRAY, ChatColor.STRIKETHROUGH);
@@ -123,18 +123,17 @@ public abstract class BingoTask<T extends TaskData>
             }};
             ItemText[] desc = BingoTranslation.COMPLETED_LORE.asItemText(modifiers,
                     new ItemText(completedBy.get().getDisplayName(),
-                            completedBy.get().getTeam().getColor().chatColor, ChatColor.BOLD),
+                            completedBy.get().getTeam().getColor(), ChatColor.BOLD),
                     new ItemText(timeString, ChatColor.GOLD));
 
-            item = new ItemStack(completeMaterial);
+            item = new ItemStack(Material.LEATHER_CHESTPLATE);
             ItemText.buildItemText(item,
                     itemName,
                     desc);
 
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null)
-            {
-                item.setItemMeta(meta);
+            if (item.getItemMeta() instanceof LeatherArmorMeta armorMeta) {
+                armorMeta.setColor(org.bukkit.Color.fromRGB(team.getColor().getColor().getRed(), team.getColor().getColor().getGreen(), team.getColor().getColor().getBlue()));
+                item.setItemMeta(armorMeta);
             }
         }
         else // DEFAULT TASK

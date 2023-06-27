@@ -36,10 +36,10 @@ public class EveryoneBingoTask extends ChildHavingBingoTask<EveryoneTask> {
         this.completedBy = Optional.empty();
         this.completedAt = -1L;
         for (BingoTeam team : activeTeams) {
-            childrenPerTeam.put(team.getName(), new HashMap<>());
+            childrenPerTeam.put(team.getIdentifier(), new HashMap<>());
         }
         for (BingoTeam team : activeTeams) {
-            Map<String, BingoTask<?>> children = childrenPerTeam.get(team.getName());
+            Map<String, BingoTask<?>> children = childrenPerTeam.get(team.getIdentifier());
             for (BingoParticipant player : team.getMembers()) {
                 children.put(player.getDisplayName(), BingoTask.getBingoTask(everyoneTask.task(), this, activeTeams));
             }
@@ -76,12 +76,12 @@ public class EveryoneBingoTask extends ChildHavingBingoTask<EveryoneTask> {
 
     @Override
     public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
-        return List.of(childrenPerTeam.get(participant.getTeam().getName()).get(participant.getDisplayName()));
+        return List.of(childrenPerTeam.get(participant.getTeam().getIdentifier()).get(participant.getDisplayName()));
     }
 
     @Override
     void onChildComplete(BingoParticipant participant, long gameTime) {
-        Map<String, BingoTask<?>> teamTasks = childrenPerTeam.get(participant.getTeam().getName());
+        Map<String, BingoTask<?>> teamTasks = childrenPerTeam.get(participant.getTeam().getIdentifier());
         for (BingoParticipant teammate : participant.getTeam().getMembers()) {
             if (!teamTasks.get(teammate.getDisplayName()).isCompleted()) {
                 return;
@@ -105,7 +105,7 @@ public class EveryoneBingoTask extends ChildHavingBingoTask<EveryoneTask> {
         base.addExtra("\n");
         descriptionTitle.setColor(nameColor);
         base.addExtra(descriptionTitle);
-        Map<String, BingoTask<?>> teamTasks = childrenPerTeam.get(team.getName());
+        Map<String, BingoTask<?>> teamTasks = childrenPerTeam.get(team.getIdentifier());
         for (BingoParticipant teammate : team.getMembers()) {
             if (!teamTasks.get(teammate.getDisplayName()).isCompleted()) {
                 base.addExtra("\n - ");
