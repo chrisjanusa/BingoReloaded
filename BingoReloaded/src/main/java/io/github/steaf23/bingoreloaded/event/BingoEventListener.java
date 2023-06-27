@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -186,6 +187,17 @@ public class BingoEventListener implements Listener
         if (game != null)
         {
             game.getCardEventManager().handleInventoryClicked(event, game);
+        }
+    }
+
+    @EventHandler
+    public void handleEntityBreedEvent(final EntityBreedEvent event)
+    {
+        BingoSession session = getSession(event.getBreeder().getWorld());
+        BingoGame game = session != null && session.isRunning() ? (BingoGame)session.phase() : null;
+        if (game != null)
+        {
+            game.getCardEventManager().handleEntityBreed(event, game);
         }
     }
 

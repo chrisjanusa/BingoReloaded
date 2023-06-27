@@ -21,7 +21,9 @@ import io.github.steaf23.bingoreloaded.tasks.bingotasks.*;
 import io.github.steaf23.bingoreloaded.tasks.statistics.BingoStatistic;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -280,6 +282,25 @@ public class BingoCard
                 player.sessionPlayer().get().getWorld().dropItem(event.getItem().getLocation(), resultStack);
                 event.getItem().remove();
             });
+        }
+    }
+
+    public void onAnimalBreed(final EntityBreedEvent event, final BingoPlayer player, final BingoGame game)
+    {
+        checkTasksForBreedProgress(tasks, event.getEntityType(), player, game);
+    }
+
+    private void checkTasksForBreedProgress(List<BingoTask<?>> tasks, EntityType breedAnimalType, BingoPlayer player, BingoGame game) {
+        for (BingoTask<?> task : tasks) {
+            if (task instanceof BreedBingoTask breedBingoTask) {
+                BreedTask data = breedBingoTask.data;
+                if (breedAnimalType == data.animal()) {
+                    breedBingoTask.increaseBreedCount(player, game.getGameTime());
+                    break;
+                }
+            } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
+                checkTasksForBreedProgress(childHavingBingoTask.getChildTasksForPlayer(player), breedAnimalType, player, game);
+            }
         }
     }
 

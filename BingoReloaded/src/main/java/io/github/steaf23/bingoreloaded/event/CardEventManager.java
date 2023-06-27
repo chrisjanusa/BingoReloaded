@@ -8,6 +8,7 @@ import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
@@ -88,6 +89,24 @@ public class CardEventManager
         {
             if (team.card.equals(card))
                 card.onPlayerCollectItem(event, player, game);
+        }
+    }
+
+    public void handleEntityBreed(final EntityBreedEvent event, final BingoGame game) {
+        if (event.getBreeder() instanceof Player p) {
+            BingoParticipant participant = game.getTeamManager().getBingoParticipant(p);
+            if (participant == null || !(participant instanceof BingoPlayer player) || !player.sessionPlayer().isPresent())
+                return;
+
+            BingoTeam team = player.getTeam();
+            if (team == null)
+                return;
+
+            for (BingoCard card : cards)
+            {
+                if (team.card.equals(card))
+                    card.onAnimalBreed(event, player, game);
+            }
         }
     }
 
