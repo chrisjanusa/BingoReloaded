@@ -17,9 +17,9 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.util.*;
-import java.util.logging.Level;
 
 public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
 
@@ -90,18 +90,18 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
                 add(ChatColor.ITALIC);
             }};
             ItemText[] desc = BingoTranslation.COMPLETED_LORE.asItemText(modifiers,
-                    new ItemText(completedBy.get().getDisplayName(),
-                            completedBy.get().getTeam().getColor(), ChatColor.BOLD),
-                    new ItemText(timeString, ChatColor.GOLD));
+                new ItemText(completedBy.get().getDisplayName(),
+                        completedBy.get().getTeam().getColor(), ChatColor.BOLD),
+                new ItemText(timeString, ChatColor.GOLD));
 
-            item = MenuItem.createColoredLeather(team.getColor(), Material.LEATHER_HELMET);
+            item = new ItemStack(Material.LEATHER_CHESTPLATE);
             ItemText.buildItemText(item,
                     itemName,
                     desc);
 
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                item.setItemMeta(meta);
+            if (item.getItemMeta() instanceof LeatherArmorMeta armorMeta) {
+                armorMeta.setColor(org.bukkit.Color.fromRGB(team.getColor().getColor().getRed(), team.getColor().getColor().getGreen(), team.getColor().getColor().getBlue()));
+                item.setItemMeta(armorMeta);
             }
         } else if (isVoided()) // VOIDED TASK
         {
