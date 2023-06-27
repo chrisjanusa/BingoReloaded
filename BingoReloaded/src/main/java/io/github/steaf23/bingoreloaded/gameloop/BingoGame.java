@@ -46,6 +46,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.github.steaf23.bingoreloaded.util.HudHelper.getHudMessage;
 
@@ -227,7 +228,7 @@ public class BingoGame implements GamePhase {
         {
             cards.add(activeTeam.card);
         }
-        cardEventManager.setCards(cards.stream().toList());
+        cardEventManager.setCards(cards.stream().collect(Collectors.toList()));
     }
 
     private void initBingoStartTimer() {

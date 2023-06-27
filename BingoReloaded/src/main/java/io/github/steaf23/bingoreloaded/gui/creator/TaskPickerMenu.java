@@ -128,8 +128,8 @@ public class TaskPickerMenu extends PaginatedSelectionMenu
 
         BingoCardData cardsData = new BingoCardData();
         cardsData.lists().saveTasksFromGroup(listName,
-                (List<TaskData>) getItems().stream().map(item -> BingoTask.fromStack(item).data).toList(),
-                (List<TaskData>) getSelectedItems().stream().map(item -> BingoTask.fromStack(item).data).toList());
+                getItems().stream().map(item -> BingoTask.fromStack(item).data).collect(Collectors.toList()),
+                getSelectedItems().stream().map(item -> BingoTask.fromStack(item).data).collect(Collectors.toList()));
     }
 
     public static List<MenuItem> asPickerItems(List<BingoTask> tasks) {

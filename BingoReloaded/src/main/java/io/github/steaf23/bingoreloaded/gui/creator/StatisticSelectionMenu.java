@@ -14,6 +14,7 @@ import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 // TODO: add description to statistic and when to trigger them
 public class StatisticSelectionMenu extends BasicMenu
@@ -60,7 +61,7 @@ public class StatisticSelectionMenu extends BasicMenu
     {
         List<EntityType> entities = Arrays.stream(EntityType.values())
                 .filter(type -> BingoStatistic.isEntityValidForStatistic(type))
-                .toList();
+                .collect(Collectors.toList());
 
         List<BingoTask> tasks = new ArrayList<>();
 //        entities.forEach(e -> tasks.add(new BingoTask(new StatisticTask(new BingoStatistic(stat, e)))));
