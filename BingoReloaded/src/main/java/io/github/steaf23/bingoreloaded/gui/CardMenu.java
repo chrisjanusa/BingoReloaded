@@ -21,15 +21,15 @@ public class CardMenu extends BasicMenu
 {
     private final CardSize size;
     private final HashMap<MenuItem, BingoTask<?>> slotToTask;
-    public TeamManager teamManager;
+    public BingoTeam team;
 
-    public CardMenu(MenuManager menuManager, CardSize cardSize, String title, TeamManager teamManager)
+    public CardMenu(MenuManager menuManager, CardSize cardSize, String title, BingoTeam team)
     {
         super(menuManager, title, cardSize.size);
         this.size = cardSize;
         setMaxStackSizeOverride(64);
         slotToTask = new HashMap<>();
-        this.teamManager = teamManager;
+        this.team = team;
     }
 
     @Override
@@ -40,7 +40,6 @@ public class CardMenu extends BasicMenu
         BingoTask<?> task = slotToTask.get(clickedItem);
         if (task == null)
             return true;
-        BingoTeam team = teamManager.getBingoParticipant((Player) player).getTeam();
         Message.sendDebugNoPrefix(task.getOnClickMessage(team), (Player) player);
 
         return super.onClick(event, player, clickedItem, clickType);
@@ -51,7 +50,7 @@ public class CardMenu extends BasicMenu
         for (int i = 0; i < tasks.size(); i++)
         {
             BingoTask<?> task = tasks.get(i);
-            MenuItem item = task.asStack(teamManager.getBingoParticipant(player).getTeam());
+            MenuItem item = task.asStack(team);
             addItem(item.copyToSlot(size.getCardInventorySlot(i)));
             slotToTask.put(item, task);
         }

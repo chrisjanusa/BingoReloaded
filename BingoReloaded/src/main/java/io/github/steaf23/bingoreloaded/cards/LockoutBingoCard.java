@@ -3,6 +3,7 @@ package io.github.steaf23.bingoreloaded.cards;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.event.BingoCardTaskCompleteEvent;
+import io.github.steaf23.bingoreloaded.gui.CardMenu;
 import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.player.TeamManager;
@@ -21,17 +22,20 @@ public class LockoutBingoCard extends BingoCard
         super(menuManager, size, teamManager);
         this.currentMaxTasks = size.fullCardSize;
         this.teamCount = teamManager.getActiveTeams().size();
-
-        menu.setInfo(BingoTranslation.INFO_LOCKOUT_NAME.translate(),
-                BingoTranslation.INFO_LOCKOUT_DESC.translate().split("\\n"));
+        for (CardMenu menu : menuPerTeam.values()) {
+            menu.setInfo(BingoTranslation.INFO_LOCKOUT_NAME.translate(),
+                    BingoTranslation.INFO_LOCKOUT_DESC.translate().split("\\n"));
+        }
     }
 
     public LockoutBingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks, TeamManager teamManager, int currentMaxTasks) {
         super(menuManager, size, tasks, teamManager);
         this.teamCount = teamManager.getActiveTeams().size();
         this.currentMaxTasks = currentMaxTasks;
-        menu.setInfo(BingoTranslation.INFO_LOCKOUT_NAME.translate(),
-                BingoTranslation.INFO_LOCKOUT_DESC.translate().split("\\n"));
+        for (CardMenu menu : menuPerTeam.values()) {
+            menu.setInfo(BingoTranslation.INFO_LOCKOUT_NAME.translate(),
+                    BingoTranslation.INFO_LOCKOUT_DESC.translate().split("\\n"));
+        }
     }
 
     // Lockout cards cannot be copied since it should be the same instance for every player.

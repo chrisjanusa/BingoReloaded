@@ -94,8 +94,6 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
 
     @Override
     public List<BingoTask<?>> getChildTasksForPlayer(BingoParticipant participant) {
-        Bukkit.getLogger().log(Level.WARNING, "getting Any of child tasks for " + participant.getDisplayName());
-        Bukkit.getLogger().log(Level.WARNING, "childrenPerTeam " + childrenPerTeam);
         return childrenPerTeam.get(participant.getTeam().getIdentifier());
     }
 }

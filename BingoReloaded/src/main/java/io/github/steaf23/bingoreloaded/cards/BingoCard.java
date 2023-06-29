@@ -40,7 +40,7 @@ public class BingoCard
     public final CardSize size;
     public List<BingoTask<?>> tasks;
 
-    protected final CardMenu menu;
+    protected final HashMap<String, CardMenu> menuPerTeam;
     protected final TeamManager teamManager;
 
     private static final TaskData DEFAULT_TASK = new ItemTask(Material.DIRT, 1);
@@ -50,18 +50,26 @@ public class BingoCard
         this.size = size;
         this.tasks = new ArrayList<>();
         this.teamManager = teamManager;
-        this.menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate(), teamManager);
-        menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
-                BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
+        menuPerTeam = new HashMap<>();
+        for (BingoTeam team : teamManager.getActiveTeams()) {
+            CardMenu menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate(), team);
+            menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
+                    BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
+            menuPerTeam.put(team.getIdentifier(), menu);
+        }
     }
 
     public BingoCard(MenuManager menuManager, CardSize size, List<BingoTask<?>> tasks, TeamManager teamManager) {
         this.size = size;
         this.tasks = tasks;
         this.teamManager = teamManager;
-        this.menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate(), teamManager);
-        menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
-                BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
+        menuPerTeam = new HashMap<>();
+        for (BingoTeam team : teamManager.getActiveTeams()) {
+            CardMenu menu = new CardMenu(menuManager, size, BingoTranslation.CARD_TITLE.translate(), team);
+            menu.setInfo(BingoTranslation.INFO_REGULAR_NAME.translate(),
+                    BingoTranslation.INFO_REGULAR_DESC.translate().split("\\n"));
+            menuPerTeam.put(team.getIdentifier(), menu);
+        }
     }
 
     /**
@@ -150,7 +158,7 @@ public class BingoCard
 
     public void showInventory(Player player)
     {
-        menu.show(player, tasks);
+        menuPerTeam.get(teamManager.getBingoParticipant(player).getTeam().getIdentifier()).show(player, tasks);
     }
 
     public boolean hasBingo(BingoTeam team)
@@ -228,7 +236,7 @@ public class BingoCard
 
     public BingoCard copy()
     {
-        BingoCard card = new BingoCard(menu.getMenuManager(), this.size, teamManager);
+        BingoCard card = new BingoCard(menuPerTeam.values().stream().findFirst().get().getMenuManager(), this.size, teamManager);
         List<BingoTask<?>> newTasks = new ArrayList<>();
         for (BingoTask<?> slot : tasks)
         {

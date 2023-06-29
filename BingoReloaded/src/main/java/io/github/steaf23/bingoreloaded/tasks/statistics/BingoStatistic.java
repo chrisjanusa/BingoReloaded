@@ -364,7 +364,7 @@ public record BingoStatistic(@NotNull Statistic stat, @Nullable EntityType entit
         String materialStr = (String) data.getOrDefault("item", null);
         Material material = null;
         if (materialStr != null && !materialStr.isEmpty())
-            material = Material.valueOf((String)data.get("item"));
+            material = Material.valueOf(materialStr.toUpperCase());
 
         return new BingoStatistic(stat, entity, material);
     }

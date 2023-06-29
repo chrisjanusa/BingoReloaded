@@ -11,6 +11,7 @@ import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -21,6 +22,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 
 public abstract class BingoTask<T extends TaskData>
 {
@@ -95,7 +97,7 @@ public abstract class BingoTask<T extends TaskData>
     public MenuItem asStack(BingoTeam team)
     {
         ItemStack item;
-
+        MenuItem finalItem = new MenuItem(new ItemStack(Material.BEDROCK));
         // Step 1: create the item and put the new name, description and material on it.
         if (isVoided()) // VOIDED TASK
         {
@@ -109,6 +111,11 @@ public abstract class BingoTask<T extends TaskData>
 
             item = new ItemStack(Material.BEDROCK);
             ItemText.buildItemText(item, itemName, addedDesc);
+            finalItem = new MenuItem(finalItem);
+            ItemMeta meta = finalItem.getItemMeta();
+
+            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+            finalItem.setItemMeta(meta);
         }
         else if (isCompleted()) // COMPLETED TASK
         {
@@ -125,15 +132,15 @@ public abstract class BingoTask<T extends TaskData>
                     new ItemText(completedBy.get().getDisplayName(),
                             completedBy.get().getTeam().getColor(), ChatColor.BOLD),
                     new ItemText(timeString, ChatColor.GOLD));
-
-            item = new ItemStack(Material.LEATHER_CHESTPLATE);
-            ItemText.buildItemText(item,
+            ChatColor completedColor = completedBy.get().getTeam().getColor();
+            finalItem = MenuItem.createColoredLeather(completedColor, Material.LEATHER_CHESTPLATE);
+            ItemText.buildItemText(finalItem,
                     itemName,
                     desc);
-
-            if (item.getItemMeta() instanceof LeatherArmorMeta armorMeta) {
-                armorMeta.setColor(org.bukkit.Color.fromRGB(team.getColor().getColor().getRed(), team.getColor().getColor().getGreen(), team.getColor().getColor().getBlue()));
-                item.setItemMeta(armorMeta);
+            if (finalItem.getItemMeta() instanceof LeatherArmorMeta armorMeta) {
+                armorMeta.setColor(org.bukkit.Color.fromRGB(completedColor.getColor().getRed(), completedColor.getColor().getGreen(), completedColor.getColor().getBlue()));
+                armorMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DYE);
+                finalItem.setItemMeta(armorMeta);
             }
         }
         else // DEFAULT TASK
@@ -147,19 +154,17 @@ public abstract class BingoTask<T extends TaskData>
                     data.getItemDescription());
 
             item.setAmount(data.getStackSize());
-        }
 
-        // STEP 2: Add additional stuff like pdc data and glowing effect.
+            finalItem = new MenuItem(item);
+            ItemMeta meta = finalItem.getItemMeta();
 
-        MenuItem finalItem = new MenuItem(item);
-        ItemMeta meta = finalItem.getItemMeta();
+            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+            finalItem.setItemMeta(meta);
 
-        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
-        finalItem.setItemMeta(meta);
-
-        if (glowing && completedBy.isEmpty())
-        {
-            finalItem.setGlowing(true);
+            if (glowing && completedBy.isEmpty())
+            {
+                finalItem.setGlowing(true);
+            }
         }
 
         return finalItem;

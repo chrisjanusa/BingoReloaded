@@ -301,4 +301,18 @@ public class BingoPlayer implements BingoParticipant
     {
         return team;
     }
+
+    @Override
+    public String toString() {
+        return "BingoPlayer{" +
+                "playerName='" + playerName + '\'' +
+                ", session=" + session +
+                ", team=" + team +
+                ", playerId=" + playerId +
+                ", displayName='" + displayName + '\'' +
+                ", itemCooldowns=" + itemCooldowns +
+                ", preTeleportLocation=" + preTeleportLocation +
+                ", POTION_DURATION=" + POTION_DURATION +
+                '}';
+    }
 }

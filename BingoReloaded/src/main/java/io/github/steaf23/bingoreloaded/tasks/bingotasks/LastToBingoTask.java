@@ -74,36 +74,11 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
     @Override
     public MenuItem asStack(BingoTeam team) {
         ItemStack item;
-
+        MenuItem finalItem = new MenuItem(new ItemStack(Material.BEDROCK));
         BingoTask<?> teamTask = childrenPerTeam.get(team.getIdentifier()).get(0);
 
         // Step 1: create the item and put the new name, description and material on it.
-        if (isCompleted() && !isVoided()) // COMPLETED TASK
-        {
-            String timeString = GameTimer.getTimeAsString(completedAt);
-
-            ItemText itemName = new ItemText(ChatColor.GRAY, ChatColor.STRIKETHROUGH);
-            itemName.add(data.getItemDisplayName());
-
-            Set<ChatColor> modifiers = new HashSet<>() {{
-                add(ChatColor.DARK_PURPLE);
-                add(ChatColor.ITALIC);
-            }};
-            ItemText[] desc = BingoTranslation.COMPLETED_LORE.asItemText(modifiers,
-                new ItemText(completedBy.get().getDisplayName(),
-                        completedBy.get().getTeam().getColor(), ChatColor.BOLD),
-                new ItemText(timeString, ChatColor.GOLD));
-
-            item = new ItemStack(Material.LEATHER_CHESTPLATE);
-            ItemText.buildItemText(item,
-                    itemName,
-                    desc);
-
-            if (item.getItemMeta() instanceof LeatherArmorMeta armorMeta) {
-                armorMeta.setColor(org.bukkit.Color.fromRGB(team.getColor().getColor().getRed(), team.getColor().getColor().getGreen(), team.getColor().getColor().getBlue()));
-                item.setItemMeta(armorMeta);
-            }
-        } else if (isVoided()) // VOIDED TASK
+        if (isVoided()) // VOIDED TASK
         {
             ItemText addedDesc = new ItemText(BingoTranslation.VOIDED.translate(
                     completedBy.get().getTeam().getColoredName().asLegacyString()), ChatColor.DARK_GRAY);
@@ -115,7 +90,34 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
 
             item = new ItemStack(Material.BEDROCK);
             ItemText.buildItemText(item, itemName, addedDesc);
-        } else if (teamTask.isCompleted()) // Unobtainable task
+            finalItem = new MenuItem(finalItem);
+            ItemMeta meta = finalItem.getItemMeta();
+
+            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+            finalItem.setItemMeta(meta);
+        }
+        else if (isCompleted()) // COMPLETED TASK
+        {
+            String timeString = GameTimer.getTimeAsString(completedAt);
+
+            ItemText itemName = new ItemText(ChatColor.GRAY, ChatColor.STRIKETHROUGH);
+            itemName.add(data.getItemDisplayName());
+
+            Set<ChatColor> modifiers = new HashSet<>(){{
+                add(ChatColor.DARK_PURPLE);
+                add(ChatColor.ITALIC);
+            }};
+            ItemText[] desc = BingoTranslation.COMPLETED_LORE.asItemText(modifiers,
+                    new ItemText(completedBy.get().getDisplayName(),
+                            completedBy.get().getTeam().getColor(), ChatColor.BOLD),
+                    new ItemText(timeString, ChatColor.GOLD));
+
+            finalItem = MenuItem.createColoredLeather(completedBy.get().getTeam().getColor(), Material.LEATHER_CHESTPLATE);
+            ItemText.buildItemText(finalItem,
+                    itemName,
+                    desc);
+        }
+        else if (teamTask.isCompleted()) // Unobtainable task
         {
             final ItemText addedDesc;
             addedDesc = teamTask.completedBy
@@ -134,6 +136,11 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
 
             item = new ItemStack(Material.BEDROCK);
             ItemText.buildItemText(item, itemName, addedDesc);
+            finalItem = new MenuItem(finalItem);
+            ItemMeta meta = finalItem.getItemMeta();
+
+            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+            finalItem.setItemMeta(meta);
         } else // DEFAULT TASK
         {
             ItemText itemName = new ItemText(nameColor);
@@ -145,18 +152,18 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
                     data.getItemDescription());
 
             item.setAmount(data.getStackSize());
-        }
 
-        // STEP 2: Add additional stuff like pdc data and glowing effect.
+            // STEP 2: Add additional stuff like pdc data and glowing effect.
 
-        MenuItem finalItem = new MenuItem(item);
-        ItemMeta meta = finalItem.getItemMeta();
+            finalItem = new MenuItem(item);
+            ItemMeta meta = finalItem.getItemMeta();
 
-        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
-        finalItem.setItemMeta(meta);
+            meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+            finalItem.setItemMeta(meta);
 
-        if (glowing && completedBy.isEmpty()) {
-            finalItem.setGlowing(true);
+            if (glowing && completedBy.isEmpty()) {
+                finalItem.setGlowing(true);
+            }
         }
 
         return finalItem;

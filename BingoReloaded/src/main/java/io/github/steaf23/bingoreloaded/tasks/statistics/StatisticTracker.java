@@ -6,11 +6,13 @@ import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.*;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.ChildHavingBingoTask;
+import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class StatisticTracker
@@ -48,8 +50,9 @@ public class StatisticTracker
                             progress.player.equals(player) && progress.statistic.equals(statTask.statistic())))
                         continue;
 
-                    if (player instanceof BingoPlayer bingoPlayer)
+                    if (player instanceof BingoPlayer bingoPlayer) {
                         statistics.add(new StatisticProgress(statTask.statistic(), bingoPlayer, statTask.count()));
+                    }
                 }
             } else if (task instanceof MostOfStatisticTask mostOfStatisticTask) {
                 for (BingoParticipant player : team.getMembers()) {
@@ -57,8 +60,9 @@ public class StatisticTracker
                             progress.player.equals(player) && progress.statistic.equals(mostOfStatisticTask.statistic())))
                         continue;
 
-                    if (player instanceof BingoPlayer bingoPlayer)
+                    if (player instanceof BingoPlayer bingoPlayer) {
                         statistics.add(new MostOfStatisticProgress(mostOfStatisticTask.statistic(), bingoPlayer));
+                    }
                 }
             } else if (task instanceof ChildHavingTask childHavingTask) {
                 createStatisticProgressFromTasks(childHavingTask.getChildren(), team);
