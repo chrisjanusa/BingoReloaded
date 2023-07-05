@@ -39,7 +39,8 @@ public class ConfigData
         TEAM("team"),
         ALL("all"),
         NONE("none"),
-        CUSTOM("custom");
+        CUSTOM("custom"),
+        TEAM_NETHER("nether"),;
 
         public final String name;
 
@@ -56,6 +57,7 @@ public class ConfigData
                     {
                         case "alone" -> ALONE;
                         case "team" -> TEAM;
+                        case "nether" -> TEAM_NETHER;
                         case "all" -> ALL;
                         case "custom" -> CUSTOM;
                         default -> NONE;
