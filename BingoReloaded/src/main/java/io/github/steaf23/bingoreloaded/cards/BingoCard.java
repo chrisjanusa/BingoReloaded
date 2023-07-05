@@ -25,6 +25,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -308,6 +309,27 @@ public class BingoCard
                 }
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
                 checkTasksForBreedProgress(childHavingBingoTask.getChildTasksForPlayer(player), breedAnimalType, player, game);
+            }
+        }
+    }
+
+    public void onPlayerDeath(final PlayerDeathEvent event, final BingoPlayer player, final BingoGame game)
+    {
+        checkTasksForPlayerDeath(tasks, event.getDeathMessage(), player, game);
+    }
+
+    private void checkTasksForPlayerDeath(List<BingoTask<?>> tasks, String deathMessage, BingoPlayer player, BingoGame game) {
+        for (BingoTask<?> task : tasks) {
+            if (task instanceof DeathMessageBingoTask deathMessageBingoTask) {
+                DeathMessageTask data = deathMessageBingoTask.data;
+                if (deathMessage.contains(data.deathMessage())) {
+                    deathMessageBingoTask.complete(player, game.getGameTime());
+                    var slotEvent = new BingoCardTaskCompleteEvent(task, player, hasBingo(player.getTeam()));
+                    Bukkit.getPluginManager().callEvent(slotEvent);
+                    break;
+                }
+            } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
+                checkTasksForPlayerDeath(childHavingBingoTask.getChildTasksForPlayer(player), deathMessage, player, game);
             }
         }
     }

@@ -60,7 +60,7 @@ public class BingoSession
 
         // Virtual Player here
         BingoReloaded.scheduleTask((t) -> {
-            this.teamManager.addVirtualPlayerToTeam("testPlayer", "orange");
+            this.teamManager.addVirtualPlayerToTeam("testPlayer", "ground");
         }, 10);
 
         BingoReloaded.scheduleTask((t) -> {
@@ -145,10 +145,10 @@ public class BingoSession
                 team.savedLocations = teamToSavedLocation.getOrDefault(team.getIdentifier(), new HashMap<>());
             }
         }
-
-        scoreboard.updateTeamScores();
         // The game is started in the constructor
         phase = new BingoGame(this, recoveryData.getSettings(), config, recoveryData.getTimer(), recoveryData.getBingoCard(), recoveryData.getStatisticTracker());
+
+        scoreboard.updateTeamScores();
     }
 
     public void endGame()

@@ -89,7 +89,6 @@ public class GetCommand implements CommandExecutor
                     ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
                     sword.addUnsafeEnchantment(Enchantment.LOOT_BONUS_MOBS, 3);
                     sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 5);
-                    sword.addEnchantment(Enchantment.DIG_SPEED, 5);
                     p.getInventory().addItem(sword);
                 }
                 default -> {

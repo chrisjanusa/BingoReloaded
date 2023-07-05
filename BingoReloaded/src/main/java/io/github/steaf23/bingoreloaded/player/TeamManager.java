@@ -110,7 +110,7 @@ public class TeamManager
                 description.add(ChatColor.GREEN + BingoTranslation.JOIN_TEAM_DESC.translate());
             }
 
-            optionItems.add(MenuItem.createColoredLeather(teamTemplate.color(), Material.LEATHER_HELMET)
+            optionItems.add(MenuItem.createColoredLeather(teamTemplate.color(), Material.LEATHER_CHESTPLATE)
                     .setName("" + teamTemplate.color() + ChatColor.BOLD + teamTemplate.name())
                     .setDescription(description.toArray(new String[]{})).setCompareKey(teamId));
         }

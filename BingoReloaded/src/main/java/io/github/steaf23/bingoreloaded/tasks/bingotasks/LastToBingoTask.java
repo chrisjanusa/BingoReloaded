@@ -111,11 +111,16 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
                     new ItemText(completedBy.get().getDisplayName(),
                             completedBy.get().getTeam().getColor(), ChatColor.BOLD),
                     new ItemText(timeString, ChatColor.GOLD));
-
-            finalItem = MenuItem.createColoredLeather(completedBy.get().getTeam().getColor(), Material.LEATHER_CHESTPLATE);
+            ChatColor completedColor = completedBy.get().getTeam().getColor();
+            finalItem = MenuItem.createColoredLeather(completedColor, Material.LEATHER_CHESTPLATE);
             ItemText.buildItemText(finalItem,
                     itemName,
                     desc);
+            if (finalItem.getItemMeta() instanceof LeatherArmorMeta armorMeta) {
+                armorMeta.setColor(org.bukkit.Color.fromRGB(completedColor.getColor().getRed(), completedColor.getColor().getGreen(), completedColor.getColor().getBlue()));
+                armorMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DYE);
+                finalItem.setItemMeta(armorMeta);
+            }
         }
         else if (teamTask.isCompleted()) // Unobtainable task
         {

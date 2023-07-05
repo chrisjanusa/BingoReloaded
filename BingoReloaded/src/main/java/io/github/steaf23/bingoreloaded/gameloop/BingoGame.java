@@ -164,7 +164,7 @@ public class BingoGame implements GamePhase {
 
         sendBingoStartEvent();
 
-        initBingoStartTimer();
+        initBingoStartTimer(config.secondsToBeforeStart);
     }
 
     private void resume(BingoCard masterCard)
@@ -194,11 +194,9 @@ public class BingoGame implements GamePhase {
         });
 
         // Post-start Setup
-        scoreboard.updateTeamScores();
-
         sendBingoStartEvent();
 
-        initBingoStartTimer();
+        initBingoStartTimer(10);
     }
 
     private void initTimerNotifier() {
@@ -231,9 +229,9 @@ public class BingoGame implements GamePhase {
         cardEventManager.setCards(cards.stream().collect(Collectors.toList()));
     }
 
-    private void initBingoStartTimer() {
+    private void initBingoStartTimer(int secondsBeforeStart) {
         // Countdown before the game actually starts
-        startingTimer = new CountdownTimer(config.secondsToBeforeStart, 6, 3, session);
+        startingTimer = new CountdownTimer(secondsBeforeStart, 6, 3, session);
         startingTimer.setNotifier(time -> {
             String timeString = GameTimer.getSecondsString(time);
             if (time == 0)
@@ -835,6 +833,9 @@ public class BingoGame implements GamePhase {
             return;
 
         player.giveEffects(settings.effects(), config.gracePeriod);
+        if (bossBars.containsKey(participant)) {
+            bossBars.get(participant).addPlayer(event.getPlayer());
+        }
     }
 
     @Override

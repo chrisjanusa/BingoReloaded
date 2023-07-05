@@ -35,7 +35,7 @@ public record BreedTask(@Nullable EntityType animal, int count) implements TaskD
             if (letter == '_') {
                 capitalNext = true;
                 cleanedUp.append(' ');
-                break;
+                continue;
             }
             if (capitalNext) {
                 capitalNext = false;

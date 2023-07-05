@@ -73,6 +73,7 @@ public class BingoReloaded extends JavaPlugin
         ConfigurationSerialization.registerClass(AnyOfTask.class);
         ConfigurationSerialization.registerClass(BreedTask.class);
         ConfigurationSerialization.registerClass(EveryoneTask.class);
+        ConfigurationSerialization.registerClass(DeathMessageTask.class);
         ConfigurationSerialization.registerClass(LastToTask.class);
         ConfigurationSerialization.registerClass(AllOfTask.class);
         ConfigurationSerialization.registerClass(AdvancementTask.class);
@@ -83,6 +84,7 @@ public class BingoReloaded extends JavaPlugin
         ConfigurationSerialization.registerClass(SerializablePlayer.class);
         ConfigurationSerialization.registerClass(TeamData.TeamTemplate.class);
         ConfigurationSerialization.registerClass(SerializableBasicBingoCard.class);
+        ConfigurationSerialization.registerClass(SerializableDeathMessageBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableItemBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableAdvancementBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableStatisticBingoTask.class);

@@ -27,6 +27,8 @@ public interface SerializableBingoTask {
             return new SerializableMostOfStatisticBingoTask(mostOfStatisticBingoTask);
         } else if (task instanceof BreedBingoTask breedBingoTask) {
             return new SerializableBreedBingoTask(breedBingoTask);
+        } else if (task instanceof DeathMessageBingoTask deathMessageBingoTask) {
+            return new SerializableDeathMessageBingoTask(deathMessageBingoTask);
         }
         return null;
     }

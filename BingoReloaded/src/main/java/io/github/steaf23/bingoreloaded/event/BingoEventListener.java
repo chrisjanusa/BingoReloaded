@@ -130,6 +130,7 @@ public class BingoEventListener implements Listener
         if (game != null)
         {
             game.handlePlayerDeath(event);
+            game.getCardEventManager().handlePlayerDeathEvent(event, game);
         }
     }
 

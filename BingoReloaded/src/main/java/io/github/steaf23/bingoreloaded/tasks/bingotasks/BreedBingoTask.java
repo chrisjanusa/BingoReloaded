@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,11 @@ public class BreedBingoTask extends BingoTask<BreedTask>
 
     public BreedBingoTask(BreedTask breedTask, ChildHavingBingoTask<?> parent) {
         this.nameColor = ChatColor.DARK_RED;
-        this.material = Material.valueOf(breedTask.animal().name() + "_SPAWN_EGG");
+        if (breedTask.animal() == EntityType.MUSHROOM_COW) {
+            this.material = Material.MOOSHROOM_SPAWN_EGG;
+        } else {
+            this.material = Material.valueOf(breedTask.animal().name() + "_SPAWN_EGG");
+        }
         this.glowing = false;
         this.data = breedTask;
         this.parentTask = parent;
