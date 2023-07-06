@@ -14,6 +14,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerLevelChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,6 +175,22 @@ public class CardEventManager {
         for (BingoCard card : cards) {
             if (team.card.equals(card))
                 card.onPlayerDeath(event, player, game);
+        }
+    }
+
+    public void handlePlayerLevelChangeEvent(PlayerLevelChangeEvent event, BingoGame game) {
+        Player p = event.getPlayer();
+        BingoParticipant participant = game.getTeamManager().getBingoParticipant(p);
+        if (!(participant instanceof BingoPlayer player) || !player.sessionPlayer().isPresent())
+            return;
+
+        BingoTeam team = player.getTeam();
+        if (team == null)
+            return;
+
+        for (BingoCard card : cards) {
+            if (team.card.equals(card))
+                card.onPlayerLevelUp(event, player, game);
         }
     }
 }

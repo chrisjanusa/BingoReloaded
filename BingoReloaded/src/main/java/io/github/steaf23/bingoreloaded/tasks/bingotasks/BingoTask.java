@@ -71,6 +71,9 @@ public abstract class BingoTask<T extends TaskData>
         if (data instanceof DeathMessageTask deathMessageTask) {
             return new DeathMessageBingoTask(deathMessageTask, parentTask);
         }
+        if (data instanceof LevelTask levelTask) {
+            return new LevelBingoTask(levelTask, parentTask);
+        }
         Message.log("This Type of data is not supported by BingoTask: '" + data + "'!");
         return new ItemBingoTask(new ItemTask(Material.BEDROCK));
     }

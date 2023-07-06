@@ -31,6 +31,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -323,13 +324,36 @@ public class BingoCard
             if (task instanceof DeathMessageBingoTask deathMessageBingoTask) {
                 DeathMessageTask data = deathMessageBingoTask.data;
                 if (deathMessage.contains(data.deathMessage())) {
-                    deathMessageBingoTask.complete(player, game.getGameTime());
-                    var slotEvent = new BingoCardTaskCompleteEvent(task, player, hasBingo(player.getTeam()));
-                    Bukkit.getPluginManager().callEvent(slotEvent);
+                    if (deathMessageBingoTask.complete(player, game.getGameTime())) {
+                        var slotEvent = new BingoCardTaskCompleteEvent(task, player, hasBingo(player.getTeam()));
+                        Bukkit.getPluginManager().callEvent(slotEvent);
+                    }
                     break;
                 }
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
                 checkTasksForPlayerDeath(childHavingBingoTask.getChildTasksForPlayer(player), deathMessage, player, game);
+            }
+        }
+    }
+
+    public void onPlayerLevelUp(final PlayerLevelChangeEvent event, final BingoPlayer player, final BingoGame game)
+    {
+        checkTasksForPlayerLevel(tasks, event.getNewLevel(), player, game);
+    }
+
+    private void checkTasksForPlayerLevel(List<BingoTask<?>> tasks, int newLevel, BingoPlayer player, BingoGame game) {
+        for (BingoTask<?> task : tasks) {
+            if (task instanceof LevelBingoTask levelBingoTask) {
+                LevelTask data = levelBingoTask.data;
+                if (data.level() <= newLevel) {
+                    if (levelBingoTask.complete(player, game.getGameTime())) {
+                        var slotEvent = new BingoCardTaskCompleteEvent(task, player, hasBingo(player.getTeam()));
+                        Bukkit.getPluginManager().callEvent(slotEvent);
+                    }
+                    break;
+                }
+            } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
+                checkTasksForPlayerLevel(childHavingBingoTask.getChildTasksForPlayer(player), newLevel, player, game);
             }
         }
     }

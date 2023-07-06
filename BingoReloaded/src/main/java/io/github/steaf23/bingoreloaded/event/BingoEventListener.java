@@ -135,6 +135,17 @@ public class BingoEventListener implements Listener
     }
 
     @EventHandler
+    public void handlePlayerLevelChange(final PlayerLevelChangeEvent event)
+    {
+        BingoSession session = getSession(event.getPlayer().getWorld());
+        BingoGame game = session != null && session.isRunning() ? (BingoGame)session.phase() : null;
+        if (game != null)
+        {
+            game.getCardEventManager().handlePlayerLevelChangeEvent(event, game);
+        }
+    }
+
+    @EventHandler
     public void handlePlayerRespawn(final PlayerRespawnEvent event)
     {
         BingoSession session = getSession(event.getPlayer().getWorld());
