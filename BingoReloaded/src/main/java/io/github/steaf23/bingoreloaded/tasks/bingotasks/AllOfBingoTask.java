@@ -45,6 +45,8 @@ public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
         this.data = allOfTask;
         this.parentTask = parentTask;
         this.childrenPerTeam = childrenPerTeam;
+        this.completedBy = Optional.empty();
+        this.completedAt = -1L;
     }
 
     @Override

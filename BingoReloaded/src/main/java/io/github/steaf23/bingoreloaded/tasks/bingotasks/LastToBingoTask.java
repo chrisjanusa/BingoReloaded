@@ -50,6 +50,8 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
         this.data = lastToTask;
         this.parentTask = parentTask;
         this.childrenPerTeam = childrenPerTeam;
+        this.completedBy = Optional.empty();
+        this.completedAt = -1L;
     }
 
     @Override

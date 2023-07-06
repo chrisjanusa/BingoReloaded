@@ -219,4 +219,18 @@ public abstract class BingoTask<T extends TaskData>
     public boolean hasParent() {
         return parentTask != null;
     }
+
+    @Override
+    public String toString() {
+        return "BingoTask{" +
+                "completedBy=" + completedBy +
+                ", completedAt=" + completedAt +
+                ", voided=" + voided +
+                ", data=" + data +
+                ", nameColor=" + nameColor +
+                ", material=" + material +
+                ", glowing=" + glowing +
+                ", parentTask=" + parentTask +
+                '}';
+    }
 }
