@@ -9,9 +9,15 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.util.FlexColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CompassMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -36,6 +42,8 @@ public enum PlayerKit
             "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + ChatColor.BOLD + BingoTranslation.WAND_ITEM_NAME.translate(),
             BingoTranslation.WAND_ITEM_DESC.translate().split("\\n")
     ).withEnchantment(Enchantment.DURABILITY, 3).setCompareKey("wand");
+
+    public static final MenuItem BIOME_ITEM = new MenuItem(5, Material.COMPASS, "").setCompareKey("biome");
     public static final MenuItem CARD_ITEM = new MenuItem(
             Material.GLOBE_BANNER_PATTERN,
             "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + ChatColor.BOLD + BingoTranslation.CARD_ITEM_NAME.translate(),
@@ -108,23 +116,40 @@ public enum PlayerKit
                 items.add(helmet
                         .withEnchantment(Enchantment.DURABILITY, 3)
                         .withEnchantment(Enchantment.WATER_WORKER, 1)
-                        .withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4));
+                        .withIllegalEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 8));
                 items.add(boots
                         .withEnchantment(Enchantment.DURABILITY, 3)
                         .withEnchantment(Enchantment.DEPTH_STRIDER, 3)
-                        .withEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4));
-                items.add(new MenuItem(1, Material.NETHERITE_PICKAXE, "")
-                        .withEnchantment(Enchantment.LOOT_BONUS_BLOCKS, 3)
-                        .withEnchantment(Enchantment.DIG_SPEED, 5));
+                        .withIllegalEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 8));
+                items.add(new MenuItem(38, Material.ELYTRA, "")
+                        .withIllegalEnchantment(Enchantment.DURABILITY, 10));
                 items.add(new MenuItem(0, Material.NETHERITE_AXE, "")
                         .withIllegalEnchantment(Enchantment.LOOT_BONUS_MOBS, 3)
                         .withIllegalEnchantment(Enchantment.DAMAGE_ALL, 5)
                         .withEnchantment(Enchantment.DIG_SPEED, 5));
+                items.add(new MenuItem(1, Material.NETHERITE_PICKAXE, "")
+                        .withIllegalEnchantment(Enchantment.LOOT_BONUS_BLOCKS, 3)
+                        .withIllegalEnchantment(Enchantment.DIG_SPEED, 5));
                 items.add(new MenuItem(2, Material.NETHERITE_SHOVEL, "")
                         .withEnchantment(Enchantment.SILK_TOUCH, 1)
                         .withEnchantment(Enchantment.DIG_SPEED, 5));
-                items.add(new MenuItem(3, Material.GOLDEN_CARROT, "")
+                items.add(new MenuItem(3, Material.ENCHANTED_GOLDEN_APPLE, "")
                         .withAmount(64));
+                MenuItem rockets = new MenuItem(4, Material.FIREWORK_ROCKET, "").withAmount(64);
+                FireworkMeta metaData = (FireworkMeta) rockets.getItemMeta();
+                if (metaData != null) metaData.setPower(3);
+                rockets.setItemMeta(metaData);
+                items.add(rockets);
+                MenuItem biomeCompass = BIOME_ITEM;
+
+                ItemMeta meta = biomeCompass.getItemMeta();
+
+                meta.setDisplayName("§3Biome Compass");
+                meta.setCustomModelData(10918);
+                NamespacedKey isBiomeCompass = new NamespacedKey("biomecompass", "is_biome_compass");
+                meta.getPersistentDataContainer().set(isBiomeCompass, PersistentDataType.BYTE, (byte) 1);
+                biomeCompass.setItemMeta(meta);
+                items.add(biomeCompass);
                 return items;
             }
             case RELOADED -> {
@@ -152,6 +177,11 @@ public enum PlayerKit
                         .withEnchantment(Enchantment.DIG_SPEED, 5));
                 items.add(new MenuItem(3, Material.ENCHANTED_GOLDEN_APPLE, "")
                         .withAmount(64));
+                MenuItem rockets = new MenuItem(4, Material.FIREWORK_ROCKET, "").withAmount(64);
+                FireworkMeta metaData = (FireworkMeta) rockets.getItemMeta();
+                if (metaData != null) metaData.setPower(3);
+                rockets.setItemMeta(metaData);
+                items.add(rockets);
                 return items;
             }
             case CUSTOM_1, CUSTOM_2, CUSTOM_3, CUSTOM_4, CUSTOM_5 -> {

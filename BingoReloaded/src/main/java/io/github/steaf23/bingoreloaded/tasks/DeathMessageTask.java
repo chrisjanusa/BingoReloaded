@@ -9,28 +9,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 @SerializableAs("Bingo.DeathTask")
-public record DeathMessageTask(String deathMessage) implements TaskData
+public record DeathMessageTask(String deathMessage, String description) implements TaskData
 {
 
     @Override
     public ItemText getItemDisplayName()
     {
-        return new ItemText("Obtain a death message containing " + deathMessage);
+        return new ItemText("Obtain a death message containing *" + deathMessage + "*");
     }
 
     @Override
     public ItemText[] getItemDescription()
     {
-        List<String> givenList = Arrays.asList(
-                "Do not fear death",
-                "YOLO",
-                "Let's put the fun in funeral",
-                "I won't kill you. But I don't have to save you.",
-                "Hope you set your respawn point"
-        );
-        Random rand = new Random();
-        String randomDescription = givenList.get(rand.nextInt(givenList.size()));
-        return new ItemText[]{ new ItemText(randomDescription, ChatColor.DARK_AQUA) };
+        return new ItemText[]{ new ItemText(description, ChatColor.DARK_AQUA) };
     }
 
     @Override
@@ -45,6 +36,7 @@ public record DeathMessageTask(String deathMessage) implements TaskData
     {
         return new HashMap<>(){{
             put("deathMessage", deathMessage);
+            put("description", description);
         }};
     }
 
@@ -54,7 +46,7 @@ public record DeathMessageTask(String deathMessage) implements TaskData
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DeathMessageTask itemTask = (DeathMessageTask) o;
-        return deathMessage == itemTask.deathMessage;
+        return Objects.equals(deathMessage, itemTask.deathMessage);
     }
 
     @Override
@@ -74,7 +66,7 @@ public record DeathMessageTask(String deathMessage) implements TaskData
 
     public static DeathMessageTask deserialize(Map<String, Object> data)
     {
-        return new DeathMessageTask((String) data.get("deathMessage"));
+        return new DeathMessageTask((String) data.get("deathMessage"), (String) data.get("description"));
     }
 
     @Override

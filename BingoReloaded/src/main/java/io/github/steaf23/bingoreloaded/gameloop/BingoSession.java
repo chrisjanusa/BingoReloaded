@@ -221,7 +221,8 @@ public class BingoSession
         if (PlayerKit.CARD_ITEM.isCompareKeyEqual(dropEvent.getItemDrop().getItemStack()) ||
                 PlayerKit.WAND_ITEM.isCompareKeyEqual(dropEvent.getItemDrop().getItemStack()) ||
                 PlayerKit.VOTE_ITEM.isCompareKeyEqual(dropEvent.getItemDrop().getItemStack()) ||
-                PlayerKit.TEAM_ITEM.isCompareKeyEqual(dropEvent.getItemDrop().getItemStack()))
+                PlayerKit.TEAM_ITEM.isCompareKeyEqual(dropEvent.getItemDrop().getItemStack()) ||
+                PlayerKit.BIOME_ITEM.isCompareKeyEqual(dropEvent.getItemDrop().getItemStack()))
         {
             dropEvent.setCancelled(true);
         }
