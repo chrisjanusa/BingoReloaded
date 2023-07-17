@@ -298,7 +298,6 @@ public class BingoGame implements GamePhase {
         saveTask.cancel();
         if (statTracker != null)
             statTracker.reset();
-        timer.getTimeDisplayMessage(false).sendAll(session);
         timer.stop();
 
         if (!config.keepScoreboardVisible) {
@@ -331,7 +330,7 @@ public class BingoGame implements GamePhase {
         for (BingoParticipant p : getTeamManager().getParticipants()) {
             if (p.sessionPlayer().isEmpty())
                 continue;
-
+            Message.sendTitleMessage(team.getColor() + "" + team.getIdentifier() + " has won", "", p.sessionPlayer().get());
             Player player = p.sessionPlayer().get();
             player.playSound(player, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.75f, 1.0f);
 
