@@ -1,12 +1,14 @@
 package io.github.steaf23.bingoreloaded.tasks.bingotasks;
 
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
+import io.github.steaf23.bingoreloaded.event.BingoCardTaskCompleteEvent;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.*;
 import io.github.steaf23.bingoreloaded.util.Message;
+import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -35,7 +37,7 @@ public abstract class BingoTask<T extends TaskData>
     public ChatColor nameColor;
     public Material material;
     public boolean glowing;
-    ChildHavingBingoTask parentTask;
+    public ChildHavingBingoTask parentTask;
 
     public static BingoTask<?> getBingoTask(TaskData data, ChildHavingBingoTask<?> parentTask, Set<BingoTeam> activeTeams) {
         if (data instanceof ItemTask itemTask) {
@@ -195,6 +197,14 @@ public abstract class BingoTask<T extends TaskData>
             parentTask.onChildComplete(participant, gameTime);
         }
         return true;
+    }
+
+    public Message[] onCompleteMessage(BingoParticipant completedBy, String timeString) {
+        Message message = new TranslatedMessage(BingoTranslation.COMPLETED).color(ChatColor.AQUA)
+                .component(data.getItemDisplayName().asComponent()).color(nameColor)
+                .arg(new ItemText(completedBy.getDisplayName(), completedBy.getTeam().getColor(), ChatColor.BOLD).asLegacyString())
+                .arg(timeString).color(ChatColor.WHITE);
+        return new Message[]{message};
     }
 
     public BaseComponent getOnClickMessage(BingoTeam team) {

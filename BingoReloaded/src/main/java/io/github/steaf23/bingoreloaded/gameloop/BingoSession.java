@@ -59,9 +59,9 @@ public class BingoSession
         this.phase = new PregameLobby(menuManager, this, config);
 
         // Virtual Player here
-        BingoReloaded.scheduleTask((t) -> {
-            this.teamManager.addVirtualPlayerToTeam("testPlayer", "ground");
-        }, 10);
+//        BingoReloaded.scheduleTask((t) -> {
+//            this.teamManager.addVirtualPlayerToTeam("testPlayer", "mario");
+//        }, 10);
 
         BingoReloaded.scheduleTask((t) -> {
             World world = Bukkit.getWorld(worldName);

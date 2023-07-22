@@ -7,7 +7,8 @@ import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.LastToTask;
-import io.github.steaf23.bingoreloaded.tasks.TaskData;
+import io.github.steaf23.bingoreloaded.util.Message;
+import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 import io.github.steaf23.bingoreloaded.util.timer.GameTimer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -204,6 +205,25 @@ public class LastToBingoTask extends ChildHavingBingoTask<LastToTask> {
                 }
             }
         }
+    }
+
+    @Override
+    public Message[] onChildCompleteMessage(BingoTask<?> child, BingoParticipant completedBy, String completedAt) {
+        Message completedMessage = new TranslatedMessage(BingoTranslation.FAILED).color(ChatColor.RED)
+                .component(child.data.getItemDisplayName().asComponent()).color(child.nameColor)
+                .arg(new ItemText(completedBy.getDisplayName(), completedBy.getTeam().getColor(), ChatColor.BOLD).asLegacyString())
+                .arg(completedAt).color(ChatColor.WHITE);
+        return new Message[] {completedMessage};
+    }
+
+    @Override
+    public Message[] onCompleteMessage(BingoParticipant completedBy, String timeString) {
+        Message completedMessage = new TranslatedMessage(BingoTranslation.LAST_TO_COMPLETED).color(ChatColor.AQUA)
+                .arg(completedBy.getTeam().getColoredName().asLegacyString()).color(completedBy.getTeam().getColor())
+                .arg(data.getItemDisplayName().asLegacyString()).color(nameColor)
+                .arg(timeString).color(ChatColor.WHITE);
+        completedMessage.createPrefixedMessage();
+        return new Message[] {completedMessage};
     }
 
     @Override

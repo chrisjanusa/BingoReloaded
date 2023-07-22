@@ -11,7 +11,6 @@ import io.github.steaf23.bingoreloaded.data.ConfigData;
 import io.github.steaf23.bingoreloaded.data.recoverydata.RecoveryDataManager;
 import io.github.steaf23.bingoreloaded.event.*;
 import io.github.steaf23.bingoreloaded.gui.EffectOptionFlags;
-import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
@@ -578,20 +577,25 @@ public class BingoGame implements GamePhase {
 
     public void handleBingoTaskComplete(final BingoCardTaskCompleteEvent event) {
         String timeString = GameTimer.getTimeAsString(getGameTime());
+        BingoTask<?> task = event.getTask();
+        if (task.hasParent()) {
+            for (Message message : task.parentTask.onChildCompleteMessage(task, event.getParticipant(), timeString)) {
+                message.send(event.getParticipant().getTeam());
+            }
 
-        Message message = new TranslatedMessage(BingoTranslation.COMPLETED).color(ChatColor.AQUA)
-                .component(event.getTask().data.getItemDisplayName().asComponent()).color(event.getTask().nameColor)
-                .arg(new ItemText(event.getParticipant().getDisplayName(), event.getParticipant().getTeam().getColor(), ChatColor.BOLD).asLegacyString())
-                .arg(timeString).color(ChatColor.WHITE);
-        if (event.getTask().hasParent()) {
-            message.send(event.getParticipant().getTeam());
+            for (BingoParticipant otherParticipant : event.getParticipant().getTeam().getMembers()) {
+                if (otherParticipant.sessionPlayer().isPresent())
+                    otherParticipant.sessionPlayer().get().playSound(otherParticipant.sessionPlayer().get(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 0.8f, 1.0f);
+            }
         } else {
-            message.sendAll(session);
-        }
+            for (Message message : task.onCompleteMessage(event.getParticipant(), timeString)) {
+                message.sendAll(session);
+            }
 
-        for (BingoParticipant otherParticipant : getTeamManager().getParticipants()) {
-            if (otherParticipant.sessionPlayer().isPresent())
-                otherParticipant.sessionPlayer().get().playSound(otherParticipant.sessionPlayer().get(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 0.8f, 1.0f);
+            for (BingoParticipant otherParticipant : getTeamManager().getParticipants()) {
+                if (otherParticipant.sessionPlayer().isPresent())
+                    otherParticipant.sessionPlayer().get().playSound(otherParticipant.sessionPlayer().get(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 0.8f, 1.0f);
+            }
         }
 
         scoreboard.updateTeamScores();

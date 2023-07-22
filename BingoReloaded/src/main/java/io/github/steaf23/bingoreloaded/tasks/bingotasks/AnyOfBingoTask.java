@@ -1,10 +1,14 @@
 package io.github.steaf23.bingoreloaded.tasks.bingotasks;
 
+import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.event.ChildHavingTaskCompleteEvent;
+import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.AnyOfTask;
 import io.github.steaf23.bingoreloaded.tasks.TaskData;
+import io.github.steaf23.bingoreloaded.util.Message;
+import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -72,6 +76,11 @@ public class AnyOfBingoTask extends ChildHavingBingoTask<AnyOfTask> {
         var slotEvent = new ChildHavingTaskCompleteEvent(participant, this);
         Bukkit.getPluginManager().callEvent(slotEvent);
         complete(participant, gameTime);
+    }
+
+    @Override
+    public Message[] onChildCompleteMessage(BingoTask<?> child, BingoParticipant completedBy, String completedAt) {
+        return new Message[]{};
     }
 
     @Override

@@ -1,10 +1,14 @@
 package io.github.steaf23.bingoreloaded.tasks.bingotasks;
 
+import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.event.ChildHavingTaskCompleteEvent;
+import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.tasks.AllOfTask;
 import io.github.steaf23.bingoreloaded.tasks.TaskData;
+import io.github.steaf23.bingoreloaded.util.Message;
+import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -70,12 +74,33 @@ public class AllOfBingoTask extends ChildHavingBingoTask<AllOfTask>
 
     @Override
     void onChildComplete(BingoParticipant participant, long gameTime) {
+        if (getNumberOfTasksRemaining(participant) == 0) {
+            complete(participant, gameTime);
+        }
+    }
+
+    private int getNumberOfTasksRemaining(BingoParticipant participant) {
+        int remaining = 0;
         for (BingoTask<?> child : childrenPerTeam.get(participant.getTeam().getIdentifier())) {
             if (!child.isCompleted()) {
-                return;
+                remaining++;
             }
         }
-        complete(participant, gameTime);
+        return remaining;
+    }
+
+    @Override
+    public Message[] onChildCompleteMessage(BingoTask<?> child, BingoParticipant completedBy, String completedAt) {
+        Message completedMessage = new TranslatedMessage(BingoTranslation.COMPLETED).color(ChatColor.AQUA)
+                .component(child.data.getItemDisplayName().asComponent()).color(child.nameColor)
+                .arg(new ItemText(completedBy.getDisplayName(), completedBy.getTeam().getColor(), ChatColor.BOLD).asLegacyString())
+                .arg(completedAt).color(ChatColor.WHITE);
+        int remainingTasks = getNumberOfTasksRemaining(completedBy);
+        if (remainingTasks != 0) {
+            return new Message[]{completedMessage, new Message(remainingTasks + " tasks remaining for ").component(data.getItemDisplayName().asComponent()).color(nameColor)};
+        } else {
+            return new Message[]{completedMessage};
+        }
     }
 
     @Override
