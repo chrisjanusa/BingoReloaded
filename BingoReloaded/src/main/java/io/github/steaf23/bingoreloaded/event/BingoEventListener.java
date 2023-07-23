@@ -2,7 +2,9 @@ package io.github.steaf23.bingoreloaded.event;
 
 import io.github.steaf23.bingoreloaded.gameloop.BingoGame;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
+import io.github.steaf23.bingoreloaded.gameloop.PregameLobby;
 import io.github.steaf23.bingoreloaded.tasks.statistics.StatisticTracker;
+import io.github.steaf23.bingoreloaded.util.Message;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -53,7 +55,6 @@ public class BingoEventListener implements Listener
         if (game != null)
         {
             game.handleBingoTaskComplete(event);
-            game.getCardEventManager().handleTaskCompleted(event);
         }
     }
 
@@ -234,19 +235,20 @@ public class BingoEventListener implements Listener
     }
 
     @EventHandler
-    public void handlePlayerChangedWorld(final PlayerChangedWorldEvent event)
+    public void handlePlayerTeleport(final PlayerTeleportEvent event)
     {
-        // This event is special in the sense we need to catch the session both ways.
-        BingoSession session = getSession(event.getPlayer().getWorld());
+        // This event is special in the sense we need to catch the session both
+        //    as the player is teleporting into a bingo world and teleporting out of a bingo world
+        BingoSession session = getSession(event.getTo().getWorld());
         if (session != null)
         {
-            session.handlePlayerChangedWorld(event);
+            session.handlePlayerTeleport(event);
         }
 
-        session = getSession(event.getFrom());
+        session = getSession(event.getFrom().getWorld());
         if (session != null)
         {
-            session.handlePlayerChangedWorld(event);
+            session.handlePlayerTeleport(event);
         }
     }
 
@@ -254,7 +256,7 @@ public class BingoEventListener implements Listener
     public void onPlayerItemDamaged(PlayerItemDamageEvent event)
     {
         BingoSession session = getSession(event.getPlayer().getWorld());
-        if (session.isRunning())
+        if (session != null && session.isRunning())
         {
             ((BingoGame)session.phase()).handlePlayerItemDamaged(event);
         }
@@ -337,5 +339,19 @@ public class BingoEventListener implements Listener
         event.session.phase().handlePlayerLeftSessionWorld(event);
         event.session.scoreboard.handlePlayerLeave(event);
         event.session.teamManager.handlePlayerLeftSessionWorld(event);
+    }
+
+    @EventHandler
+    public void handleParticipantJoinedTeam(final ParticipantJoinedTeamEvent event) {
+        if (event.session.phase() instanceof PregameLobby lobby) {
+            lobby.handleParticipantJoinedTeam(event);
+        }
+    }
+
+    @EventHandler
+    public void handleParticipantLeftTeam(final ParticipantLeftTeamEvent event) {
+        if (event.session.phase() instanceof PregameLobby lobby) {
+            lobby.handleParticipantLeftTeam(event);
+        }
     }
 }

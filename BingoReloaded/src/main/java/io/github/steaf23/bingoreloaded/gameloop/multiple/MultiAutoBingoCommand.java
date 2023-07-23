@@ -1,7 +1,7 @@
 package io.github.steaf23.bingoreloaded.gameloop.multiple;
 
+import io.github.steaf23.bingoreloaded.command.BingoCommand;
 import io.github.steaf23.bingoreloaded.settings.BingoGamemode;
-import io.github.steaf23.bingoreloaded.command.AutoBingoCommand;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.settings.BingoSettings;
 import io.github.steaf23.bingoreloaded.settings.BingoSettingsBuilder;
@@ -15,13 +15,18 @@ import io.github.steaf23.bingoreloaded.util.Message;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
 
-public class MultiAutoBingoCommand implements AutoBingoCommand
+public class MultiAutoBingoCommand implements TabExecutor
 {
     private final MultiGameManager manager;
 
@@ -102,7 +107,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         return true;
     }
 
-    @Override
     public boolean start(String worldName)
     {
         if (manager.startGame(worldName))
@@ -117,7 +121,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         }
     }
 
-    @Override
     public boolean setKit(BingoSession session, BingoSettingsBuilder settings, String worldName, String[] extraArguments)
     {
         if (extraArguments.length != 1)
@@ -132,7 +135,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         return true;
     }
 
-    @Override
     public boolean setEffect(BingoSession session, BingoSettingsBuilder settings, String worldName, String[] extraArguments)
     {
         // autobingo world effect <effect_name> [true | false]
@@ -173,7 +175,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         }
     }
 
-    @Override
     public boolean setCard(BingoSettingsBuilder settings, String worldName, String[] extraArguments)
     {
         if (extraArguments.length == 0)
@@ -183,7 +184,7 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         }
 
         String cardName = extraArguments[0];
-        int seed = extraArguments.length > 1 ? AutoBingoCommand.toInt(extraArguments[1], 0) : 0;
+        int seed = extraArguments.length > 1 ? BingoCommand.toInt(extraArguments[1], 0) : 0;
 
         BingoCardData cardsData = new BingoCardData();
         if (cardsData.getCardNames().contains(cardName))
@@ -197,7 +198,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         return false;
     }
 
-    @Override
     public boolean setCountdown(BingoSettingsBuilder settings, String worldName, String[] extraArguments)
     {
         if (extraArguments.length != 1)
@@ -212,7 +212,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         return true;
     }
 
-    @Override
     public boolean setDuration(BingoSettingsBuilder settings, String worldName, String[] extraArguments)
     {
         if (extraArguments.length != 1)
@@ -221,7 +220,7 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
             return false;
         }
 
-        int gameDuration = AutoBingoCommand.toInt(extraArguments[0], 0);
+        int gameDuration = BingoCommand.toInt(extraArguments[0], 0);
         if (gameDuration > 0)
         {
             settings.countdownGameDuration(gameDuration);
@@ -232,7 +231,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         return true;
     }
 
-    @Override
     public boolean setPlayerTeam(String worldName, String[] extraArguments)
     {
         if (extraArguments.length != 2)
@@ -281,7 +279,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         return true;
     }
 
-    @Override
     public boolean setTeamSize(BingoSettingsBuilder settings, String worldName, String[] extraArguments)
     {
         if (extraArguments.length != 1)
@@ -290,14 +287,13 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
             return false;
         }
 
-        int teamSize = Math.min(64, Math.max(1, AutoBingoCommand.toInt(extraArguments[0], 1)));
+        int teamSize = Math.min(64, Math.max(1, BingoCommand.toInt(extraArguments[0], 1)));
 
         settings.maxTeamSize(teamSize);
         sendSuccess("Set maximum team size to " + teamSize + " players", worldName);
         return true;
     }
 
-    @Override
     public boolean setGamemode(BingoSettingsBuilder settings, String worldName, String[] extraArguments)
     {
         if (extraArguments.length == 0)
@@ -329,7 +325,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         return true;
     }
 
-    @Override
     public boolean end(String worldName)
     {
         if (manager.endGame(worldName))
@@ -344,7 +339,6 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
         }
     }
 
-    @Override
     public boolean preset(BingoSettingsBuilder settingsBuilder, String worldName, String[] extraArguments)
     {
         if (extraArguments.length != 2)
@@ -381,5 +375,11 @@ public class MultiAutoBingoCommand implements AutoBingoCommand
     private void sendSuccess(String message, String worldName)
     {
         Message.log(ChatColor.GREEN + message, worldName);
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        return null;
     }
 }

@@ -33,6 +33,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -52,15 +53,13 @@ public class BingoReloaded extends JavaPlugin
     private HologramPlacer hologramPlacer;
     private BingoGameManager gameManager;
 
-    public BingoReloaded()
-    {
+    public BingoReloaded() {
         reloadConfig();
         saveDefaultConfig();
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         // Kinda ugly, but we can assume there will only be one instance of this class anyways.
         instance = this;
         usesPlaceholderAPI = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
@@ -113,21 +112,17 @@ public class BingoReloaded extends JavaPlugin
         this.hologramManager = new HologramManager();
         this.hologramPlacer = new HologramPlacer(hologramManager);
 
-        CommandExecutor autoBingoCommand;
+        TabExecutor autoBingoCommand;
 
-        if (config.configuration == ConfigData.PluginConfiguration.SINGULAR)
-        {
+        if (config.configuration == ConfigData.PluginConfiguration.SINGULAR) {
             this.gameManager = new SingularGameManager(this);
-            autoBingoCommand = new SimpleAutoBingoCommand(gameManager);
-        }
-        else
-        {
+            autoBingoCommand = new SimpleAutoBingoCommand((SingularGameManager) gameManager);
+        } else {
             this.gameManager = new MultiGameManager(this);
-            autoBingoCommand = new MultiAutoBingoCommand((MultiGameManager)gameManager);
+            autoBingoCommand = new MultiAutoBingoCommand((MultiGameManager) gameManager);
         }
 
         registerCommand("bingo", new BingoCommand(config, gameManager), new BingoTabCompleter());
-        registerCommand("autobingo", autoBingoCommand, null);
         registerCommand("get", new GetCommand(), new GetTabCompleter());
 
         if (config.teleportToTeammates) {
@@ -136,6 +131,12 @@ public class BingoReloaded extends JavaPlugin
                     new TeamTeleportCommand(gameManager, config.teleportBack),
                     new TeamTeleportTabCompleter(gameManager, config.teleportBack)
             );
+        }
+        registerCommand("autobingo", autoBingoCommand);
+        if (config.enableTeamChat) {
+            TeamChatCommand command = new TeamChatCommand(player -> gameManager.getSession(BingoReloaded.getWorldNameOfDimension(player.getWorld())));
+            registerCommand("btc", command);
+            Bukkit.getPluginManager().registerEvents(command, this);
         }
 
         Message.log(ChatColor.GREEN + "Enabled " + getName());
@@ -146,65 +147,59 @@ public class BingoReloaded extends JavaPlugin
 //        }
     }
 
-    public void registerTeamChatCommand(String commandName, Function<Player, BingoSession> bingoSessionResolver)
-    {
-        registerCommand(commandName, new TeamChatCommand(bingoSessionResolver), null);
+    public void registerTeamChatCommand(String commandName, Function<Player, BingoSession> bingoSessionResolver) {
+        registerCommand(commandName, new TeamChatCommand(bingoSessionResolver));
     }
 
-    public void registerCommand(String commandName, CommandExecutor executor, @Nullable TabCompleter tabCompleter)
-    {
+    public void registerCommand(String commandName, TabExecutor executor) {
         PluginCommand command = getCommand(commandName);
-        if (command != null)
-        {
+        if (command != null) {
             command.setExecutor(executor);
-            command.setTabCompleter(tabCompleter);
+            command.setTabCompleter(executor);
         }
     }
 
-    public static String getWorldNameOfDimension(World dimension)
-    {
+    public static String getWorldNameOfDimension(World dimension) {
         return dimension.getName()
                 .replace("_nether", "")
                 .replace("_the_end", "");
     }
 
-    public static YmlDataManager createYmlDataManager(String filepath)
-    {
+    public static YmlDataManager createYmlDataManager(String filepath) {
         return new YmlDataManager(instance, filepath);
     }
 
-    public void onDisable()
-    {
-        gameManager.onDisable();
+    public void onDisable() {
+        if (gameManager != null) {
+            gameManager.onDisable();
+        }
     }
 
-    public ConfigData config()
-    {
+    public ConfigData config() {
         return config;
     }
 
-    public HologramManager holograms()
-    {
+    public HologramManager holograms() {
         return hologramManager;
     }
 
-    public static void incrementPlayerStat(Player player, BingoStatType stat)
-    {
+    public static void incrementPlayerStat(Player player, BingoStatType stat) {
         boolean savePlayerStatistics = instance.config.savePlayerStatistics;
-        if (savePlayerStatistics)
-        {
+        if (savePlayerStatistics) {
             BingoStatData statsData = new BingoStatData();
             statsData.incrementPlayerStat(player, stat);
         }
     }
 
-    public static void scheduleTask(@NotNull Consumer<BukkitTask> task)
-    {
+    public static BingoReloaded getInstance() {
+        return instance;
+    }
+
+    public static void scheduleTask(@NotNull Consumer<BukkitTask> task) {
         BingoReloaded.scheduleTask(task, 0);
     }
 
-    public static void scheduleTask(@NotNull Consumer<BukkitTask> task, long delay)
-    {
+    public static void scheduleTask(@NotNull Consumer<BukkitTask> task, long delay) {
         if (delay <= 0)
             Bukkit.getScheduler().runTask(instance, task);
         else

@@ -1,9 +1,9 @@
 package io.github.steaf23.bingoreloaded.gameloop;
 
 import io.github.steaf23.bingoreloaded.BingoReloaded;
-import io.github.steaf23.bingoreloaded.BingoScoreboard;
 import io.github.steaf23.bingoreloaded.cards.BingoCard;
 import io.github.steaf23.bingoreloaded.cards.CardBuilder;
+import io.github.steaf23.bingoreloaded.cards.LockoutBingoCard;
 import io.github.steaf23.bingoreloaded.data.BingoCardData;
 import io.github.steaf23.bingoreloaded.data.BingoStatType;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
@@ -81,7 +81,6 @@ public class BingoGame implements GamePhase {
         else
             this.statTracker = null;
         initBossBars();
-        start();
     }
 
     public BingoGame(BingoSession session, BingoSettings settings, ConfigData config, GameTimer timer, BingoCard masterCard, StatisticTracker statistics) {
@@ -293,6 +292,8 @@ public class BingoGame implements GamePhase {
     }
 
     public void end(@Nullable BingoTeam winningTeam) {
+        // If the starting timer was still running
+        startingTimer.stop();
         new RecoveryDataManager().clearRecoveryData();
         saveTask.cancel();
         if (statTracker != null)
@@ -306,7 +307,6 @@ public class BingoGame implements GamePhase {
         bossBars.values().forEach(BossBar::removeAll);
 
         getTeamManager().getParticipants().forEach(p -> {
-
             if (p instanceof BingoPlayer bingoPlayer) {
                 bingoPlayer.takeEffects(false);
                 p.sessionPlayer().ifPresent(player -> {
@@ -367,7 +367,17 @@ public class BingoGame implements GamePhase {
         BingoReloaded.scheduleTask(task -> participant.giveEffects(settings.effects(), config.gracePeriod), BingoReloaded.ONE_SECOND);
     }
 
-    public void startDeathMatch(int countdown) {
+    public void startDeathMatch(int seconds) {
+        new TranslatedMessage(BingoTranslation.DEATHMATCH_START).sendAll(session);
+        for (BingoParticipant p : teamManager.getParticipants())
+        {
+            p.sessionPlayer().ifPresent(player -> player.playSound(player, Sound.ENTITY_PARROT_IMITATE_GHAST, 0.8f, 1.0f));
+        }
+
+        startDeathMatchRecurse(seconds);
+    }
+
+    private void startDeathMatchRecurse(int countdown) {
         if (countdown == 0) {
             deathMatchTask = BingoTask.getBingoTask(new BingoCardData().getRandomItemTask(settings.card()));
 
@@ -375,11 +385,15 @@ public class BingoGame implements GamePhase {
                 if (p.sessionPlayer().isEmpty())
                     continue;
 
+                Player player = p.sessionPlayer().get();
+
                 p.showDeathMatchTask(deathMatchTask);
                 Message.sendTitleMessage(
                         "" + ChatColor.BOLD + ChatColor.GOLD + "GO",
-                        "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + "find the item listed in the chat to win!",
+                        "" + ChatColor.DARK_PURPLE + ChatColor.ITALIC + BingoTranslation.DEATHMATCH_SEARCH.translate(),
                         p.sessionPlayer().get());
+
+                player.playSound(player, Sound.ENTITY_GHAST_SHOOT, 0.8f, 1.0f);
             }
             return;
         }
@@ -398,7 +412,7 @@ public class BingoGame implements GamePhase {
         }
 
         BingoReloaded.scheduleTask(task -> {
-            startDeathMatch(countdown - 1);
+            startDeathMatchRecurse(countdown - 1);
         }, BingoReloaded.ONE_SECOND);
     }
 
@@ -600,15 +614,25 @@ public class BingoGame implements GamePhase {
 
         scoreboard.updateTeamScores();
 
-        if (event.hasBingo()) {
-            bingo(event.getParticipant().getTeam());
+        if (!event.getParticipant().sessionPlayer().isEmpty()) {
+            Player player = event.getParticipant().sessionPlayer().get();
+            BingoReloaded.incrementPlayerStat(player, BingoStatType.TASKS);
         }
 
-        if (event.getParticipant().sessionPlayer().isEmpty())
+        if (event.hasBingo()) {
+            bingo(event.getParticipant().getTeam());
             return;
+        }
 
-        Player player = event.getParticipant().sessionPlayer().get();
-        BingoReloaded.incrementPlayerStat(player, BingoStatType.TASKS);
+        // Start death match when all tasks have been completed in lockout
+        BingoCard card = teamManager.getLeadingTeam().card;
+        if (!(card instanceof LockoutBingoCard lockoutCard)) {
+            return;
+        }
+
+        if (lockoutCard.getTotalCompleteCount() == lockoutCard.size.fullCardSize) {
+            startDeathMatch(5);
+        }
     }
 
     @Override
@@ -719,7 +743,7 @@ public class BingoGame implements GamePhase {
             if (tiedTeams.size() == 1) {
                 bingo(getTeamManager().getLeadingTeam());
             } else {
-                startDeathMatch(3);
+                startDeathMatch(5);
             }
         } else if (event.getTimer() == startingTimer) {
             timer.start();
@@ -757,9 +781,19 @@ public class BingoGame implements GamePhase {
     }
 
     @Override
+    public void setup() {
+        start();
+    }
+
+    @Override
+    public void end() {
+        end(null);
+    }
+
+    @Override
     public void handlePlayerJoinedSessionWorld(final PlayerJoinedSessionWorldEvent event) {
         BingoParticipant participant = teamManager.getBingoParticipant(event.getPlayer().getUniqueId());
-        if (participant == null || !(participant instanceof BingoPlayer player))
+        if (!(participant instanceof BingoPlayer player))
             return;
 
         player.giveEffects(settings.effects(), config.gracePeriod);

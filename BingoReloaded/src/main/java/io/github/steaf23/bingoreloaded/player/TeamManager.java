@@ -1,18 +1,17 @@
 package io.github.steaf23.bingoreloaded.player;
 
-import io.github.steaf23.bingoreloaded.data.TeamData;
-import io.github.steaf23.bingoreloaded.event.*;
-import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.cards.BingoCard;
 import io.github.steaf23.bingoreloaded.cards.LockoutBingoCard;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
+import io.github.steaf23.bingoreloaded.data.TeamData;
+import io.github.steaf23.bingoreloaded.event.*;
+import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.gui.base.FilterType;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
 import io.github.steaf23.bingoreloaded.gui.base.PaginatedSelectionMenu;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
-import io.github.steaf23.bingoreloaded.util.FlexColor;
 import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 import net.md_5.bungee.api.ChatColor;
@@ -86,6 +85,7 @@ public class TeamManager
 
         var allTeams = teamData.getTeams();
         for (String teamId : allTeams.keySet()) {
+            boolean playersTeam = false;
             TeamData.TeamTemplate teamTemplate = allTeams.get(teamId);
 
             boolean teamIsFull = false;
@@ -96,6 +96,10 @@ public class TeamManager
 
                 for (BingoParticipant participant : team.getMembers()) {
                     description.add("" + ChatColor.GRAY + ChatColor.BOLD + " ┗ " + ChatColor.RESET + ChatColor.WHITE + participant.getDisplayName());
+                    if (participant.getId().equals(player.getUniqueId()))
+                    {
+                        playersTeam = true;
+                    }
                 }
 
                 if (maxTeamSize == team.getMembers().size()) {
@@ -112,7 +116,8 @@ public class TeamManager
 
             optionItems.add(MenuItem.createColoredLeather(teamTemplate.color(), Material.LEATHER_CHESTPLATE)
                     .setName("" + teamTemplate.color() + ChatColor.BOLD + teamTemplate.name())
-                    .setDescription(description.toArray(new String[]{})).setCompareKey(teamId));
+                    .setDescription(description.toArray(new String[]{})).setCompareKey(teamId)
+                    .setGlowing(playersTeam));
         }
 
         PaginatedSelectionMenu teamPicker = new PaginatedSelectionMenu(menuManager, BingoTranslation.OPTIONS_TEAM.translate(), optionItems, FilterType.DISPLAY_NAME)
@@ -121,13 +126,17 @@ public class TeamManager
             public void onOptionClickedDelegate(InventoryClickEvent event, MenuItem clickedOption, HumanEntity player) {
                 if (clickedOption.getCompareKey().equals("auto")) {
                     addPlayerToAutoTeam((Player) player);
+                    openTeamSelector(menuManager, (Player) player);
                     return;
                 }
 
-                if (addPlayerToTeam((Player) player, clickedOption.getCompareKey())) {
-                    //TODO: implement proper fix, probably involving changes to addPlayerToTeam or addAutoPlayersToTeams
-                    automaticTeamPlayers.remove(player.getUniqueId());
-                }
+                addPlayerToTeam((Player) player, clickedOption.getCompareKey());
+                openTeamSelector(menuManager, (Player) player);
+            }
+
+            @Override
+            public boolean openOnce() {
+                return true;
             }
         };
         teamPicker.open(player);
@@ -137,6 +146,8 @@ public class TeamManager
         //TODO: maybe combine both functions into 1?
         if (teamName.equals("auto"))
             return addPlayerToAutoTeam(player);
+
+        automaticTeamPlayers.remove(player.getUniqueId());
 
         BingoTeam bingoTeam = activateTeamFromName(teamName);
 
@@ -156,6 +167,9 @@ public class TeamManager
 
         BingoPlayer bingoPlayer = new BingoPlayer(player, bingoTeam, session);
         bingoTeam.addMember(bingoPlayer);
+
+        var joinEvent = new ParticipantJoinedTeamEvent(bingoPlayer, bingoTeam, session);
+        Bukkit.getPluginManager().callEvent(joinEvent);
         return true;
     }
 
@@ -167,6 +181,8 @@ public class TeamManager
         automaticTeamPlayers.add(player.getUniqueId());
         new TranslatedMessage(BingoTranslation.JOIN_AUTO).color(ChatColor.GREEN).send(player);
 
+        var joinEvent = new ParticipantJoinedTeamEvent(participant, session);
+        Bukkit.getPluginManager().callEvent(joinEvent);
         return true;
     }
 
@@ -199,11 +215,10 @@ public class TeamManager
         //      add a player to it, and then insert it back into the list.
         //      when the team with the least amount of players has the same amount as the biggest team, all teams have been filled.
 
+        HashSet<UUID> autoPlayersCopy = new HashSet<>(automaticTeamPlayers);
         // Since we need to remove players from this list as we are iterating, use a direct reference to the iterator.
-        for (Iterator<UUID> uuidIterator = automaticTeamPlayers.iterator(); uuidIterator.hasNext(); ) {
-            UUID playerId = uuidIterator.next();
+        for (UUID playerId : autoPlayersCopy) {
             TeamCount lowest = counts.get(0);
-
             // If our lowest count is the same as the highest count, all incomplete teams have been filled
             if (lowest.count == maxTeamSize) {
                 // If there are still players left in the queue, create a new team
@@ -231,7 +246,7 @@ public class TeamManager
             }
             if (ok) {
                 lowest = new TeamCount(lowest.team, lowest.count + 1);
-                uuidIterator.remove();
+                automaticTeamPlayers.remove(playerId);
             }
 
             // Insert the lowest back into the team counts
@@ -266,6 +281,9 @@ public class TeamManager
         VirtualBingoPlayer player = new VirtualBingoPlayer(UUID.randomUUID(), playerName, null, session);
         autoVirtualPlayers.put(player.getId(), player.getName());
         automaticTeamPlayers.add(player.getId());
+
+        var joinEvent = new ParticipantJoinedTeamEvent(player, session);
+        Bukkit.getPluginManager().callEvent(joinEvent);
         return true;
     }
 
@@ -290,7 +308,19 @@ public class TeamManager
 
         VirtualBingoPlayer bingoPlayer = new VirtualBingoPlayer(UUID.randomUUID(), playerName, bingoTeam, session);
         bingoTeam.addMember(bingoPlayer);
+
+        var joinEvent = new ParticipantJoinedTeamEvent(bingoPlayer, bingoTeam, session);
+        Bukkit.getPluginManager().callEvent(joinEvent);
         return true;
+    }
+
+    public boolean removeMemberFromTeam(Player player) {
+        BingoParticipant participant = getBingoParticipant(player);
+        if (participant != null) {
+            return removeMemberFromTeam(getBingoParticipant(player));
+        } else {
+            return false;
+        }
     }
 
     public boolean removeMemberFromTeam(BingoParticipant player) {
@@ -301,6 +331,8 @@ public class TeamManager
             return false;
 
         player.getTeam().removeMember(player);
+        var leaveEvent = new ParticipantLeftTeamEvent(player, player.getTeam(), session);
+        Bukkit.getPluginManager().callEvent(leaveEvent);
         return true;
     }
 
@@ -449,6 +481,17 @@ public class TeamManager
         return null;
     }
 
+    /**
+     * @return the total amount of players spread across all active teams, including players in the automatic team
+     */
+    public int getTotalParticipantCount() {
+        return getParticipants().size() + automaticTeamPlayers.size() + autoVirtualPlayers.size();
+    }
+
+    public BingoSession getSession() {
+        return session;
+    }
+
     //== EventHandlers ==========================================
     public void handleSettingsUpdated(BingoSettingsUpdatedEvent event) {
         int newTeamSize = event.getNewSettings().maxTeamSize();
@@ -472,6 +515,7 @@ public class TeamManager
         if (participant == null)
             return;
 
+        removeMemberFromTeam(participant);
         participant.getTeam().team.removeEntry(event.getPlayer().getName());
     }
 
