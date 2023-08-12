@@ -17,6 +17,7 @@ import io.github.steaf23.bingoreloaded.gameloop.multiple.MultiAutoBingoCommand;
 import io.github.steaf23.bingoreloaded.gameloop.multiple.MultiGameManager;
 import io.github.steaf23.bingoreloaded.gameloop.singular.SimpleAutoBingoCommand;
 import io.github.steaf23.bingoreloaded.gameloop.singular.SingularGameManager;
+import io.github.steaf23.bingoreloaded.gui.base.BasicMenu;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.hologram.HologramManager;
 import io.github.steaf23.bingoreloaded.hologram.HologramPlacer;
@@ -27,12 +28,14 @@ import io.github.steaf23.bingoreloaded.tasks.statistics.BingoStatistic;
 import io.github.steaf23.bingoreloaded.util.Message;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.command.*;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -41,6 +44,10 @@ import java.util.function.Function;
 
 public class BingoReloaded extends JavaPlugin
 {
+    public static final String CARD_1_18 = "lists_1_18.yml";
+    public static final String CARD_1_19 = "lists_1_19.yml";
+    public static final String CARD_1_20 = "lists_1_20.yml";
+
     // Amount of ticks per second.
     public static final int ONE_SECOND = 20;
     public static boolean usesPlaceholderAPI = false;
@@ -52,18 +59,18 @@ public class BingoReloaded extends JavaPlugin
     private HologramPlacer hologramPlacer;
     private BingoGameManager gameManager;
 
-    public BingoReloaded()
-    {
+    public BingoReloaded() {
         reloadConfig();
         saveDefaultConfig();
     }
 
     @Override
-    public void onEnable()
-    {
-        // Kinda ugly, but we can assume there will only be one instance of this class anyways.
+    public void onEnable() {
+        // Kinda ugly, but we can assume there will only be one instance of this class anyway.
         instance = this;
         usesPlaceholderAPI = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+
+        BasicMenu.pluginTitlePrefix = Message.PREFIX_STRING_SHORT + " " + ChatColor.DARK_RED;
 
         ConfigurationSerialization.registerClass(BingoSettings.class);
         ConfigurationSerialization.registerClass(ItemTask.class);
@@ -113,29 +120,27 @@ public class BingoReloaded extends JavaPlugin
         this.hologramManager = new HologramManager();
         this.hologramPlacer = new HologramPlacer(hologramManager);
 
-        CommandExecutor autoBingoCommand;
+        TabExecutor autoBingoCommand;
 
-        if (config.configuration == ConfigData.PluginConfiguration.SINGULAR)
-        {
+        if (config.configuration == ConfigData.PluginConfiguration.SINGULAR) {
             this.gameManager = new SingularGameManager(this);
-            autoBingoCommand = new SimpleAutoBingoCommand(gameManager);
-        }
-        else
-        {
+            autoBingoCommand = new SimpleAutoBingoCommand((SingularGameManager) gameManager);
+        } else {
             this.gameManager = new MultiGameManager(this);
-            autoBingoCommand = new MultiAutoBingoCommand((MultiGameManager)gameManager);
+            autoBingoCommand = new MultiAutoBingoCommand((MultiGameManager) gameManager);
         }
 
-        registerCommand("bingo", new BingoCommand(config, gameManager), new BingoTabCompleter());
-        registerCommand("autobingo", autoBingoCommand, null);
-        registerCommand("get", new GetCommand(), new GetTabCompleter());
+        registerCommand("bingo", new BingoCommand(config, gameManager));
+        registerCommand("get", new GetCommand());
 
         if (config.teleportToTeammates) {
-            registerCommand(
-                    "btp",
-                    new TeamTeleportCommand(gameManager, config.teleportBack),
-                    new TeamTeleportTabCompleter(gameManager, config.teleportBack)
-            );
+            registerCommand("btp", new TeamTeleportCommand(gameManager, config.teleportBack));
+        }
+        registerCommand("autobingo", autoBingoCommand);
+        if (config.enableTeamChat) {
+            TeamChatCommand command = new TeamChatCommand(player -> gameManager.getSession(BingoReloaded.getWorldNameOfDimension(player.getWorld())));
+            registerCommand("btc", command);
+            Bukkit.getPluginManager().registerEvents(command, this);
         }
 
         Message.log(ChatColor.GREEN + "Enabled " + getName());
@@ -146,68 +151,80 @@ public class BingoReloaded extends JavaPlugin
 //        }
     }
 
-    public void registerTeamChatCommand(String commandName, Function<Player, BingoSession> bingoSessionResolver)
-    {
-        registerCommand(commandName, new TeamChatCommand(bingoSessionResolver), null);
+    public void registerTeamChatCommand(String commandName, Function<Player, BingoSession> bingoSessionResolver) {
+        registerCommand(commandName, new TeamChatCommand(bingoSessionResolver));
     }
 
-    public void registerCommand(String commandName, CommandExecutor executor, @Nullable TabCompleter tabCompleter)
-    {
+    public void registerCommand(String commandName, TabExecutor executor) {
         PluginCommand command = getCommand(commandName);
-        if (command != null)
-        {
+        if (command != null) {
             command.setExecutor(executor);
-            command.setTabCompleter(tabCompleter);
+            command.setTabCompleter(executor);
         }
     }
 
-    public static String getWorldNameOfDimension(World dimension)
-    {
+    public static String getWorldNameOfDimension(World dimension) {
         return dimension.getName()
                 .replace("_nether", "")
                 .replace("_the_end", "");
     }
 
-    public static YmlDataManager createYmlDataManager(String filepath)
-    {
+    public static YmlDataManager createYmlDataManager(String filepath) {
         return new YmlDataManager(instance, filepath);
     }
 
-    public void onDisable()
-    {
-        gameManager.onDisable();
+    public void onDisable() {
+        if (gameManager != null) {
+            gameManager.onDisable();
+        }
     }
 
-    public ConfigData config()
-    {
+    public ConfigData config() {
         return config;
     }
 
-    public HologramManager holograms()
-    {
+    public HologramManager holograms() {
         return hologramManager;
     }
 
-    public static void incrementPlayerStat(Player player, BingoStatType stat)
-    {
+    public static void incrementPlayerStat(Player player, BingoStatType stat) {
         boolean savePlayerStatistics = instance.config.savePlayerStatistics;
-        if (savePlayerStatistics)
-        {
+        if (savePlayerStatistics) {
             BingoStatData statsData = new BingoStatData();
             statsData.incrementPlayerStat(player, stat);
         }
     }
 
-    public static void scheduleTask(@NotNull Consumer<BukkitTask> task)
-    {
+    public static boolean areAdvancementsDisabled() {
+        return !Bukkit.advancementIterator().hasNext() || Bukkit.advancementIterator().next() == null;
+    }
+
+    public static BingoReloaded getInstance() {
+        return instance;
+    }
+
+    public static void scheduleTask(@NotNull Consumer<BukkitTask> task) {
         BingoReloaded.scheduleTask(task, 0);
     }
 
-    public static void scheduleTask(@NotNull Consumer<BukkitTask> task, long delay)
-    {
+    public static void scheduleTask(@NotNull Consumer<BukkitTask> task, long delay) {
         if (delay <= 0)
             Bukkit.getScheduler().runTask(instance, task);
         else
             Bukkit.getScheduler().runTaskLater(instance, task, delay);
+    }
+
+    public static String getDefaultTasksVersion() {
+        String version = Bukkit.getVersion();
+        if (version.contains("(MC: 1.18")) {
+            return CARD_1_18;
+        }
+        else if (version.contains("(MC: 1.19")) {
+            return CARD_1_19;
+        }
+        else if (version.contains("(MC: 1.20")) {
+            return CARD_1_20;
+        }
+        return CARD_1_18;
     }
 }

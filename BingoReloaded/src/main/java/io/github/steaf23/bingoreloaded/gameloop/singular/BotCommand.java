@@ -12,13 +12,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.List;
 import java.util.UUID;
 
-public class BotCommand implements CommandExecutor
+public class BotCommand implements TabExecutor
 {
     private TeamManager teamManager;
 
@@ -60,7 +63,10 @@ public class BotCommand implements CommandExecutor
             case "remove" ->
             {
                 String playerName = args[1];
-                teamManager.removeMemberFromTeam(teamManager.getVirtualPlayerFromName(playerName));
+                VirtualBingoPlayer player = teamManager.getVirtualPlayerFromName(playerName);
+                if (player != null) {
+                    teamManager.removeMemberFromTeam(teamManager.getVirtualPlayerFromName(playerName));
+                }
             }
             case "complete" ->
             {
@@ -69,7 +75,6 @@ public class BotCommand implements CommandExecutor
                 completeTaskByPlayer(virtualPlayer, taskIndex);
             }
         }
-        Message.log("BEEP BOOP");
         return true;
     }
 
@@ -89,5 +94,11 @@ public class BotCommand implements CommandExecutor
         card.tasks.get(taskIndex).complete(player, ((BingoGame)player.getSession().phase()).getGameTime());
         var slotEvent = new BingoCardTaskCompleteEvent(card.tasks.get(taskIndex), player, card.hasBingo(player.getTeam()));
         Bukkit.getPluginManager().callEvent(slotEvent);
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        return null;
     }
 }

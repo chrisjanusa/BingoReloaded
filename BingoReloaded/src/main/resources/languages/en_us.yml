@@ -23,15 +23,16 @@ game:
   timer:
     duration: "Game duration: {0}" # 0: total game time duration
     time_left: "Time remaining: {0}" # 0: total game time left (for Countdown cards)
-  settings:
-    kit_selected: "Selected {0} player kit" # 0: selected kit (see "kit") below
-    effects_selected: "Selected Effect options, view them in the /bingo options"
-    regular_selected: "Selected Regular Bingo. Complete one line to win (horizontal, vertical or diagonal)!"
-    lockout_selected: "Selected Lockout Bingo. Compete to complete the majority of the card to win!"
-    complete_selected: "Selected Complete-All Bingo. Complete all tasks on the card to win!"
-    countdown_selected: "Selected Countdown Bingo. Race to complete the most tasks within the given time!"
-    card_selected: "Selected '{0}' as the playing Bingo card!" # 0: card name
-    cardsize: "Chosen card size: {0}" # 0: card size
+  lobby:
+    settings_updated: "Game settings have been updated, check the scoreboard!"
+    wait_status: "Waiting for players..."
+    player_status: "{0} player(s) joined a team" # 0: player count
+    starting_status: "Game starting in {0} seconds!" # 0: starting time (seconds)
+    vote_kit: "Vote for a Kit"
+    vote_gamemode: "Vote for a Gamemode"
+    vote_card: "Vote for a Card"
+    vote_count: "{0} player(s) voted for {1} {2}" # 0: player count, 1: vote category, 2: vote item
+    vote_won: "{0} {1} received the most votes!" # 0: vote category, 1: vote item
   start:
     no_players: "Bingo could not be started since nobody joined :("
     already_started: "Cannot start a game of Bingo when there is already one active!"
@@ -40,6 +41,12 @@ game:
   end:
     bingo: "Congratulations! Team {0} has won the Bingo!" # 0: winning team
     restart: "&a&o&lGame has ended! Click to //&c&oRestart! //&a&o&lClick to restart using the same rules and teams!//"
+  postgame:
+    start: "This game will re-open in {0} seconds" # 0: time until restart (seconds)
+  deathmatch:
+    start: "Several teams have completed the same amount of tasks, starting Deathmatch to break the tie!"
+    search: "Find the item listed in chat to win the game!"
+    item: "DeathMatch - Be the first to get this item to win: {0}" # 0: item name
   player:
     leave: "You have left the game!" # 0: /bingo command
     no_start: "The game has not started yet!"
@@ -56,8 +63,8 @@ game:
     chat_off: "&fTeam chat is now &coff&r, use {0} to enable it again." # 0: /btc
     chat_on: "&fTeam chat is now &aon&r, use {0} to disable it." # 0: /btc
     size_changed: "The maximum team sized has been changed, please rejoin your team of choice!"
-    full_team_desc: "This team is full!"
-    join_team_desc: "Click to join this team!"
+    full_team_desc: "This team is full"
+    join_team_desc: "Click to join this team"
   item:
     lore: Obtain {0} of this item to complete this task! # 0: item count
     last_to_lore: Be the last to obtain {0} of this item to complete this task! # 0: item count
@@ -68,7 +75,6 @@ game:
     last_to_completed: "{0} was the {1} at {2}" # 0: team name, 1: item name, 2: completion time
     complete_lore: "Completed by {0} \nat {1}" # 0: team, 1: completion time
     failed: "Failed {0} by {1} at {2}" # 0: item name, 1: team, 2: completion time
-    deathmatch: "DeathMatch - Find this item to win: {0}" # 0: item name
 menu:
   save: "Save"
   exit: "Close Menu"
@@ -90,20 +96,17 @@ menu:
     info_complete:
       name: "Complete-All Bingo Card"
       desc: "First team to complete all tasks wins."
-    info_countdown:
-      name: "Countdown Bingo Card"
-      desc: "Race to complete the most tasks. \nA deathmatch will be the deciding factor in a tie after time runs out!"
   options:
     title: "Options Menu"
     start: "Start The Game"
     end: "End The Game"
     team: "Join A Team"
     leave: "Leave The Game"
-    kit: "Starting Kit"
-    card: "Select Card"
-    mode: "Change Gamemode"
+    kit: "Kit"
+    card: "Card"
+    mode: "Gamemode"
     effects: "Player Effects"
-    vote: "Vote Gamemode"
+    vote: "Vote For Settings"
   effects:
     enable: "Click to ENABLE this effect option"
     disable: "Click to DISABLE this effect option"
@@ -133,24 +136,27 @@ menu:
           - Leather Helmet \n
           - Leather Boots"
     overpowered:
-      name: "&5Overpowered"
+      name: "&5Biome Compass"
       desc: "This kit includes: \n
       \n
           - Netherite Axe \n
           - Netherite Pickaxe (Fortune) \n
           - Netherite Shovel (Silk Touch) \n
           - 64 Golden Carrots \n
+          - 64 Fireworks \n
+          - Biome Compass \n
           - The Go-Up-Wand \n
           - Leather Helmet \n
           - Leather Boots"
     reloaded:
-      name: "&3Reloaded"
+      name: "&3Normal"
       desc: "This kit includes: \n
       \n
           - Netherite Axe \n
           - Netherite Pickaxe (Fortune) \n
           - Netherite Shovel (Silk Touch) \n
           - 64 Golden Carrots \n
+          - 64 Fireworks \n
           - The Go-Up-Wand \n
           - Leather Helmet \n
           - Elytra (Unbreaking X) \n

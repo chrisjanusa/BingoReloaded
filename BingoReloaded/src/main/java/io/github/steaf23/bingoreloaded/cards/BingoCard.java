@@ -19,6 +19,7 @@ import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.tasks.*;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.*;
 import io.github.steaf23.bingoreloaded.tasks.statistics.BingoStatistic;
+import io.github.steaf23.bingoreloaded.util.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -109,7 +110,9 @@ public class BingoCard
             {
                 continue;
             }
-            for (int i = 0; i < cardsData.getListMin(cardName, listName); i++)
+
+            int proportionalMin = Math.max(1, (int)((float)cardsData.getListMin(cardName, listName) * size.fullCardSize / CardSize.X5.fullCardSize));
+            for (int i = 0; i < proportionalMin; i++)
             {
                 ticketList.add(listName);
             }
@@ -117,7 +120,10 @@ public class BingoCard
         List<String> overflowList = new ArrayList<>();
         for (String listName : cardsData.getListNames(cardName))
         {
-            for (int i = 0; i < cardsData.getListMax(cardName, listName) - cardsData.getListMin(cardName, listName); i++)
+            int proportionalMin = Math.max(1, (int)((float)cardsData.getListMin(cardName, listName) * size.fullCardSize / CardSize.X5.fullCardSize));
+            int proportionalMax = (int)((float)cardsData.getListMax(cardName, listName) * size.fullCardSize / CardSize.X5.fullCardSize);
+
+            for (int i = 0; i < proportionalMax - proportionalMin; i++)
             {
                 overflowList.add(listName);
             }
@@ -277,9 +283,6 @@ public class BingoCard
 
     public void onPlayerCollectItem(final EntityPickupItemEvent event, final BingoPlayer player, final BingoGame game)
     {
-        if (player.getTeam().outOfTheGame)
-            return;
-
         ItemStack stack = event.getItem().getItemStack();
         int amount = stack.getAmount();
         stack = completeItemSlot(stack, player, game);
@@ -360,9 +363,6 @@ public class BingoCard
 
     public void onPlayerDroppedItem(final PlayerDropItemEvent event, final BingoPlayer player, final BingoGame game)
     {
-        if (player.getTeam().outOfTheGame)
-            return;
-
         BingoReloaded.scheduleTask(task -> {
             ItemStack stack = event.getItemDrop().getItemStack();
             stack = completeItemSlot(stack, player, game);
@@ -371,8 +371,13 @@ public class BingoCard
 
     ItemStack completeItemSlot(ItemStack item, BingoPlayer player, BingoGame game)
     {
-        if (player.sessionPlayer().isEmpty())
+        if (player.sessionPlayer().isEmpty()) {
             return item;
+        }
+
+        if (player.getTeam().outOfTheGame) {
+            return item;
+        }
 
         BingoTask deathMatchTask = game.getDeathMatchTask();
         if (deathMatchTask != null)
@@ -398,8 +403,10 @@ public class BingoCard
                     if (!task.complete(player, game.getGameTime())) {
                         continue;
                     }
-                    item.setAmount(item.getAmount() - data.getCount());
-                    player.sessionPlayer().get().updateInventory();
+                    if (game.getConfig().removeTaskItems) {
+                        item.setAmount(item.getAmount() - data.getCount());
+                        player.sessionPlayer().get().updateInventory();
+                    }
                     var slotEvent = new BingoCardTaskCompleteEvent(task, player, hasBingo(player.getTeam()));
                     Bukkit.getPluginManager().callEvent(slotEvent);
                     break;

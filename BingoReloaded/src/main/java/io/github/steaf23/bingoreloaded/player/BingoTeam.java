@@ -6,6 +6,7 @@ import io.github.steaf23.bingoreloaded.item.ItemText;
 import io.github.steaf23.bingoreloaded.util.FlexColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
@@ -86,5 +87,15 @@ public class BingoTeam
 
     public void clearSavedLocations() {
         savedLocations.clear();
+    }
+
+    public boolean hasPlayer(Player player) {
+        for (BingoParticipant member : members) {
+            if (member.getId().equals(player.getUniqueId()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

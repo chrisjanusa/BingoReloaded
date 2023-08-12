@@ -4,13 +4,19 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class GetCommand implements CommandExecutor
+import java.util.List;
+import java.util.stream.Stream;
+
+public class GetCommand implements TabExecutor
 {
 
     public GetCommand() {}
@@ -98,5 +104,21 @@ public class GetCommand implements CommandExecutor
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (args.length == 1) {
+            return Stream.of("rockets", "axe", "pick", "shovel", "silk", "elytra", "apple", "sword")
+                    .filter(arg -> arg.startsWith(args[0]))
+                    .toList();
+        }
+        if (args.length == 2 && args[0].equals("silk")) {
+            return Stream.of("axe", "pick", "shovel")
+                    .filter(arg -> arg.startsWith(args[1]))
+                    .toList();
+        }
+        return null;
     }
 }

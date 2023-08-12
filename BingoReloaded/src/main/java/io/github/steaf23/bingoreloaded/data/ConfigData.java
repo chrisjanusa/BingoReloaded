@@ -9,60 +9,26 @@ public class ConfigData
 {
     public enum PluginConfiguration
     {
-        SINGULAR("singular"),
-        MULTIPLE("multiple"),
+        SINGULAR,
+        MULTIPLE,
         ;
-
-        public final String configName;
-
-        PluginConfiguration(String configName)
-        {
-            this.configName = configName;
-        }
-
-        static PluginConfiguration fromName(@Nullable String name)
-        {
-            if (name == null)
-                return SINGULAR;
-            return switch (name.toLowerCase())
-                    {
-                        case "singular" -> SINGULAR;
-                        case "multiple" -> MULTIPLE;
-                        default -> SINGULAR;
-                    };
-        }
     }
 
     public enum PlayerTeleportStrategy
     {
-        ALONE("alone"),
-        TEAM("team"),
-        ALL("all"),
-        NONE("none"),
-        CUSTOM("custom"),
-        TEAM_NETHER("nether"),;
+        ALONE,
+        TEAM,
+        ALL,
+        NONE,
+        TEAM_NETHER,
+        ;
+    }
 
-        public final String name;
-
-        PlayerTeleportStrategy(String name)
-        {
-            this.name = name;
-        }
-
-        static PlayerTeleportStrategy fromName(@Nullable String name)
-        {
-            if (name == null)
-                return ALL;
-            return switch (name.toLowerCase())
-                    {
-                        case "alone" -> ALONE;
-                        case "team" -> TEAM;
-                        case "nether" -> TEAM_NETHER;
-                        case "all" -> ALL;
-                        case "custom" -> CUSTOM;
-                        default -> NONE;
-                    };
-        }
+    public enum LoadPlayerInformationStrategy
+    {
+        AFTER_GAME,
+        AFTER_LEAVING_WORLD,
+        ;
     }
 
     public class VoteList
@@ -71,23 +37,31 @@ public class ConfigData
         public final List<String> kits;
         public final List<String> cards;
 
-        public VoteList(List<String> gamemodes, List<String> kits, List<String> cards)
-        {
+        public VoteList(List<String> gamemodes, List<String> kits, List<String> cards) {
             this.gamemodes = gamemodes;
             this.kits = kits;
             this.cards = cards;
         }
+
+        public boolean isEmpty() {
+            return this.gamemodes.size() == 0 && this.kits.size() == 0 && this.cards.size() == 0;
+        }
     }
 
     // General options
-    public final String defaultWorldName;
     public final PluginConfiguration configuration;
     public final String language;
     public final boolean savePlayerStatistics;
+
+    // Lobby options
+    public final int minimumPlayerCount;
+    public final int playerWaitTime;
+    public final int gameRestartTime;
     public final boolean useVoteSystem;
     public final VoteList voteList;
 
     // Gameplay options
+    public final int startingCountdownTime;
     public final String defaultSettingsPreset;
     public final int teleportMaxDistance;
     public final PlayerTeleportStrategy playerTeleportStrategy;
@@ -99,6 +73,7 @@ public class ConfigData
     public final double wandCooldown;
     public final int platformLifetime;
     public final int gracePeriod;
+    public final boolean removeTaskItems;
     public final boolean enableTeamChat;
     public final boolean keepScoreboardVisible;
     public final boolean showPlayerInScoreboard;
@@ -110,21 +85,28 @@ public class ConfigData
     public final String standardBossTextFormat;
     public final int secondsToBeforeStart;
 
+    // Private options
+    public final String defaultWorldName;
+    public final boolean savePlayerInformation;
+    public final LoadPlayerInformationStrategy loadPlayerInformationStrategy;
+
     // Public options
     public final String sendCommandAfterGameEnded;
+    public final boolean voteUsingCommandsOnly;
+    public final boolean selectTeamUsingCommandsOnly;
 
-
-    // Private options
-    //TODO: implement
-    public final boolean restorePlayerAfterGameEnds;
-
-    public ConfigData(FileConfiguration config)
-    {
+    public ConfigData(FileConfiguration config) {
         // General
-        this.defaultWorldName = config.getString("defaultWorldName", "world");
-        this.configuration = PluginConfiguration.fromName(config.getString("configuration", "singular"));
+        // TODO: implement in 2.1
+//        this.configuration = PluginConfiguration.valueOf(config.getString("configuration", "SINGULAR"));
+        this.configuration = PluginConfiguration.SINGULAR;
         this.language = "languages/" + config.getString("language", "en_us.yml");
         this.savePlayerStatistics = config.getBoolean("savePlayerStatistics", false);
+
+        // Lobby
+        this.minimumPlayerCount = Math.max(0, config.getInt("minimumPlayerCount", 4));
+        this.playerWaitTime = Math.max(0, config.getInt("playerWaitTime", 30));
+        this.gameRestartTime = Math.max(0, config.getInt("gameRestartTime", 20));
         this.useVoteSystem = config.getBoolean("useVoteSystem", false);
         this.voteList = new VoteList(
                 config.getStringList("voteList.gamemodes"),
@@ -132,17 +114,19 @@ public class ConfigData
                 config.getStringList("voteList.cards"));
 
         // Gameplay
+        this.startingCountdownTime = Math.max(0, config.getInt("startingCountdownTime", 10));
         this.defaultSettingsPreset = config.getString("defaultSettingsPreset", "default_settings");
-        this.teleportMaxDistance = config.getInt("teleportMaxDistance", 1000000);
-        this.playerTeleportStrategy = PlayerTeleportStrategy.fromName(config.getString("playerTeleportStrategy", "ALL"));
+        this.teleportMaxDistance = Math.max(0, config.getInt("teleportMaxDistance", 1000000));
+        this.playerTeleportStrategy = PlayerTeleportStrategy.valueOf(config.getString("playerTeleportStrategy", "ALL"));
         this.teleportAfterDeath = config.getBoolean("teleportBackAfterDeathMessage", true);
         this.teleportToTeammates = config.getBoolean("teleportToTeammates", false);
         this.teleportBack = config.getBoolean("teleportBackFromTeammates", false);
         this.wandUp = config.getInt("GoUpWand.upDistance", 75);
         this.wandDown = config.getInt("GoUpWand.downDistance", 5);
         this.wandCooldown = config.getDouble("GoUpWand.cooldown", 5.0);
-        this.platformLifetime = config.getInt("GoUPWand.platformLifetime", 10);
-        this.gracePeriod = config.getInt("gracePeriod", 30);
+        this.platformLifetime = Math.max(0, config.getInt("GoUPWand.platformLifetime", 10));
+        this.gracePeriod = Math.max(0, config.getInt("gracePeriod", 30));
+        this.removeTaskItems = config.getBoolean("removeTaskItems", true);
         this.enableTeamChat = config.getBoolean("enableTeamChat", true);
         this.keepScoreboardVisible = config.getBoolean("keepScoreboardVisible", true);
         this.showPlayerInScoreboard = config.getBoolean("showPlayerInScoreboard", true);
@@ -154,10 +138,15 @@ public class ConfigData
         this.countdownBossTextFormat = config.getString("countdownBar", "");
         this.secondsToBeforeStart = config.getInt("secondsToBeforeStart", 120);
 
+        // Private
+        this.defaultWorldName = config.getString("defaultWorldName", "world");
+        this.savePlayerInformation = config.getBoolean("playerLoadStrategy", true);
+        this.loadPlayerInformationStrategy = LoadPlayerInformationStrategy.valueOf(
+                config.getString("loadPlayerInformationStrategy", "AFTER_LEAVING_WORLD"));
+
         // Public
         this.sendCommandAfterGameEnded = config.getString("sendCommandAfterGameEnds", "");
-
-        // Private
-        this.restorePlayerAfterGameEnds = config.getBoolean("restorePlayersAfterGameEnds", true);
+        this.voteUsingCommandsOnly = config.getBoolean("voteUsingCommandsOnly", false);
+        this.selectTeamUsingCommandsOnly = config.getBoolean("selectTeamsUsingCommandsOnly", false);
     }
 }
