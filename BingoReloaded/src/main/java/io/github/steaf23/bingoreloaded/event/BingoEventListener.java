@@ -42,10 +42,10 @@ public class BingoEventListener implements Listener
     @EventHandler
     public void handleBingoGameEnded(final BingoEndedEvent event)
     {
-        if (event.session != null)
-        {
-            event.session.handleGameEnded(event);
-        }
+//        if (event.session != null)
+//        {
+//            event.session.handleGameEnded(event);
+//        }
     }
 
     @EventHandler
@@ -335,7 +335,7 @@ public class BingoEventListener implements Listener
     @EventHandler
     public void handlePlayerLeftSessionWorld(final PlayerLeftSessionWorldEvent event)
     {
-        event.session.handlePlayerLeftSessionWorld(event);
+//        event.session.handlePlayerLeftSessionWorld(event);
         event.session.phase().handlePlayerLeftSessionWorld(event);
         event.session.scoreboard.handlePlayerLeave(event);
         event.session.teamManager.handlePlayerLeftSessionWorld(event);

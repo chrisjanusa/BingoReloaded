@@ -142,24 +142,27 @@ menu:
           - Leather Helmet \n
           - Leather Boots"
     overpowered:
-      name: "&5Overpowered"
+      name: "&5Biome Compass"
       desc: "This kit includes: \n
       \n
           - Netherite Axe \n
           - Netherite Pickaxe (Fortune) \n
           - Netherite Shovel (Silk Touch) \n
           - 64 Golden Carrots \n
+          - 64 Fireworks \n
+          - Biome Compass \n
           - The Go-Up-Wand \n
           - Leather Helmet \n
           - Leather Boots"
     reloaded:
-      name: "&3Reloaded"
+      name: "&3Normal"
       desc: "This kit includes: \n
       \n
           - Netherite Axe \n
           - Netherite Pickaxe (Fortune) \n
           - Netherite Shovel (Silk Touch) \n
           - 64 Golden Carrots \n
+          - 64 Fireworks \n
           - The Go-Up-Wand \n
           - Leather Helmet \n
           - Elytra (Unbreaking X) \n

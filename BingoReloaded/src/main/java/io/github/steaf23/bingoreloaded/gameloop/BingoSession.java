@@ -155,13 +155,13 @@ public class BingoSession
     }
 
     public void prepareNextGame() {
-        if (config.savePlayerInformation && config.loadPlayerInformationStrategy == ConfigData.LoadPlayerInformationStrategy.AFTER_GAME) {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (BingoReloaded.getWorldNameOfDimension(p.getWorld()).equals(worldName)) {
-                    playerData.loadPlayer(p);
-                }
-            }
-        }
+//        if (config.savePlayerInformation && config.loadPlayerInformationStrategy == ConfigData.LoadPlayerInformationStrategy.AFTER_GAME) {
+//            for (Player p : Bukkit.getOnlinePlayers()) {
+//                if (BingoReloaded.getWorldNameOfDimension(p.getWorld()).equals(worldName)) {
+//                    playerData.loadPlayer(p);
+//                }
+//            }
+//        }
 
         // When we came from the PostGamePhase we need to make sure to end it properly
         if (phase != null) {
@@ -240,13 +240,13 @@ public class BingoSession
         if (!config.savePlayerInformation)
             return;
 
-        playerData.savePlayer(serializablePlayer, false);
+//        playerData.savePlayer(serializablePlayer, false);
         new SerializablePlayer().reset(event.getPlayer(), event.getDestination()).toPlayer(event.getPlayer());
     }
 
     public void handlePlayerLeftSessionWorld(final PlayerLeftSessionWorldEvent event) {
-        if (config.savePlayerInformation && event.getDestination() != null)
-            playerData.loadPlayer(event.getPlayer());
+//        if (config.savePlayerInformation && event.getDestination() != null)
+//            playerData.loadPlayer(event.getPlayer());
 
         Player player = event.getPlayer();
         for (PotionEffectType effect : PotionEffectType.values()) {

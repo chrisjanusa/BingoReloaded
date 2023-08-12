@@ -122,15 +122,11 @@ public class BingoReloaded extends JavaPlugin
             autoBingoCommand = new MultiAutoBingoCommand((MultiGameManager) gameManager);
         }
 
-        registerCommand("bingo", new BingoCommand(config, gameManager), new BingoTabCompleter());
-        registerCommand("get", new GetCommand(), new GetTabCompleter());
+        registerCommand("bingo", new BingoCommand(config, gameManager));
+        registerCommand("get", new GetCommand());
 
         if (config.teleportToTeammates) {
-            registerCommand(
-                    "btp",
-                    new TeamTeleportCommand(gameManager, config.teleportBack),
-                    new TeamTeleportTabCompleter(gameManager, config.teleportBack)
-            );
+            registerCommand("btp", new TeamTeleportCommand(gameManager, config.teleportBack));
         }
         registerCommand("autobingo", autoBingoCommand);
         if (config.enableTeamChat) {

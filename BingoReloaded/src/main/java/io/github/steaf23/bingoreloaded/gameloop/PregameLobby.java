@@ -166,7 +166,7 @@ public class PregameLobby implements GamePhase
             });
         }
 
-        startPlayerCountTimerIfMinCountReached();
+//        startPlayerCountTimerIfMinCountReached();
     }
 
     private void startPlayerCountTimerIfMinCountReached() {
@@ -218,7 +218,7 @@ public class PregameLobby implements GamePhase
             }
 
             // start a new timer in a task since the session will still assume the game is not in the lobby phase
-            startPlayerCountTimerIfMinCountReached();
+//            startPlayerCountTimerIfMinCountReached();
         }, 10);
     }
 

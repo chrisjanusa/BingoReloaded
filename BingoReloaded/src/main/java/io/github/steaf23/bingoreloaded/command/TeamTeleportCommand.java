@@ -1,5 +1,6 @@
 package io.github.steaf23.bingoreloaded.command;
 
+import io.github.steaf23.bingoreloaded.BingoReloaded;
 import io.github.steaf23.bingoreloaded.data.BingoTranslation;
 import io.github.steaf23.bingoreloaded.gameloop.BingoGameManager;
 import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
@@ -14,10 +15,17 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TeamTeleportCommand implements CommandExecutor
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+public class TeamTeleportCommand implements TabExecutor
 {
     private final BingoGameManager gameManager;
     private final Boolean teleportBackEnabled;
@@ -33,7 +41,7 @@ public class TeamTeleportCommand implements CommandExecutor
     {
         if (commandSender instanceof Player p)
         {
-            BingoSession session = gameManager.getSession(p);
+            BingoSession session = gameManager.getSession(BingoReloaded.getWorldNameOfDimension(p.getWorld()));
             if (session == null)
                 return false;
 
@@ -126,5 +134,51 @@ public class TeamTeleportCommand implements CommandExecutor
                 .arg("/btp save <location_name>")
                 .color(ChatColor.RED)
                 .send(p);
+    }
+
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (sender instanceof Player p) {
+            BingoSession session = gameManager.getSession(BingoReloaded.getWorldNameOfDimension(p.getWorld()));
+            if (session == null)
+                return null;
+
+            TeamManager teamManager = session.teamManager;
+
+            BingoParticipant player = teamManager.getBingoParticipant(p);
+            if (player == null) {
+                return null;
+            }
+            BingoTeam team = player.getTeam();
+            if (team == null) {
+                return null;
+            }
+            if (args.length == 1) {
+                ArrayList<String> commandOptions = new ArrayList<>();
+                commandOptions.add("to");
+                commandOptions.add("save");
+                String backCommand = "back";
+                if (teleportBackEnabled && player.preTeleportLocation() != null) {
+                    commandOptions.add(backCommand);
+                }
+                return commandOptions.stream().filter(arg -> arg.startsWith(args[0])).toList();
+            }
+            if (args[0].equals("to") && args.length == 2) {
+                List<String> possibleArgs = new LinkedList<>(team
+                        .getMembers()
+                        .stream()
+                        .map(BingoParticipant::getDisplayName).toList()
+                );
+                possibleArgs.remove(p.getDisplayName());
+                possibleArgs.addAll(team.getSavedLocationNames());
+                return possibleArgs.stream().filter(arg -> arg.startsWith(args[1])).toList();
+            }
+            if (args[0].equals("save") && args.length == 2) {
+                return List.of("<location_name>");
+            }
+            return null;
+        }
+        return null;
     }
 }
