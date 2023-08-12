@@ -62,7 +62,7 @@ public class BingoEventListener implements Listener
     @EventHandler
     public void handleChildHavingTaskComplete(final ChildHavingTaskCompleteEvent event)
     {
-        BingoGame game = event.session != null && event.session.isRunning() ? (BingoGame)event.session.phase() : null;
+        BingoGame game = event.getSession() != null && event.getSession() .isRunning() ? (BingoGame)event.getSession() .phase() : null;
         if (game != null)
         {
             game.getCardEventManager().handleChildHavingTaskComplete(event);
@@ -285,7 +285,7 @@ public class BingoEventListener implements Listener
         if (disableStatistics)
             return;
 
-        BingoGame game = event.session != null && event.session.isRunning() ? (BingoGame)event.session.phase() : null;
+        BingoGame game = event.getSession()  != null && event.getSession() .isRunning() ? (BingoGame)event.getSession() .phase() : null;
         if (game != null)
         {
             game.getCardEventManager().handleStatisticCompleted(event, game);
