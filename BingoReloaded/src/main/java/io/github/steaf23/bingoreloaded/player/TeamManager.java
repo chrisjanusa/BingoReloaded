@@ -81,7 +81,10 @@ public class TeamManager
 
     public void openTeamSelector(MenuManager menuManager, Player player) {
         List<MenuItem> optionItems = new ArrayList<>();
-        optionItems.add(new MenuItem(Material.NETHER_STAR, "" + ChatColor.BOLD + ChatColor.ITALIC + BingoTranslation.TEAM_AUTO.translate()).setCompareKey("auto"));
+        optionItems.add(new MenuItem(Material.NETHER_STAR, "" + ChatColor.BOLD + ChatColor.ITALIC + BingoTranslation.TEAM_AUTO.translate())
+                .setCompareKey("item_auto"));
+        optionItems.add(new MenuItem(Material.TNT, "" + ChatColor.BOLD + ChatColor.ITALIC + BingoTranslation.OPTIONS_LEAVE.translate())
+                .setGlowing(true).setCompareKey("item_leave"));
 
         var allTeams = teamData.getTeams();
         for (String teamId : allTeams.keySet()) {
@@ -124,8 +127,13 @@ public class TeamManager
         {
             @Override
             public void onOptionClickedDelegate(InventoryClickEvent event, MenuItem clickedOption, HumanEntity player) {
-                if (clickedOption.getCompareKey().equals("auto")) {
+                if (clickedOption.getCompareKey().equals("item_auto")) {
                     addPlayerToAutoTeam((Player) player);
+                    openTeamSelector(menuManager, (Player) player);
+                    return;
+                }
+                else if (clickedOption.getCompareKey().equals("item_leave")) {
+                    removeMemberFromTeam((Player) player);
                     openTeamSelector(menuManager, (Player) player);
                     return;
                 }
@@ -151,6 +159,9 @@ public class TeamManager
 
         BingoTeam bingoTeam = activateTeamFromName(teamName);
 
+        if (bingoTeam.hasPlayer(player)) {
+            return false;
+        }
         if (bingoTeam == null) {
             return false;
         }
@@ -178,6 +189,11 @@ public class TeamManager
         if (participant != null)
             removeMemberFromTeam(participant);
 
+
+        if (automaticTeamPlayers.contains(player.getUniqueId())) {
+            return true;
+        }
+
         automaticTeamPlayers.add(player.getUniqueId());
         new TranslatedMessage(BingoTranslation.JOIN_AUTO).color(ChatColor.GREEN).send(player);
 
@@ -188,6 +204,13 @@ public class TeamManager
 
     public void addAutoPlayersToTeams() {
         record TeamCount(BingoTeam team, int count) {}
+
+        int totalPlayers = teams.getTeams().size() * maxTeamSize;
+        int availablePlayers = totalPlayers - getTotalParticipantCount();
+        if (automaticTeamPlayers.size() > availablePlayers) {
+            Message.error("Could not fit every player into a team, consider changing the team size or adding more teams");
+            return;
+        }
 
         // 1. create list sorted by how many players are missing from each team using a bit of insertion sorting...
         List<TeamCount> counts = new ArrayList<>();
@@ -218,14 +241,15 @@ public class TeamManager
         HashSet<UUID> autoPlayersCopy = new HashSet<>(automaticTeamPlayers);
         // Since we need to remove players from this list as we are iterating, use a direct reference to the iterator.
         for (UUID playerId : autoPlayersCopy) {
-            TeamCount lowest = counts.get(0);
+            TeamCount lowest = counts.size() > 0 ? counts.get(0) : null;
             // If our lowest count is the same as the highest count, all incomplete teams have been filled
-            if (lowest.count == maxTeamSize) {
+            if (counts.size() == 0 || lowest.count == maxTeamSize) {
                 // If there are still players left in the queue, create a new team
                 if (automaticTeamPlayers.size() > 0) {
                     BingoTeam newTeam = activateAnyTeam();
                     if (newTeam == null) {
-                        //TODO: handle this error! too many teams...?
+                        Message.error("Could not fit every player into a team, since there is not enough room!");
+                        break;
                     }
                     counts.add(0, new TeamCount(newTeam, 0));
                     lowest = counts.get(0);
@@ -314,12 +338,24 @@ public class TeamManager
         return true;
     }
 
-    public boolean removeMemberFromTeam(Player player) {
+    public void removeMemberFromTeam(Player player) {
+        // TODO: this does not work for virtual players!
+        // Make sure to call event even if player was part of auto team
+        if (automaticTeamPlayers.contains(player.getUniqueId()))
+        {
+            automaticTeamPlayers.remove(player.getUniqueId());
+            autoVirtualPlayers.remove(player.getUniqueId());
+
+            var leaveEvent = new ParticipantLeftTeamEvent(null, session);
+            Bukkit.getPluginManager().callEvent(leaveEvent);
+            return;
+        }
+
         BingoParticipant participant = getBingoParticipant(player);
         if (participant != null) {
-            return removeMemberFromTeam(getBingoParticipant(player));
+            removeMemberFromTeam(getBingoParticipant(player));
         } else {
-            return false;
+            return;
         }
     }
 
@@ -327,10 +363,13 @@ public class TeamManager
         automaticTeamPlayers.remove(player.getId());
         autoVirtualPlayers.remove(player.getId());
 
-        if (!getParticipants().contains(player))
+        if (getParticipants().contains(player)) {
+            player.getTeam().removeMember(player);
+        }
+        else {
             return false;
+        }
 
-        player.getTeam().removeMember(player);
         var leaveEvent = new ParticipantLeftTeamEvent(player, player.getTeam(), session);
         Bukkit.getPluginManager().callEvent(leaveEvent);
         return true;
@@ -502,8 +541,8 @@ public class TeamManager
         if (!session.isRunning()) {
             getParticipants().forEach(p -> {
                 removeMemberFromTeam(p);
-                p.sessionPlayer().ifPresent(gamePlayer -> new Message()
-                        .untranslated(BingoTranslation.TEAM_SIZE_CHANGED.translate())
+                p.sessionPlayer().ifPresent(gamePlayer ->
+                        new TranslatedMessage(BingoTranslation.TEAM_SIZE_CHANGED)
                         .color(ChatColor.RED)
                         .send(gamePlayer));
             });
@@ -515,7 +554,6 @@ public class TeamManager
         if (participant == null)
             return;
 
-        removeMemberFromTeam(participant);
         participant.getTeam().team.removeEntry(event.getPlayer().getName());
     }
 

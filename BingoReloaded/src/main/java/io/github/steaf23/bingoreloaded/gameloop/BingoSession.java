@@ -14,6 +14,7 @@ import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
 import io.github.steaf23.bingoreloaded.player.TeamManager;
+import io.github.steaf23.bingoreloaded.settings.BingoGamemode;
 import io.github.steaf23.bingoreloaded.settings.BingoSettings;
 import io.github.steaf23.bingoreloaded.settings.BingoSettingsBuilder;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
@@ -44,10 +45,12 @@ public class BingoSession
     private final ConfigData config;
     private final MenuManager menuManager;
     private final PlayerData playerData;
+    private final BingoGameManager gameManager;
 
     private GamePhase phase;
 
-    public BingoSession(MenuManager menuManager, String worldName, ConfigData config, PlayerData playerData) {
+    public BingoSession(BingoGameManager gameManager, MenuManager menuManager, String worldName, ConfigData config, PlayerData playerData) {
+        this.gameManager = gameManager;
         this.menuManager = menuManager;
         this.worldName = worldName;
         this.config = config;
@@ -57,15 +60,10 @@ public class BingoSession
         this.scoreboard = new BingoScoreboard(this, config.showPlayerInScoreboard);
         this.teamManager = new TeamManager(scoreboard.getTeamBoard(), this);
 
-        // Virtual Player here
-//        BingoReloaded.scheduleTask((t) -> {
-//            this.teamManager.addVirtualPlayerToTeam("testPlayer", "mario");
-//        }, 10);
-
         BingoReloaded.scheduleTask((t) -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (BingoReloaded.getWorldNameOfDimension(p.getWorld()).equals(worldName)) {
-                    var playerJoinEvent = new PlayerJoinedSessionWorldEvent(p, this, p.getLocation(), p.getLocation());
+                    var playerJoinEvent = new PlayerJoinedSessionWorldEvent(p, this, p.getLocation(), p.getLocation(), true);
                     Bukkit.getPluginManager().callEvent(playerJoinEvent);
                 }
             }
@@ -93,6 +91,18 @@ public class BingoSession
         if (config.useVoteSystem) {
             PregameLobby.VoteTicket voteResult = lobby.getVoteResult();
             gameSettings = settingsBuilder.getVoteResult(voteResult);
+            new Message(" ").sendAll(this);
+            if (!voteResult.gamemode.isEmpty()) {
+                var tuple = voteResult.gamemode.split("_");
+                new TranslatedMessage(BingoTranslation.VOTE_WON).arg(BingoTranslation.OPTIONS_GAMEMODE.translate()).arg(BingoGamemode.fromDataString(tuple[0] + " " + tuple[1] + "x" + tuple[1]).displayName).sendAll(this);
+            }
+            if (!voteResult.kit.isEmpty()) {
+                new TranslatedMessage(BingoTranslation.VOTE_WON).arg(BingoTranslation.OPTIONS_KIT.translate()).arg(PlayerKit.fromConfig(voteResult.kit).getDisplayName()).sendAll(this);
+            }
+            if (!voteResult.card.isEmpty()) {
+                new TranslatedMessage(BingoTranslation.VOTE_WON).arg(BingoTranslation.OPTIONS_CARD.translate()).arg(voteResult.card).sendAll(this);
+            }
+            new Message(" ").sendAll(this);
         }
 
         teamManager.addAutoPlayersToTeams();
@@ -204,7 +214,8 @@ public class BingoSession
         else if (targetWorldName.equals(this.worldName)) {
             if (!sourceWorldName.equals(this.worldName)) {
                 BingoReloaded.scheduleTask(t -> {
-                    var joinedWorldEvent = new PlayerJoinedSessionWorldEvent(event.getPlayer(), this, event.getFrom(), event.getTo());
+                    boolean sourceIsBingoWorld = gameManager.getSession(sourceWorldName) != null;
+                    var joinedWorldEvent = new PlayerJoinedSessionWorldEvent(event.getPlayer(), this, event.getFrom(), event.getTo(), sourceIsBingoWorld);
                     Bukkit.getPluginManager().callEvent(joinedWorldEvent);
                 }, 10);
             }
@@ -212,7 +223,7 @@ public class BingoSession
     }
 
     public void handlePlayerJoinsServer(final PlayerJoinEvent event) {
-        var joinedWorldEvent = new PlayerJoinedSessionWorldEvent(event.getPlayer(), this, null, event.getPlayer().getLocation());
+        var joinedWorldEvent = new PlayerJoinedSessionWorldEvent(event.getPlayer(), this, null, event.getPlayer().getLocation(), true);
         Bukkit.getPluginManager().callEvent(joinedWorldEvent);
     }
 
@@ -240,13 +251,17 @@ public class BingoSession
         if (!config.savePlayerInformation)
             return;
 
-//        playerData.savePlayer(serializablePlayer, false);
-        new SerializablePlayer().reset(event.getPlayer(), event.getDestination()).toPlayer(event.getPlayer());
+        // Only save player data if it does not pertain to a bingo world
+        if (!event.sourceIsBingoWorld()) {
+            playerData.savePlayer(serializablePlayer, false);
+        }
     }
 
     public void handlePlayerLeftSessionWorld(final PlayerLeftSessionWorldEvent event) {
-//        if (config.savePlayerInformation && event.getDestination() != null)
-//            playerData.loadPlayer(event.getPlayer());
+        if (config.savePlayerInformation && event.getDestination() != null)
+            if (playerData.loadPlayer(event.getPlayer()) == null) {
+                new SerializablePlayer().reset(event.getPlayer(), event.getDestination()).toPlayer(event.getPlayer());
+            }
 
         Player player = event.getPlayer();
         for (PotionEffectType effect : PotionEffectType.values()) {

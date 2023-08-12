@@ -403,8 +403,10 @@ public class BingoCard
                     if (!task.complete(player, game.getGameTime())) {
                         continue;
                     }
-                    item.setAmount(item.getAmount() - data.getCount());
-                    player.sessionPlayer().get().updateInventory();
+                    if (game.getConfig().removeTaskItems) {
+                        item.setAmount(item.getAmount() - data.getCount());
+                        player.sessionPlayer().get().updateInventory();
+                    }
                     var slotEvent = new BingoCardTaskCompleteEvent(task, player, hasBingo(player.getTeam()));
                     Bukkit.getPluginManager().callEvent(slotEvent);
                     break;

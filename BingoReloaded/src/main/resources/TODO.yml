@@ -14,21 +14,8 @@
 
 (2.1) Fix bingo creator not showing updated lists/cards immediately after creating them (only after reopening menu)
 
-players lose all items when leaving and rejoining the server
-player data does not get loaded/ saved correctly at all
+(2.1) vote item does not appear when starting server sometimes
 
-check comment TODOs BEFORE RELEASE
-
-check mesages sent when choosing gamemode in bingo menu vs autobingo
-
-double check translations BEFORE RELEASE
-
-update autobingo page with all new features BEFORE RELEASE
-
-check if advancements are disabled and disallow them on advancement-disabled servers BEFORE RELEASE
-
-Update Readme.md BEFORE RELEASE
-
-use task scheduler to see how many timer tasks dont get deleted BEFORE RELEASE
-
-disable BingoBot BEFORE RELEASE
+(2.1) Auto team is not treated like a proper team, meaning events involving auto team will be convoluted and leave participants as null
+(participants cannot be made from the autoteam)
+adding a participantCountChanged event would help with a lot of this probably

@@ -7,6 +7,7 @@ import io.github.steaf23.bingoreloaded.event.*;
 import io.github.steaf23.bingoreloaded.gui.VoteMenu;
 import io.github.steaf23.bingoreloaded.gui.base.MenuItem;
 import io.github.steaf23.bingoreloaded.gui.base.MenuManager;
+import io.github.steaf23.bingoreloaded.settings.BingoGamemode;
 import io.github.steaf23.bingoreloaded.settings.PlayerKit;
 import io.github.steaf23.bingoreloaded.settings.SettingsPreviewBoard;
 import io.github.steaf23.bingoreloaded.util.Message;
@@ -20,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -50,6 +52,7 @@ public class PregameLobby implements GamePhase
         this.config = config;
         this.playerCountTimer = new CountdownTimer(config.playerWaitTime, session);
         playerCountTimer.setNotifier(time -> {
+            settingsBoard.setStatus(BingoTranslation.STARTING_STATUS.translate(String.valueOf(time)));
             if (time == 10) {
                 new TranslatedMessage(BingoTranslation.STARTING_STATUS).arg("" + time).color(ChatColor.GOLD).sendAll(session);
             }
@@ -70,11 +73,25 @@ public class PregameLobby implements GamePhase
         }
 
         VoteTicket ticket = votes.getOrDefault(player.getUniqueId(), new VoteTicket());
-
-        if (!gamemode.equals(ticket.gamemode)) {
-            ticket.gamemode = gamemode;
+        if (gamemode.equals(ticket.gamemode)) {
+            return;
         }
+
+        ticket.gamemode = gamemode;
         votes.put(player.getUniqueId(), ticket);
+
+        int count = 0;
+        for (VoteTicket t : votes.values()) {
+            if (t.gamemode.equals(gamemode)) {
+                count++;
+            }
+        }
+
+        String[] tuple = gamemode.split("_");
+        if (tuple.length != 2) {
+            return;
+        }
+        sendVoteCountMessage(count, BingoTranslation.OPTIONS_GAMEMODE.translate(), BingoGamemode.fromDataString(tuple[0]).displayName + " " + tuple[1] + "x" + tuple[1]);
     }
 
     public void voteCard(String card, HumanEntity player) {
@@ -84,11 +101,20 @@ public class PregameLobby implements GamePhase
         }
 
         VoteTicket ticket = votes.getOrDefault(player.getUniqueId(), new VoteTicket());
-
-        if (!card.equals(ticket.card)) {
-            ticket.card = card;
+        if (card.equals(ticket.card)) {
+            return;
         }
+
+        ticket.card = card;
         votes.put(player.getUniqueId(), ticket);
+
+        int count = 0;
+        for (VoteTicket t : votes.values()) {
+            if (t.card.equals(card)) {
+                count++;
+            }
+        }
+        sendVoteCountMessage(count, BingoTranslation.OPTIONS_CARD.translate(),  card);
     }
 
     public void voteKit(String kit, HumanEntity player) {
@@ -98,11 +124,25 @@ public class PregameLobby implements GamePhase
         }
 
         VoteTicket ticket = votes.getOrDefault(player.getUniqueId(), new VoteTicket());
-
-        if (!kit.equals(ticket.kit)) {
-            ticket.kit = kit;
+        if (kit.equals(ticket.kit)) {
+            return;
         }
+
+        ticket.kit = kit;
         votes.put(player.getUniqueId(), ticket);
+
+        int count = 0;
+        for (VoteTicket t : votes.values()) {
+            if (t.kit.equals(kit)) {
+                count++;
+            }
+        }
+        sendVoteCountMessage(count, BingoTranslation.OPTIONS_KIT.translate(), PlayerKit.fromConfig(kit).getDisplayName());
+    }
+
+    public void sendVoteCountMessage(int count, String category, String voteItem) {
+        new TranslatedMessage(BingoTranslation.VOTE_COUNT).arg(String.valueOf(count)).color(ChatColor.GOLD).arg(category).arg(voteItem)
+                .sendAll(session);
     }
 
     public VoteTicket getVoteResult() {
@@ -157,12 +197,15 @@ public class PregameLobby implements GamePhase
     }
 
     public void handleParticipantJoinedTeam(final ParticipantJoinedTeamEvent event) {
+        if (event.getParticipant() != null) {
+            event.getParticipant().sessionPlayer().ifPresent(p -> settingsBoard.applyToPlayer(p));
+        }
         settingsBoard.setStatus(BingoTranslation.PLAYER_STATUS.translate("" + session.teamManager.getTotalParticipantCount()));
 
         if (playerCountTimer.isRunning() && playerCountTimer.getTime() > 10)
         {
             event.getParticipant().sessionPlayer().ifPresent(p -> {
-                new TranslatedMessage(BingoTranslation.STARTING_STATUS).arg("" + config.playerWaitTime).color(ChatColor.GOLD).send(p);
+                new TranslatedMessage(BingoTranslation.STARTING_STATUS).arg("" + playerCountTimer.getTime()).color(ChatColor.GOLD).send(p);
             });
         }
 
@@ -189,7 +232,12 @@ public class PregameLobby implements GamePhase
     }
 
     public void handleParticipantLeftTeam(final ParticipantLeftTeamEvent event) {
-        settingsBoard.setStatus(BingoTranslation.PLAYER_STATUS.translate("" + session.teamManager.getTotalParticipantCount()));
+        if (session.teamManager.getTotalParticipantCount() == 0) {
+            settingsBoard.setStatus(BingoTranslation.WAIT_STATUS.translate());
+        }
+        else {
+            settingsBoard.setStatus(BingoTranslation.PLAYER_STATUS.translate("" + session.teamManager.getTotalParticipantCount()));
+        }
 
         // Schedule check in the future since a player can switch teams where they will briefly leave the team
         // and lower the participant count to possibly stop the timer.
@@ -203,7 +251,12 @@ public class PregameLobby implements GamePhase
     @Override
     public void setup() {
         settingsBoard.showSettings(session.settingsBuilder.view());
-        settingsBoard.setStatus(BingoTranslation.WAIT_STATUS.translate());
+        if (session.teamManager.getTotalParticipantCount() == 0) {
+            settingsBoard.setStatus(BingoTranslation.WAIT_STATUS.translate());
+        }
+        else {
+            settingsBoard.setStatus(BingoTranslation.PLAYER_STATUS.translate("" + session.teamManager.getTotalParticipantCount()));
+        }
 
         BingoReloaded.scheduleTask((t) -> {
             if (gameStarted)
