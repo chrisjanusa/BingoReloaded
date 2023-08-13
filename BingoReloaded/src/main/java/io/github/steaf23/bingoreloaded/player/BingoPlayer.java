@@ -95,7 +95,11 @@ public class BingoPlayer implements BingoParticipant
         return Bukkit.getOfflinePlayer(playerId);
     }
 
-    public void giveKit(PlayerKit kit)
+    public void giveKit(PlayerKit kit) {
+        giveKit(kit, true);
+    }
+
+    public void giveKit(PlayerKit kit, boolean clearInventory)
     {
         if (sessionPlayer().isEmpty())
             return;
@@ -105,7 +109,9 @@ public class BingoPlayer implements BingoParticipant
         var items = kit.getItems(team.getColor());
         player.closeInventory();
         Inventory inv = player.getInventory();
-        inv.clear();
+        if(clearInventory) {
+            inv.clear();
+        }
         items.forEach(i ->
         {
             var meta = i.getItemMeta();

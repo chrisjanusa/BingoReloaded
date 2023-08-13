@@ -1,8 +1,13 @@
 package io.github.steaf23.bingoreloaded.command;
 
+import io.github.steaf23.bingoreloaded.BingoReloaded;
+import io.github.steaf23.bingoreloaded.gameloop.BingoGame;
+import io.github.steaf23.bingoreloaded.gameloop.BingoGameManager;
+import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
+import io.github.steaf23.bingoreloaded.player.BingoParticipant;
+import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.enchantments.Enchantment;
@@ -13,13 +18,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class GetCommand implements TabExecutor
 {
+    private final BingoGameManager gameManager;
 
-    public GetCommand() {}
+    public GetCommand(BingoGameManager gameManager) {
+        this.gameManager = gameManager;
+    }
 
     @Override
     public boolean onCommand(@NonNull CommandSender commandSender, @NonNull Command command, @NonNull String s, String[] args) {
@@ -85,17 +94,23 @@ public class GetCommand implements TabExecutor
                         }
                     }
                 }
-                case "elytra" -> {
-                    ItemStack elytra = new ItemStack(Material.ELYTRA);
-                    elytra.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-                    p.getInventory().addItem(elytra);
-                }
                 case "apple" -> p.getInventory().addItem(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 64));
                 case "sword" -> {
                     ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
                     sword.addUnsafeEnchantment(Enchantment.LOOT_BONUS_MOBS, 3);
                     sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 5);
                     p.getInventory().addItem(sword);
+                }
+                case "starter_kit" -> {
+                    BingoSession session = gameManager.getSession(BingoReloaded.getWorldNameOfDimension(p.getWorld()));
+                    if (session.isRunning() && session.phase() instanceof BingoGame game) {
+                        BingoParticipant participant = session.teamManager.getBingoParticipant(p);
+                        if (participant instanceof BingoPlayer bingoPlayer) {
+                            bingoPlayer.giveKit(game.getSettings().kit(), false);
+                            game.returnCardToPlayer(bingoPlayer);
+                        }
+                        return true;
+                    }
                 }
                 default -> {
                     return false;
@@ -110,7 +125,7 @@ public class GetCommand implements TabExecutor
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Stream.of("rockets", "axe", "pick", "shovel", "silk", "elytra", "apple", "sword")
+            return Stream.of("rockets", "axe", "pick", "shovel", "silk", "starter_kit", "apple", "sword")
                     .filter(arg -> arg.startsWith(args[0]))
                     .toList();
         }

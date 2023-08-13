@@ -19,7 +19,6 @@ import io.github.steaf23.bingoreloaded.player.TeamManager;
 import io.github.steaf23.bingoreloaded.tasks.*;
 import io.github.steaf23.bingoreloaded.tasks.bingotasks.*;
 import io.github.steaf23.bingoreloaded.tasks.statistics.BingoStatistic;
-import io.github.steaf23.bingoreloaded.util.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -447,6 +446,8 @@ public class BingoCard
                     var slotEvent = new BingoCardTaskCompleteEvent(task, player, hasBingo(player.getTeam()));
                     Bukkit.getPluginManager().callEvent(slotEvent);
                 }
+            } else if (task instanceof AnyAdvancementsBingoTask anyAdvancementsBingoTask) {
+                anyAdvancementsBingoTask.advancementCompleted(player, event.getAdvancement(), game.getGameTime());
             } else if (task instanceof ChildHavingBingoTask<?> childHavingBingoTask) {
                 checkTasksForAdvancement(childHavingBingoTask.getChildTasksForPlayer(player), event, player, game);
             }

@@ -46,7 +46,7 @@ public class BingoReloaded extends JavaPlugin
 {
     public static final String CARD_1_18 = "lists_1_18.yml";
     public static final String CARD_1_19 = "lists_1_19.yml";
-    public static final String CARD_1_20 = "lists_1_20.yml";
+    public static final String CARD_1_20 = "lists.yml";
 
     // Amount of ticks per second.
     public static final int ONE_SECOND = 20;
@@ -79,6 +79,7 @@ public class BingoReloaded extends JavaPlugin
         ConfigurationSerialization.registerClass(MostOfStatisticTask.class);
         ConfigurationSerialization.registerClass(RandomOneOfTask.class);
         ConfigurationSerialization.registerClass(AnyOfTask.class);
+        ConfigurationSerialization.registerClass(AnyAdvancementsTask.class);
         ConfigurationSerialization.registerClass(BreedTask.class);
         ConfigurationSerialization.registerClass(EveryoneTask.class);
         ConfigurationSerialization.registerClass(DeathMessageTask.class);
@@ -99,6 +100,7 @@ public class BingoReloaded extends JavaPlugin
         ConfigurationSerialization.registerClass(SerializableMostOfItemBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableMostOfStatisticBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableAnyOfBingoTask.class);
+        ConfigurationSerialization.registerClass(SerializableAnyAdvancementsBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableEveryoneBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableAllOfBingoTask.class);
         ConfigurationSerialization.registerClass(SerializableLastToBingoTask.class);
@@ -131,7 +133,7 @@ public class BingoReloaded extends JavaPlugin
         }
 
         registerCommand("bingo", new BingoCommand(config, gameManager));
-        registerCommand("get", new GetCommand());
+        registerCommand("get", new GetCommand(gameManager));
 
         if (config.teleportToTeammates) {
             registerCommand("btp", new TeamTeleportCommand(gameManager, config.teleportBack));

@@ -31,6 +31,8 @@ public interface SerializableBingoTask {
             return new SerializableDeathMessageBingoTask(deathMessageBingoTask);
         } else if (task instanceof LevelBingoTask levelBingoTask) {
             return new SerializableLevelBingoTask(levelBingoTask);
+        } else if (task instanceof AnyAdvancementsBingoTask anyAdvancementsBingoTask) {
+            return new SerializableAnyAdvancementsBingoTask(anyAdvancementsBingoTask);
         }
         return null;
     }
