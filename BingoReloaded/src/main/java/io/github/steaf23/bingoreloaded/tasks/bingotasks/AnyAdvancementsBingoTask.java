@@ -53,11 +53,12 @@ public class AnyAdvancementsBingoTask extends BingoTask<AnyAdvancementsTask>
         base.addExtra(name);
         String teamName = team.getIdentifier();
         Set<String> completedAdvancements = teamCount.getOrDefault(teamName, new HashSet<>());
-        base.addExtra("\nYour team currently has " + completedAdvancements.size() + " unique advancements");
         for (String advancement : completedAdvancements) {
             base.addExtra("\n - ");
             base.addExtra(advancement);
         }
+
+        base.addExtra("\nYour team currently has " + completedAdvancements.size() + " unique advancements (listed above)");
 
         return base;
     }
