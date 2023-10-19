@@ -138,6 +138,10 @@ public class BingoReloaded extends JavaPlugin
         if (config.teleportToTeammates) {
             registerCommand("btp", new TeamTeleportCommand(gameManager, config.teleportBack));
         }
+
+        if (config.flightCap > 0) {
+            registerCommand("flight", new TakeFlightCommand(gameManager, config.flightCap));
+        }
         registerCommand("autobingo", autoBingoCommand);
         if (config.enableTeamChat) {
             TeamChatCommand command = new TeamChatCommand(player -> gameManager.getSession(BingoReloaded.getWorldNameOfDimension(player.getWorld())));

@@ -5,6 +5,7 @@ import io.github.steaf23.bingoreloaded.gameloop.BingoSession;
 import io.github.steaf23.bingoreloaded.gameloop.PregameLobby;
 import io.github.steaf23.bingoreloaded.tasks.statistics.StatisticTracker;
 import io.github.steaf23.bingoreloaded.util.Message;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +20,7 @@ import org.bukkit.inventory.EquipmentSlot;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 public class BingoEventListener implements Listener
 {
@@ -171,6 +173,9 @@ public class BingoEventListener implements Listener
     @EventHandler
     public void handlePlayerAdvancementCompleted(final PlayerAdvancementDoneEvent event)
     {
+        if (event.getAdvancement().getDisplay() != null) {
+            Bukkit.getLogger().log(Level.WARNING, "Advancement completed (Handler): " + event.getAdvancement().getDisplay().getTitle());
+        }
         if (disableAdvancements)
             return;
 

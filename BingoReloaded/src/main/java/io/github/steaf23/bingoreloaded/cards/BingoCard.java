@@ -36,6 +36,7 @@ import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class BingoCard
 {
@@ -435,11 +436,17 @@ public class BingoCard
     }
 
     private void checkTasksForAdvancement(List<BingoTask<?>> tasks, final PlayerAdvancementDoneEvent event, final BingoPlayer player, final BingoGame game) {
+        if (event.getAdvancement().getDisplay() != null) {
+            Bukkit.getLogger().log(Level.WARNING, "Advancement completed (bingo): " + event.getAdvancement().getDisplay().getTitle());
+        }
         for (BingoTask<?> task : tasks) {
             if (task instanceof AdvancementBingoTask advancementBingoTask) {
                 AdvancementTask data = advancementBingoTask.data;
+                if (data.advancement().getDisplay() != null) {
+                    Bukkit.getLogger().log(Level.WARNING, "Advancement to complete (bingo): " + data.advancement().getDisplay().getTitle());
+                }
 
-                if (data.advancement().equals(event.getAdvancement())) {
+                if (data.advancement().getKey().equals(event.getAdvancement().getKey())) {
                     if (!task.complete(player, game.getGameTime()))
                         continue;
 

@@ -15,6 +15,8 @@ import io.github.steaf23.bingoreloaded.tasks.bingotasks.BingoTask;
 import io.github.steaf23.bingoreloaded.util.Message;
 import io.github.steaf23.bingoreloaded.util.TranslatedMessage;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -173,8 +175,9 @@ public class TeamManager
             removeMemberFromTeam(getBingoParticipant(player));
 
         new TranslatedMessage(BingoTranslation.JOIN).color(ChatColor.GREEN)
+                .arg(player.getDisplayName())
                 .arg(bingoTeam.getColoredName().asLegacyString())
-                .send(player);
+                .sendAll(session);
 
         BingoPlayer bingoPlayer = new BingoPlayer(player, bingoTeam, session);
         bingoTeam.addMember(bingoPlayer);
@@ -195,7 +198,7 @@ public class TeamManager
         }
 
         automaticTeamPlayers.add(player.getUniqueId());
-        new TranslatedMessage(BingoTranslation.JOIN_AUTO).color(ChatColor.GREEN).send(player);
+        new TranslatedMessage(BingoTranslation.JOIN_AUTO).color(ChatColor.GREEN).arg(player.getDisplayName()).sendAll(session);
 
         var joinEvent = new ParticipantJoinedTeamEvent(participant, session);
         Bukkit.getPluginManager().callEvent(joinEvent);
@@ -422,6 +425,13 @@ public class TeamManager
     }
 
     public void updateActivePlayers() {
+        getParticipants().forEach(p -> {
+            if (p.getDisplayName().equals("Heat710")) {
+                p.sessionPlayer().ifPresent(gamePlayer ->
+                        gamePlayer.spigot().sendMessage(new TextComponent("Update Active Players"))
+                );
+            }
+        });
         for (BingoTeam team : activeTeams) {
             for (BingoParticipant participant : team.getMembers()) {
                 if (participant.sessionPlayer().isEmpty() && !participant.alwaysActive()) {
@@ -533,6 +543,13 @@ public class TeamManager
 
     //== EventHandlers ==========================================
     public void handleSettingsUpdated(BingoSettingsUpdatedEvent event) {
+        getParticipants().forEach(p -> {
+            if (p.getDisplayName().equals("Heat710")) {
+                p.sessionPlayer().ifPresent(gamePlayer ->
+                        gamePlayer.spigot().sendMessage(new TextComponent("Settings Updated"))
+                );
+            }
+        });
         int newTeamSize = event.getNewSettings().maxTeamSize();
         if (newTeamSize == maxTeamSize)
             return;

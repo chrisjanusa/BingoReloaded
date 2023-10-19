@@ -68,6 +68,7 @@ public class ConfigData
     public final boolean teleportAfterDeath;
     public final boolean teleportToTeammates;
     public final boolean teleportBack;
+    public final int flightCap;
     public final int wandUp;
     public final int wandDown;
     public final double wandCooldown;
@@ -86,7 +87,7 @@ public class ConfigData
     public final int secondsToBeforeStart;
 
     // Private options
-    public final String defaultWorldName;
+//    public final String defaultWorldName;
     public final boolean savePlayerInformation;
     public final LoadPlayerInformationStrategy loadPlayerInformationStrategy;
 
@@ -139,7 +140,7 @@ public class ConfigData
         this.secondsToBeforeStart = config.getInt("secondsToBeforeStart", 120);
 
         // Private
-        this.defaultWorldName = config.getString("defaultWorldName", "world");
+//        this.defaultWorldName = config.getString("defaultWorldName", "world");
         this.savePlayerInformation = config.getBoolean("playerLoadStrategy", true);
         this.loadPlayerInformationStrategy = LoadPlayerInformationStrategy.valueOf(
                 config.getString("loadPlayerInformationStrategy", "AFTER_LEAVING_WORLD"));
@@ -148,5 +149,6 @@ public class ConfigData
         this.sendCommandAfterGameEnded = config.getString("sendCommandAfterGameEnds", "");
         this.voteUsingCommandsOnly = config.getBoolean("voteUsingCommandsOnly", false);
         this.selectTeamUsingCommandsOnly = config.getBoolean("selectTeamsUsingCommandsOnly", false);
+        this.flightCap = config.getInt("maxTeammatesFlying", 0);
     }
 }

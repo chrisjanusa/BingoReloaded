@@ -141,6 +141,10 @@ public class BingoGame implements GamePhase {
                 Player player = p.sessionPlayer().get();
 
                 ((BingoPlayer) p).giveKit(settings.kit());
+                if (config.flightCap > 0) {
+                    player.getInventory().setChestplate(new ItemStack(Material.AIR));
+                    player.getInventory().remove(Material.ELYTRA);
+                }
                 ((BingoPlayer) p).removePreTeleportLocation();
                 returnCardToPlayer((BingoPlayer) p);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke " + player.getName() + " everything");

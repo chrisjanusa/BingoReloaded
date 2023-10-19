@@ -13,6 +13,8 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
+import static org.bukkit.Bukkit.getServer;
+
 public class SingularGameManager implements BingoGameManager
 {
     private final BingoEventListener eventListener;
@@ -23,7 +25,7 @@ public class SingularGameManager implements BingoGameManager
     public SingularGameManager(BingoReloaded plugin) {
         this.config = plugin.config();
         this.menuManager = new BingoMenuManager(player -> canOpenMenu(player));
-        this.session = new BingoSession(this, menuManager, config.defaultWorldName, config, new PlayerData());
+        this.session = new BingoSession(this, menuManager, getServer().getWorlds().get(0).getName(), config, new PlayerData());
 
         this.eventListener = new BingoEventListener(world ->
                 BingoReloaded.getWorldNameOfDimension(world).equals(session.worldName) ? session : null

@@ -7,6 +7,7 @@ import io.github.steaf23.bingoreloaded.cards.LockoutBingoCard;
 import io.github.steaf23.bingoreloaded.player.BingoParticipant;
 import io.github.steaf23.bingoreloaded.player.BingoPlayer;
 import io.github.steaf23.bingoreloaded.player.BingoTeam;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -18,6 +19,7 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 
 public class CardEventManager {
@@ -35,6 +37,9 @@ public class CardEventManager {
     }
 
     public void handlePlayerAdvancementCompleted(final PlayerAdvancementDoneEvent event, final BingoSession session) {
+        if (event.getAdvancement().getDisplay() != null) {
+            Bukkit.getLogger().log(Level.WARNING, "Advancement completed (manager): " + event.getAdvancement().getDisplay().getTitle());
+        }
         BingoParticipant participant = session.teamManager.getBingoParticipant(event.getPlayer());
         if (participant == null || !(participant instanceof BingoPlayer player) || !session.isRunning())
             return;

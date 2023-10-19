@@ -19,6 +19,17 @@ command:
     not_player: "{0} is not a valid online player, make sure you spell their name correctly!"
     not_teammate: "{0} is not on your team, you may only teleport to players on your team"
     saved_location: "Current location saved to {0}"
+  flight:
+    no_team: "Can't take flight because you are not on a team!"
+    usage: "Usage:\n  /flight take\n  /flight take {teammate}\n  /flight give {teammate}"
+    not_in_flight: "You must be in flight to give it to another player"
+    already_in_flight: "You are already in flight"
+    not_player: "{0} is not a valid online player, make sure you spell their name correctly!"
+    not_teammate: "{0} is not on your team, you may only give flight to players on your team"
+    not_teammate_in_flight: "{0} must be in flight to take flight from them"
+    teammate_required: "Teammate must be specified since multiple are currently in flight"
+    took_flight: "{0} took flight from {1}"
+    gave_flight: "{0} gave flight to {1}"
 game:
   timer:
     duration: "Game duration: {0}" # 0: total game time duration
@@ -55,8 +66,8 @@ game:
     respawn: "//&3&lClick here to teleport back to where you died////"
   team:
     no_join: "You cannot join an ongoing game!"
-    join: "You successfully joined team {0}!" # 0: team name
-    join_auto: "You will be joining a team automatically when the game starts!"
+    join: "{0} successfully joined team {1}!" # 0: team name
+    join_auto: "{0} will be joining a team automatically when the game starts!"
     dropped: "Team {0} cannot win anymore, they are out of the game!" # 0: team name
     voided: "Team {0} is out of the game!" # 0: team name
     no_chat: "Can't toggle team chat since you aren't in a team!"

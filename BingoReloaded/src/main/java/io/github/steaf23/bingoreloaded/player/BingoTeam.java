@@ -21,6 +21,8 @@ public class BingoTeam
     private final ChatColor color;
     private final String name;
 
+    private Set<BingoParticipant> inFlight;
+
     private Set<BingoParticipant> members;
     public Map<String, Location> savedLocations;
 
@@ -32,6 +34,7 @@ public class BingoTeam
         this.color = color;
         this.name = name;
         this.members = new HashSet<>();
+        this.inFlight = new HashSet<>();
         this.savedLocations = new HashMap<>();
     }
 
@@ -97,5 +100,21 @@ public class BingoTeam
             }
         }
         return false;
+    }
+
+    public List<BingoParticipant> getInFlight() {
+        return inFlight.stream().toList();
+    }
+
+    public boolean isInFlight(BingoParticipant player) {
+        return inFlight.contains(player);
+    }
+
+    public void addInFlight(BingoParticipant player) {
+        inFlight.add(player);
+    }
+
+    public void removeInFlight(BingoParticipant player) {
+        inFlight.remove(player);
     }
 }

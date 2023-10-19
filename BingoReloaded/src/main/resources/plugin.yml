@@ -41,3 +41,7 @@ commands:
     permission: bingo.player
     description: Used to get specific items
     permission-message: §CYou don't have permission to use this command!
+  flight:
+    permission: bingo.player
+    description: Used to start flying when only a limited number of players are allowed to fly
+    permission-message: §CYou don't have permission to use this command!
